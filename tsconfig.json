@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "declaration": true,
+    "lib": ["es6"],
+    "outDir": "build",
+    "baseUrl": ".",
+    "paths": {
+      "prism/*": [
+        "src/*"
+      ]
+    }
+  },
+  "include": [
+    "src"
+  ]
+}

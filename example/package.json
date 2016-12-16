@@ -1,0 +1,17 @@
+{
+  "name": "prism-example",
+  "version": "1.0.0",
+  "description": "Example Prism application",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/hapi": "^13.0.37",
+    "collimator": "^4.2.1",
+    "hapi": "^16.0.1",
+    "prism": "^1.0.0"
+  }
+}
