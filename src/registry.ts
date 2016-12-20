@@ -1,4 +1,4 @@
-import Action, {Filter, Type} from 'prism/action';
+import Action, {Filter, Type} from './action';
 
 import {partition, always, wrap} from 'ramda';
 

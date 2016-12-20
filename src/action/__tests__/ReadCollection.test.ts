@@ -1,9 +1,9 @@
-import ReadCollection from 'prism/action/ReadCollection';
-import ReadItem from 'prism/action/ReadItem';
-import Root from 'prism/action/Root';
-import Document from 'prism/document';
-import Registry from 'prism/registry';
-import * as resource from 'prism/__mocks__/resource';
+import ReadCollection from '../ReadCollection';
+import ReadItem from '../ReadItem';
+import Root from '../Root';
+import Document from '../../Document';
+import Registry from '../../registry';
+import * as resource from '../../__mocks__/resource';
 
 var readTasks: ReadCollection;
 
@@ -12,8 +12,8 @@ beforeEach(() => {
 });
 
 describe('#path', () => {
-  it('is resource name', () => {
-    expect(readTasks.path).toBe('tasks');
+  it('is resource name with `where`, `page` and `order` params', () => {
+    expect(readTasks.path).toBe('tasks{?where,page,order}');
   });
 });
 
@@ -91,11 +91,13 @@ describe('#decorate()', () => {
       page: '1',
       expectedLinks: [{
         rel: 'next',
+        href: 'tasks{?where,page,order}',
         params: {
           page: 2
         }
       }, {
         rel: 'last',
+        href: 'tasks{?where,page,order}',
         params: {
           page: 3
         }
@@ -104,21 +106,25 @@ describe('#decorate()', () => {
       page: '2',
       expectedLinks: [{
         rel: 'first',
+        href: 'tasks{?where,page,order}',
         params: {
           page: 1
         }
       }, {
         rel: 'prev',
+        href: 'tasks{?where,page,order}',
         params: {
           page: 1
         }
       }, {
         rel: 'next',
+        href: 'tasks{?where,page,order}',
         params: {
           page: 3
         }
       }, {
         rel: 'last',
+        href: 'tasks{?where,page,order}',
         params: {
           page: 3
         }
@@ -127,11 +133,13 @@ describe('#decorate()', () => {
       page: '3',
       expectedLinks: [{
         rel: 'first',
+        href: 'tasks{?where,page,order}',
         params: {
           page: 1
         }
       }, {
         rel: 'prev',
+        href: 'tasks{?where,page,order}',
         params: {
           page: 2
         }
@@ -152,7 +160,7 @@ describe('#decorate()', () => {
   });
 
   it('embeds each document in `items` and omits `items`', () => {
-    var document = new Document({
+    var properties = {
       items: [{
         id: 'task1',
         owner: 'user1',
@@ -181,13 +189,29 @@ describe('#decorate()', () => {
         }
       }],
       count: 2
-    });
+    };
+
+    var document = new Document({...properties});
 
     readTasks.decorate(document, {}, undefined as any);
+    expect(document.properties['items']).toBeUndefined();
 
-    var task1        = new Document(document.properties['items'][0]);
-    var task1user    = new Document(document.properties['items'][0]['users']);
-    var task1project = new Document(document.properties['items'][0]['projects']);
+    var task1 = new Document({
+      id: 'task1',
+      owner: 'user1',
+      project: 'project1'
+    });
+
+    var task1user = new Document({
+      id: 'user1',
+      name: 'Test User 1',
+      department: 'department1'
+    });
+
+    var task1project = new Document({
+      id: 'project1',
+      name: 'Test Project 1'
+    });
 
     Object.assign(task1, {
       embedded: [{
@@ -196,19 +220,31 @@ describe('#decorate()', () => {
       }, {
         rel: 'projects',
         document: task1project
-      }],
-
-      omit: ['users', 'projects']
+      }]
     });
 
     expect(document.embedded[0]).toEqual({
       rel: 'tasks',
-      document: task1
+      alwaysArray: true,
+      document: task1,
     });
 
-    var task2        = new Document(document.properties['items'][1]);
-    var task2user    = new Document(document.properties['items'][1]['users']);
-    var task2project = new Document(document.properties['items'][1]['projects']);
+    var task2 = new Document({
+      id: 'task2',
+      owner: 'user2',
+      project: 'project2'
+    });
+
+    var task2user = new Document({
+      id: 'user2',
+      name: 'Test User 2',
+      department: 'department2'
+    });
+
+    var task2project = new Document({
+      id: 'project2',
+      name: 'Test Project 2'
+    });
 
     Object.assign(task2, {
       embedded: [{
@@ -217,17 +253,14 @@ describe('#decorate()', () => {
       }, {
         rel: 'projects',
         document: task2project
-      }],
-
-      omit: ['users', 'projects']
+      }]
     });
 
     expect(document.embedded[1]).toEqual({
       rel: 'tasks',
-      document: task2
+      document: task2,
+      alwaysArray: true
     });
-
-    expect(document.omit).toEqual(['items']);
   });
 });
 

@@ -1,12 +1,12 @@
-import Resource from 'prism/resource';
-import Document from 'prism/document';
+import Resource from './resource';
+import Document from './Document';
 
 import {
   Request,
   IRouteAdditionalConfigurationOptions
 } from 'hapi';
 
-export type Params = {
+export interface Params {
   where?: {
     [key: string]: string;
   };

@@ -1,4 +1,4 @@
-import Source from 'prism/source';
+import Source from '../source';
 
 export default {
   create: jest.fn(),

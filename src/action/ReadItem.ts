@@ -1,11 +1,11 @@
-import Action, {Params, Filter} from 'prism/action';
-import Resource from 'prism/resource';
-import {Item} from 'prism/types';
-import Schema from 'prism/schema';
-import * as query from 'prism/query';
-import Document, {Embed, Link} from 'prism/document';
-import Root from 'prism/action/Root';
-import ReadCollection from 'prism/action/ReadCollection';
+import Action, {Params, Filter} from '../action';
+import Resource from '../resource';
+import {Item} from '../types';
+import Schema from '../schema';
+import * as query from '../query';
+import Document, {Embed, Link} from '../Document';
+import Root from './Root';
+import ReadCollection from './ReadCollection';
 
 import * as Promise from 'bluebird';
 import {Request} from 'hapi';
@@ -43,7 +43,7 @@ export default class ReadItem implements Action {
     }));
 
   joins = (params: Params, request: Request): query.Join[] =>
-    this.resource.parents.map(parent => ({
+    this.resource.relationships.belongsTo.map(parent => ({
       source: parent.name,
       path:   [this.resource.name, parent.name],
       from:   parent.from,
@@ -51,15 +51,20 @@ export default class ReadItem implements Action {
     }));
 
   decorate = (doc: Document, params: Params, request: Request): Document => {
-    doc.embedded.push(...this.embedded(doc, params, request));
+    this.embedded(doc, params, request)
+      .filter(embed => Object.keys(embed.document.properties).length > 0)
+      .forEach(embed => {
+        doc.embedded.push(embed);
+        delete doc.properties[embed.rel];
+      });
+
     doc.links.push(...this.links(doc, params, request));
-    doc.omit.push(...this.omit(doc, params, request));
 
     return doc;
   }
 
   embedded = (doc: Document, params: Params, request: Request): Embed[] =>
-    this.resource.parents.map(parent => ({
+    this.resource.relationships.belongsTo.map(parent => ({
       rel: parent.name,
       document: new Document(doc.properties[parent.name])
     }));
@@ -67,7 +72,7 @@ export default class ReadItem implements Action {
   links = (doc: Document, params: Params, request: Request): Link[] => []
 
   omit = (doc: Document, params: Params, request: Request): string[] =>
-    this.resource.parents.map(parent => parent.name);
+    this.resource.relationships.belongsTo.map(parent => parent.name);
 
   filters = [
     /**
@@ -104,6 +109,8 @@ export default class ReadItem implements Action {
             href:   this.path,
             params: embed.document.properties
           });
+
+          this.decorate(embed.document, params, request);
         }
 
         return embed;
@@ -114,7 +121,7 @@ export default class ReadItem implements Action {
      * Recursively embed this resource into child resources as a parent by
      * modifying child join query parameters
      */
-    this.resource.children.map(child => <Filter<ReadItem, 'joins'>>({
+    this.resource.relationships.has.map(child => <Filter<ReadItem, 'joins'>>({
       type: ReadItem,
       name: 'joins',
       where: pathEq(['resource', 'name'], child.name),
@@ -133,7 +140,7 @@ export default class ReadItem implements Action {
      * Recursively apply links and other decorations defined by this action when
      * a resource has been embedded in child resources as a parent
      */
-    this.resource.children.map(child => <Filter<ReadItem, 'decorate'>>({
+    this.resource.relationships.has.map(child => <Filter<ReadItem, 'decorate'>>({
       type:  ReadItem,
       name: 'decorate',
       where: pathEq(['resource', 'name'], child.name),

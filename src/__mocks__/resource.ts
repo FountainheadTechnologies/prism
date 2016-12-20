@@ -1,8 +1,9 @@
-import Resource from 'prism/resource';
+import Resource from '../resource';
+import source from './source';
 
 export const tasks = {
   name: 'tasks',
-  source: require('data/source'),
+  source,
   schema: {
     $schema: 'http://json-schema.org/draft-04/schema#',
     title: 'tasks',
@@ -18,21 +19,23 @@ export const tasks = {
     required: ['id', 'title', 'project', 'owner']
   },
   primaryKeys: ['id'],
-  parents: [{
-    name: 'users',
-    from: 'owner',
-    to:   'id'
-  }, {
-    name: 'projects',
-    from: 'project',
-    to:   'id'
-  }],
-  children: []
+  relationships: {
+    belongsTo: [{
+      name: 'users',
+      from: 'owner',
+      to:   'id'
+    }, {
+      name: 'projects',
+      from: 'project',
+      to:   'id'
+    }],
+    has: []
+  }
 } as Resource;
 
 export const users = {
   name: 'users',
-  source: require('data/source'),
+  source,
   schema: {
     $schema: 'http://json-schema.org/draft-04/schema#',
     title: 'users',
@@ -47,21 +50,23 @@ export const users = {
     required: ['id', 'username', 'password', 'department']
   },
   primaryKeys: ['id'],
-  parents: [{
-    name: 'departments',
-    from: 'department',
-    to:   'id'
-  }],
-  children: [{
-    name: 'tasks',
-    from: 'owner',
-    to:   'id'
-  }]
+  relationships: {
+    belongsTo: [{
+      name: 'departments',
+      from: 'department',
+      to:   'id'
+    }],
+    has: [{
+      name: 'tasks',
+      from: 'owner',
+      to:   'id'
+    }]
+  }
 } as Resource;
 
 export const projects = {
   name: 'projects',
-  source: require('data/source'),
+  source,
   schema: {
     $schema: 'http://json-schema.org/draft-04/schema#',
     title: 'projects',
@@ -73,17 +78,19 @@ export const projects = {
     required: ['id', 'name']
   },
   primaryKeys: ['id'],
-  parents: [],
-  children: [{
-    name: 'tasks',
-    from: 'project',
-    to:   'id'
-  }]
+  relationships: {
+    belongsTo: [],
+    has: [{
+      name: 'tasks',
+      from: 'project',
+      to:   'id'
+    }]
+  }
 } as Resource;
 
 export const departments = {
   name: 'departments',
-  source: require('data/source'),
+  source,
   schema: {
     $schema: 'http://json-schema.org/draft-04/schema#',
     title: 'departments',
@@ -95,10 +102,12 @@ export const departments = {
     required: ['id', 'name']
   },
   primaryKeys: ['id'],
-  parents: [],
-  children: [{
-    name: 'users',
-    from: 'department',
-    to:   'id'
-  }]
+  relationships: {
+    belongsTo: [],
+    has: [{
+      name: 'users',
+      from: 'department',
+      to:   'id'
+    }]
+  }
 } as Resource;

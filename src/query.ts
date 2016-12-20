@@ -1,4 +1,4 @@
-import Schema from 'prism/schema';
+import Schema from './schema';
 
 export interface Condition {
   field: string;

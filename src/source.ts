@@ -1,5 +1,5 @@
-import * as query from 'prism/query';
-import {Item, Collection} from 'prism/types';
+import * as query from './query';
+import {Item, Collection} from './types';
 
 import * as Promise from 'bluebird';
 

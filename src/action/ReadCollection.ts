@@ -1,11 +1,11 @@
-import Action, {Params, Filter} from 'prism/action';
-import Resource from 'prism/resource';
-import {Collection} from 'prism/types';
-import Schema from 'prism/schema';
-import * as query from 'prism/query';
-import Document, {Link, Embed} from 'prism/document';
-import Root from 'prism/action/Root';
-import ReadItem from 'prism/action/ReadItem';
+import Action, {Params, Filter} from '../action';
+import Resource from '../resource';
+import {Collection} from '../types';
+import Schema from '../schema';
+import * as query from '../query';
+import Document, {Link, Embed} from '../Document';
+import Root from './Root';
+import ReadItem from './ReadItem';
 
 import * as Promise from 'bluebird';
 import {Request} from 'hapi';
@@ -27,7 +27,7 @@ export default class ReadCollection implements Action {
   method = 'GET';
 
   constructor(readonly resource: Resource, options?: Partial<Options>) {
-    this.path = this.resource.name;
+    this.path = `${this.resource.name}{?where,page,order}`;
     this._options = {...DEFAULT_OPTIONS, ...options};
   }
 
@@ -49,7 +49,7 @@ export default class ReadCollection implements Action {
     this.resource.schema;
 
   joins = (params: Params, request: Request): query.Join[] =>
-    this.resource.parents.map(parent => ({
+    this.resource.relationships.belongsTo.map(parent => ({
       source: parent.name,
       path:   [this.resource.name, parent.name],
       from:   parent.from,
@@ -72,7 +72,8 @@ export default class ReadCollection implements Action {
   decorate = (doc: Document, params: Params, request: Request): Document => {
     doc.embedded.push(...this.embedded(doc, params, request));
     doc.links.push(...this.links(doc, params, request));
-    doc.omit.push(...this.omit(doc, params, request));
+
+    delete doc.properties['items'];
 
     return doc;
   }
@@ -84,15 +85,18 @@ export default class ReadCollection implements Action {
   embedItem = (item: any, params: Params, request: Request): Embed => {
     var document = new Document(item);
 
-    document.embedded = this.resource.parents.map(parent => ({
-      rel: parent.name,
-      document: new Document(item[parent.name])
-    }));
+    this.resource.relationships.belongsTo.forEach(parent => {
+      document.embedded.push({
+        rel: parent.name,
+        document: new Document(document.properties[parent.name])
+      });
 
-    document.omit = this.resource.parents.map(parent => parent.name);
+      delete document.properties[parent.name];
+    });
 
     return {
       rel: this.resource.name,
+      alwaysArray: true,
       document
     };
   }
@@ -109,11 +113,13 @@ export default class ReadCollection implements Action {
     if (current > 1) {
       pages.push({
         rel: 'first',
+        href: this.path,
         params: {
           page: 1
         }
       }, {
         rel: 'prev',
+        href: this.path,
         params: {
           page: current - 1
         }
@@ -123,11 +129,13 @@ export default class ReadCollection implements Action {
     if (current < last) {
       pages.push({
         rel: 'next',
+        href: this.path,
         params: {
           page: current + 1
         }
       }, {
         rel: 'last',
+        href: this.path,
         params: {
           page: last
         }
@@ -163,7 +171,7 @@ export default class ReadCollection implements Action {
      * Recursively embed this resource into child resources as a parent by
      * modifying child join query parameters
      */
-    this.resource.children.map(child => <Filter<ReadCollection, 'joins'>>({
+    this.resource.relationships.has.map(child => <Filter<ReadCollection, 'joins'>>({
       type: ReadCollection,
       name: 'joins',
       where: pathEq(['resource', 'name'], child.name),
@@ -181,7 +189,7 @@ export default class ReadCollection implements Action {
     /**
      * Register a link to this action from parent ItemRead documents
      */
-    ...this.resource.parents.map(parent => <Filter<ReadItem, 'decorate'>>({
+    ...this.resource.relationships.belongsTo.map(parent => <Filter<ReadItem, 'decorate'>>({
       type: ReadItem,
       name: 'decorate',
       where: pathEq(['resource', 'name'], parent.name),

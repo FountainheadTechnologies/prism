@@ -1,18 +1,18 @@
-import Source from 'prism/source';
-import {Item, Collection} from 'prism/types';
-import * as query from 'prism/query';
+import Source from '../source';
+import {Item, Collection} from '../types';
+import * as query from '../query';
 
 import {IDatabase} from 'pg-promise';
 import * as Promise from 'bluebird';
-import * as _knex from 'knex';
-
-const knex = _knex({client: 'pg'});
+import * as _squel from 'squel';
 
 import {omit, assocPath, path} from 'ramda';
 
 export interface Options {
   joinMarker: string
 }
+
+const squel = _squel.useFlavour('postgres');
 
 const DEFAULT_OPTIONS: Options = {
   joinMarker: 'Δ'
@@ -26,100 +26,109 @@ export default class PostgreSQL implements Source {
   }
 
   create<T extends query.Create>(query: T): Promise<Item | Collection> {
-    var sql = knex(query.source)
-      .insert(query.data)
-      .returning(query.returning);
+    var sql = squel.insert()
+      .into(query.source)
+      .returning(query.returning.join(','));
 
     this._withJoins(sql, query);
+    sql.setFields(query.data);
 
-    var statement = sql.toSQL();
+    var statement = sql.toParam();
 
-    return this._db.oneOrNone(statement.sql, statement.bindings) as any;
+    return this._db.oneOrNone(statement.text, statement.values) as any;
   }
 
   read<T extends query.Read>(query: T): Promise<Item | Collection> {
-    var sql = knex(query.source);
+    var sql = squel.select()
+      .from(query.source);
+
     this._addFields(sql, query);
     this._addConditions(sql, query);
     this._addJoins(sql, query);
     this._addPages(sql, query);
 
     if (query.return === 'item') {
-      let statement = sql.toSQL();
+      let statement = sql.toParam();
 
-      return Promise.resolve(this._db.oneOrNone(statement.sql, statement.bindings))
+      return Promise.resolve(this._db.oneOrNone(statement.text, statement.values))
         .then(result => this._mergeJoins(result, query));
     }
 
     this._addPages(sql, query);
-    let statement = sql.toSQL();
+    let statement = sql.toParam();
 
-    var count = knex(query.source).count();
+    var count = squel.select()
+      .from(query.source)
+      .field(`COUNT(*)`);
+
     this._addConditions(count, query);
     this._addJoins(count, query, true);
-    var countStatement = count.toSQL();
+
+    var countStatement = count.toParam();
 
     return Promise.props({
-      items: this._db.manyOrNone(statement.sql, statement.bindings)
+      items: this._db.manyOrNone(statement.text, statement.values)
         .then(results => results.map(result => this._mergeJoins(result, query))),
-      count: this._db.one(countStatement.sql, countStatement.bindings)
+      count: this._db.one(countStatement.text, countStatement.values)
         .then(result => parseInt(result.count, 10))
     });
   }
 
   update<T extends query.Update>(query: T): Promise<Item | Collection> {
-    var sql = knex(query.source)
-      .update(query.data)
-      .returning(query.returning);
+    var sql = squel.update()
+      .table(query.source)
+      .setFields(query.data)
+      .returning(query.returning.join(','));
 
     this._addConditions(sql, query);
     this._withJoins(sql, query);
 
-    var statement = sql.toSQL();
-    return this._db.oneOrNone(statement.sql, statement.bindings) as any;
+    var statement = sql.toParam();
+    return this._db.oneOrNone(statement.text, statement.values) as any;
   }
 
   delete<T extends query.Delete>(query: T): Promise<boolean> {
-    var sql = knex(query.source)
-      .delete()
+    var sql = squel.delete()
+      .from(query.source);
 
     this._addConditions(sql, query);
 
-    var statement = sql.toSQL();
-    return this._db.oneOrNone(statement.sql, statement.bindings) as any;
+    var statement = sql.toParam();
+    return this._db.oneOrNone(statement.text, statement.values) as any;
   }
 
-  protected _addPages(sql: _knex.QueryBuilder, query: query.Read): void {
+  protected _addPages(sql: SqlSelect, query: query.Read): void {
     if (query.page) {
       sql.limit(query.page.size);
-      sql.offset(query.page.size * query.page.number);
-    }
-  }
-  protected _addFields(sql: _knex.QueryBuilder, query: query.Read): void {
-    if (query.fields) {
-      sql.select(...query.fields.map(field => `${query.source}.${field}`));
-    } else {
-      sql.select(`${query.source}.*`);
+      sql.offset(query.page.size * (query.page.number - 1));
     }
   }
 
-  protected _addConditions(sql: _knex.QueryBuilder, query: query.Read | query.Update | query.Delete): void {
+  protected _addFields(sql: SqlSelect, query: query.Read): void {
+    if (query.fields) {
+      sql.fields(query.fields.map(field => `${query.source}.${field}`));
+    } else {
+      sql.field(`${query.source}.*`);
+    }
+  }
+
+  protected _addConditions(sql: SqlSelect | SqlUpdate | SqlDelete, query: query.Read | query.Update | query.Delete): void {
     if (query.conditions) {
-      query.conditions.forEach(({field, value}) => {
-        sql.where(field, value);
+      query.conditions.forEach(condition => {
+        (sql as any).where(`${query.source}.${condition.field} = ?`, condition.value);
       });
     }
   }
 
-  protected _addJoins(sql: _knex.QueryBuilder, query: query.Read, counting?: boolean) {
+  protected _addJoins(sql: SqlSelect, query: query.Read, counting?: boolean) {
     if (query.joins) {
       query.joins.forEach(join => {
         var alias = join.path.join(this._options.joinMarker);
         var self  = join.path.slice(0, -1).join(this._options.joinMarker);
-        sql.join(`${join.source} as ${alias}`, `${alias}.${join.to}`, `${self}.${join.from}`);
+        sql.join(join.source, alias, `${alias}.${join.to} = ${self}.${join.from}`);
 
         if (!counting) {
-          sql.column(knex.raw(`row_to_json("${alias}".*) as "${alias}"`));
+          sql.field(`row_to_json(${alias}.*) AS ${alias}`);
         }
       });
     }
@@ -138,7 +147,7 @@ export default class PostgreSQL implements Source {
     }, result);
   }
 
-  protected _withJoins(sql: _knex.QueryBuilder, query: query.Create | query.Update) {
+  protected _withJoins(sql: SqlUpdate | SqlInsert, query: query.Create | query.Update) {
     if (!query.joins) {
       return;
     }
@@ -153,19 +162,18 @@ export default class PostgreSQL implements Source {
           return;
         }
 
-        var insert = knex(join.source)
-          .insert(nested)
+        var insert = squel.insert()
+          .into(join.source)
+          .setFields(nested)
           .returning(join.to);
 
-        var select = knex(alias)
-          .select(join.to);
+        var select = squel.select()
+          .from(alias)
+          .field(join.to);
 
         query.data = assocPath(join.path, select, query.data);
-        console.log(query.data);
 
-        (sql as any).with(alias, (q: any) => {
-          q.insert(nested).into(join.source).returning(join.to);
-        });
+        sql.with(alias, insert);
       })
   }
 }

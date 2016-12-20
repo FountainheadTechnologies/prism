@@ -1,6 +1,6 @@
-import {tasks} from 'prism/__mocks__/resource';
-import db from 'prism/source/__mocks__/pgPromise';
-import PostgreSQL from 'prism/source/PostgreSQL';
+import {tasks} from '../../__mocks__/resource';
+import db from '../__mocks__/pgPromise';
+import PostgreSQL from '../PostgreSQL';
 
 import {resolve} from 'bluebird';
 
@@ -26,14 +26,14 @@ describe('#create()', () => {
     });
 
     expect(db.oneOrNone).toHaveBeenCalledWith(
-      'insert into "tasks" ("owner", "project", "title") values (?, ?, ?) returning "id"',
-      [1, 1, 'test insert task']
+      'INSERT INTO tasks (title, project, owner) VALUES ($1, $2, $3) RETURNING id',
+      ['test insert task', 1, 1]
     );
 
     expect(result).toEqual({name: 'mockOneOrNoneResult'});
   });
 
-  xit('generates common table expression using `query.joins`', async () => {
+  it('generates common table expression using `query.joins`', async () => {
     await source.create({
       source: 'tasks',
       schema: tasks.schema,
@@ -61,8 +61,8 @@ describe('#create()', () => {
     });
 
     expect(db.oneOrNone).toHaveBeenCalledWith(
-      'insert into "tasks" ("owner", "project", "title") values (?, ?, ?) returning "id"',
-      [1, 1, 'test insert task']
+      'WITH project AS (INSERT INTO projects (name) VALUES ($1) RETURNING id), owner AS (INSERT INTO users (name) VALUES ($2) RETURNING id) INSERT INTO tasks (title, project, owner) VALUES ($3, (SELECT id FROM project), (SELECT id FROM owner)) RETURNING id',
+      ['new project', 'new user', 'test insert task']
     );
   });
 });
@@ -77,7 +77,7 @@ describe('#read()', () => {
       });
 
       expect(db.oneOrNone).toHaveBeenCalledWith(
-        'select "tasks".* from "tasks"',
+        'SELECT tasks.* FROM tasks',
         []
       );
 
@@ -94,7 +94,7 @@ describe('#read()', () => {
     });
 
     expect(db.oneOrNone).toHaveBeenCalledWith(
-      'select "tasks"."owner", "tasks"."project" from "tasks"',
+      'SELECT tasks.owner, tasks.project FROM tasks',
       []
     );
   });
@@ -111,7 +111,7 @@ describe('#read()', () => {
     });
 
     expect(db.oneOrNone).toHaveBeenCalledWith(
-      'select "tasks".* from "tasks" where "id" = ?',
+      'SELECT tasks.* FROM tasks WHERE (tasks.id = $1)',
       [1]
     );
   });
@@ -150,7 +150,7 @@ describe('#read()', () => {
     });
 
     expect(db.oneOrNone).toHaveBeenCalledWith(
-      'select "tasks".*, row_to_json("tasksΔusers".*) as "tasksΔusers", row_to_json("tasksΔprojects".*) as "tasksΔprojects" from "tasks" inner join "users" as "tasksΔusers" on "tasksΔusers"."id" = "tasks"."owner" inner join "projects" as "tasksΔprojects" on "tasksΔprojects"."id" = "tasks"."project"',
+      'SELECT tasks.*, row_to_json(tasksΔusers.*) AS tasksΔusers, row_to_json(tasksΔprojects.*) AS tasksΔprojects FROM tasks INNER JOIN users AS tasksΔusers ON (tasksΔusers.id = tasks.owner) INNER JOIN projects AS tasksΔprojects ON (tasksΔprojects.id = tasks.project)',
       []
     );
 
@@ -179,12 +179,12 @@ describe('#read()', () => {
       });
 
       expect(db.manyOrNone).toHaveBeenCalledWith(
-        'select "tasks".* from "tasks"',
+        'SELECT tasks.* FROM tasks',
         []
       );
 
       expect(db.one).toHaveBeenCalledWith(
-        'select count(*) from "tasks"',
+        'SELECT COUNT(*) FROM tasks',
         []
       );
 
@@ -210,12 +210,12 @@ describe('#read()', () => {
       });
 
       expect(db.manyOrNone).toHaveBeenCalledWith(
-        'select "tasks".* from "tasks" where "owner" = ?',
+        'SELECT tasks.* FROM tasks WHERE (tasks.owner = $1)',
         [2]
       );
 
       expect(db.one).toHaveBeenCalledWith(
-        'select count(*) from "tasks" where "owner" = ?',
+        'SELECT COUNT(*) FROM tasks WHERE (tasks.owner = $1)',
         [2]
       );
     });
@@ -267,12 +267,12 @@ describe('#read()', () => {
       });
 
       expect(db.manyOrNone).toHaveBeenCalledWith(
-        'select "tasks".*, row_to_json("tasksΔusers".*) as "tasksΔusers", row_to_json("tasksΔprojects".*) as "tasksΔprojects" from "tasks" inner join "users" as "tasksΔusers" on "tasksΔusers"."id" = "tasks"."owner" inner join "projects" as "tasksΔprojects" on "tasksΔprojects"."id" = "tasks"."project"',
+        'SELECT tasks.*, row_to_json(tasksΔusers.*) AS tasksΔusers, row_to_json(tasksΔprojects.*) AS tasksΔprojects FROM tasks INNER JOIN users AS tasksΔusers ON (tasksΔusers.id = tasks.owner) INNER JOIN projects AS tasksΔprojects ON (tasksΔprojects.id = tasks.project)',
         []
       );
 
       expect(db.one).toHaveBeenCalledWith(
-        'select count(*) from "tasks" inner join "users" as "tasksΔusers" on "tasksΔusers"."id" = "tasks"."owner" inner join "projects" as "tasksΔprojects" on "tasksΔprojects"."id" = "tasks"."project"',
+        'SELECT COUNT(*) FROM tasks INNER JOIN users AS tasksΔusers ON (tasksΔusers.id = tasks.owner) INNER JOIN projects AS tasksΔprojects ON (tasksΔprojects.id = tasks.project)',
         []
       )
 
@@ -320,8 +320,8 @@ describe('#read()', () => {
       });
 
       expect(db.manyOrNone).toHaveBeenCalledWith(
-        'select "tasks".* from "tasks" limit ? offset ?',
-        [20, 60]
+        'SELECT tasks.* FROM tasks LIMIT $1 OFFSET $2',
+        [20, 40]
       );
     });
   });
@@ -341,7 +341,7 @@ describe('#update()', () => {
     });
 
     expect(db.oneOrNone).toHaveBeenCalledWith(
-      'update "tasks" set "owner" = ?, "title" = ? returning "id"',
+      'UPDATE tasks SET owner = $1, title = $2 RETURNING id',
       [2, 'test update task']
     );
   });
@@ -362,7 +362,7 @@ describe('#update()', () => {
     });
 
     expect(db.oneOrNone).toHaveBeenCalledWith(
-      'update "tasks" set "owner" = ?, "title" = ? where "id" = ? returning "id"',
+      'UPDATE tasks SET owner = $1, title = $2 WHERE (tasks.id = $3) RETURNING id',
       [2, 'test update task', 1]
     );
   });
@@ -376,7 +376,7 @@ describe('#delete()', () => {
     });
 
     expect(db.oneOrNone).toHaveBeenCalledWith(
-      'delete from "tasks"',
+      'DELETE FROM tasks',
       []
     );
   });
@@ -392,7 +392,7 @@ describe('#delete()', () => {
     });
 
     expect(db.oneOrNone).toHaveBeenCalledWith(
-      'delete from "tasks" where "id" = ?',
+      'DELETE FROM tasks WHERE (tasks.id = $1)',
       [1]
     );
   });

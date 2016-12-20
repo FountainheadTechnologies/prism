@@ -1,5 +1,5 @@
-import Action, {Params} from 'prism/action';
-import Document from 'prism/document';
+import Action, {Params} from '../action';
+import Document from '../Document';
 
 import {Request} from 'hapi';
 

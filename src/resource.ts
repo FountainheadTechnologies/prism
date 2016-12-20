@@ -1,5 +1,5 @@
-import Source from 'prism/source';
-import Schema from 'prism/schema';
+import Source from './source';
+import Schema from './schema';
 
 /**
  * Defines a relationship between two resources
@@ -28,8 +28,10 @@ interface Resource {
   schema: Schema;
   primaryKeys: string[];
 
-  parents: Relationship[];
-  children: Relationship[];
+  relationships: {
+    belongsTo: Relationship[];
+    has: Relationship[];
+  }
 }
 
 export default Resource;

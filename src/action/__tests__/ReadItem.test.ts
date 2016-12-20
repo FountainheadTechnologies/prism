@@ -1,9 +1,9 @@
-import ReadItem from 'prism/action/ReadItem';
-import ReadCollection from 'prism/action/ReadCollection';
-import Root from 'prism/action/Root';
-import Document from '../../document';
+import ReadItem from '../ReadItem';
+import ReadCollection from '../ReadCollection';
+import Root from '../Root';
+import Document from '../../Document';
 import Registry from '../../registry';
-import * as resource from 'prism/__mocks__/resource';
+import * as resource from '../../__mocks__/resource';
 
 var readTask: ReadItem;
 
@@ -67,17 +67,24 @@ describe('#decorate()', () => {
 
     readTask.decorate(document, {}, undefined as any);
 
+    expect(document.properties['users']).toBeUndefined();
     expect(document.embedded[0]).toEqual({
       rel: 'users',
-      document: new Document(document.properties['users'])
+      document: new Document({
+        id: 'user1',
+        name: 'Test User',
+        department: 'department1'
+      })
     });
 
+    expect(document.properties['projects']).toBeUndefined();
     expect(document.embedded[1]).toEqual({
       rel: 'projects',
-      document: new Document(document.properties['projects'])
+      document: new Document({
+        id: 'project1',
+        name: 'Test Project'
+      })
     });
-
-    expect(document.omit).toEqual(['users', 'projects']);
   });
 });
 
@@ -154,32 +161,64 @@ describe('filters', () => {
 
     readTask.decorate(document, {}, undefined as any);
 
+    expect(document.embedded[0].document.properties['departments']).toBeUndefined();
     expect(document.embedded[0].document.embedded[0]).toEqual({
       rel: 'departments',
-      document: new Document(document.properties['users']['departments'])
+      document: new Document({
+        id: 'department1',
+        name: 'Test Department'
+      })
     });
-
-    expect(document.embedded[0].document.omit).toEqual(['departments']);
   });
 
-  it('registers a link to itself on collection items', () => {
+  it('recursively decorates itself on child collection queries', () => {
     registry.registerAction(readTasks);
+    registry.registerAction(readUser);
+    registry.registerAction(readProject);
 
     var document = new Document({
       count: 1,
       items: [{
-        id: 'task1'
+        id: 'task1',
+        owner: 'user1',
+        project: 'project1',
+        users: {
+          id: 'user1',
+          name: 'Test User',
+          department: 'department1',
+          departments: {
+            id: 'department1',
+            name: 'Test Department'
+          }
+        },
+        projects: {
+          id: 'project1',
+          name: 'Test Project'
+        }
       }]
     });
 
     readTasks.decorate(document, {}, undefined as any);
 
-    expect(document.embedded[0].document.links).toEqual([{
-      rel:  'self',
-      href: readTask.path,
-      params: {
-        id: 'task1'
-      }
-    }]);
+    var task = document.embedded[0].document;
+
+    var taskSelfLink = task.links[0];
+    expect(taskSelfLink.rel).toBe('self');
+    expect(taskSelfLink.href).toBe(readTask.path);
+    expect((taskSelfLink as any).params.id).toBe('task1');
+
+    expect(task.embedded.length).toBe(2);
+
+    var owner = task.embedded[0].document;
+    var ownerSelfLink = owner.links[0];
+    expect(ownerSelfLink.rel).toBe('self');
+    expect(ownerSelfLink.href).toBe(readUser.path);
+    expect((ownerSelfLink as any).params.id).toBe('user1');
+
+    var project = task.embedded[1].document;
+    var projectSelfLink = project.links[0];
+    expect(projectSelfLink.rel).toBe('self');
+    expect(projectSelfLink.href).toBe(readProject.path);
+    expect((projectSelfLink as any).params.id).toBe('project1');
   });
 });
