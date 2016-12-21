@@ -21,7 +21,7 @@ const DEFAULT_OPTIONS: Options = {
 export default class PostgreSQL implements Source {
   protected _options: Options;
 
-  constructor(protected _db: IDatabase<{}>, options?: Partial<Options>) {
+  constructor(readonly db: IDatabase<{}>, options?: Partial<Options>) {
     this._options = {...DEFAULT_OPTIONS, ...options};
   }
 
@@ -35,7 +35,7 @@ export default class PostgreSQL implements Source {
 
     var statement = sql.toParam();
 
-    return this._db.oneOrNone(statement.text, statement.values) as any;
+    return this.db.oneOrNone(statement.text, statement.values) as any;
   }
 
   read<T extends query.Read>(query: T): Promise<Item | Collection> {
@@ -50,7 +50,7 @@ export default class PostgreSQL implements Source {
     if (query.return === 'item') {
       let statement = sql.toParam();
 
-      return Promise.resolve(this._db.oneOrNone(statement.text, statement.values))
+      return Promise.resolve(this.db.oneOrNone(statement.text, statement.values))
         .then(result => this._mergeJoins(result, query));
     }
 
@@ -67,9 +67,9 @@ export default class PostgreSQL implements Source {
     var countStatement = count.toParam();
 
     return Promise.props({
-      items: this._db.manyOrNone(statement.text, statement.values)
+      items: this.db.manyOrNone(statement.text, statement.values)
         .then(results => results.map(result => this._mergeJoins(result, query))),
-      count: this._db.one(countStatement.text, countStatement.values)
+      count: this.db.one(countStatement.text, countStatement.values)
         .then(result => parseInt(result.count, 10))
     });
   }
@@ -84,7 +84,7 @@ export default class PostgreSQL implements Source {
     this._withJoins(sql, query);
 
     var statement = sql.toParam();
-    return this._db.oneOrNone(statement.text, statement.values) as any;
+    return this.db.oneOrNone(statement.text, statement.values) as any;
   }
 
   delete<T extends query.Delete>(query: T): Promise<boolean> {
@@ -94,7 +94,7 @@ export default class PostgreSQL implements Source {
     this._addConditions(sql, query);
 
     var statement = sql.toParam();
-    return this._db.oneOrNone(statement.text, statement.values) as any;
+    return this.db.oneOrNone(statement.text, statement.values) as any;
   }
 
   protected _addPages(sql: SqlSelect, query: query.Read): void {
