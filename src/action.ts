@@ -29,7 +29,7 @@ interface Action {
 
   handle: (params: Params, request?: Request) => any;
 
-  decorate: (doc: Document, params?: Params, request?: Request) => Document;
+  decorate?: (doc: Document, params?: Params, request?: Request) => Document;
 
   filters?: Array<Filter<any, any> | Array<Filter<any, any>>>;
 }

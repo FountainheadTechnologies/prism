@@ -86,6 +86,10 @@ export const toRoute = (action: Action): IRouteConfiguration => ({
 
     var dispatch = resolve(action.handle(params, request))
       .then(result => {
+        if (!action.decorate) {
+          return result;
+        }
+
         var document = action.decorate(new Document(result), params, request);
         document.links.push({
           rel: 'self',
