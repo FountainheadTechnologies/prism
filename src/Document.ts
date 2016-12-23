@@ -1,4 +1,5 @@
 import {Params} from './action';
+import Schema from './schema';
 
 import {Request} from 'hapi';
 import {clone, pick} from 'ramda';
@@ -25,8 +26,18 @@ export interface Link {
 
 export interface RenderedLink {
   href: string;
-  templated?: boolean;
   name?: string;
+  templated?: boolean;
+}
+
+export interface Form extends Link {
+  method: string;
+  schema: Schema;
+}
+
+export interface RenderedForm extends RenderedLink {
+  method: string;
+  schema: Schema;
 }
 
 export default class Document {
@@ -34,19 +45,26 @@ export default class Document {
 
   links: Link[] = [];
 
+  forms: Form[] = [];
+
   constructor(public properties: Properties = {}) {}
 
   render(params: Params, request: Request) {
     var result = clone(this.properties);
+
+    this.embedded.forEach(embed => {
+      var _embedded = embed.document.render(params, request);
+      upsert(result, '_embedded', embed.rel, _embedded, embed.alwaysArray);
+    });
 
     this.links.forEach(link => {
       var _link = renderLink(link);
       upsert(result, '_links', link.rel, _link);
     });
 
-    this.embedded.forEach(embed => {
-      var _embedded = embed.document.render(params, request);
-      upsert(result, '_embedded', embed.rel, _embedded, embed.alwaysArray);
+    this.forms.forEach(form => {
+      var _form = renderForm(form);
+      upsert(result, '_forms', form.rel, _form);
     });
 
     return result;
@@ -73,6 +91,12 @@ const renderLink = (link: Link): RenderedLink => {
     href: uriTpl(link.href).fillFromObject(link.params)
   };
 }
+
+const renderForm = (form: Form): RenderedForm => ({
+  ...renderLink(form),
+  method: form.method,
+  schema: form.schema
+});
 
 const upsert = (object: Properties, key: string, name: string, value: Object, alwaysArray: boolean = false) => {
   if (!object[key]) {

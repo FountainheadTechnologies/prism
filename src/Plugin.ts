@@ -1,4 +1,4 @@
-import Registry from './registry';
+import Registry from './Registry';
 import Action, {Filter, Params} from './action';
 import Root from './action/Root';
 import Document from './Document';

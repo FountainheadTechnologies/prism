@@ -44,4 +44,23 @@ export default class CreateItem implements Action {
       from:   parent.from,
       to:     parent.to
     }));
+
+  filters = [
+    <Filter<Root, 'decorate'>>{
+      type: Root,
+      name: 'decorate',
+      filter: next => (doc, params, request) => {
+        next(doc, params, request);
+
+        doc.forms.push({
+          rel: this.resource.name,
+          href: this.path,
+          method: this.method,
+          schema: this.schema(params, request)
+        });
+
+        return doc;
+      }
+    }
+  ]
 }

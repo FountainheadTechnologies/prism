@@ -154,8 +154,8 @@ export default class ReadCollection implements Action {
     <Filter<Root, 'decorate'>>{
       type: Root,
       name: 'decorate',
-      filter: next => doc => {
-        next(doc);
+      filter: next => (doc, params, request) => {
+        next(doc, params, request);
 
         doc.links.push({
           rel:  this.resource.name,

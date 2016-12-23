@@ -2,7 +2,7 @@ import ReadItem from '../ReadItem';
 import ReadCollection from '../ReadCollection';
 import Root from '../Root';
 import Document from '../../Document';
-import Registry from '../../registry';
+import Registry from '../../Registry';
 import * as resource from '../../__mocks__/resource';
 
 var readTask: ReadItem;
@@ -108,7 +108,7 @@ describe('filters', () => {
 
   it('adds a link to itself to the Root action', () => {
     var document = new Document({});
-    root.decorate(document);
+    root.decorate(document, {}, {} as any);
 
     expect(document.links).toEqual([{
       rel:  resource.tasks.name,

@@ -10,5 +10,6 @@ export default class Root implements Action {
 
   handle = () => ({})
 
-  decorate = (doc: Document): Document => doc
+  decorate = (doc: Document, params: Params, request: Request): Document =>
+    doc
 }

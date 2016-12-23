@@ -1,5 +1,6 @@
 import Document from '../Document';
 import {Params} from '../action';
+import {users, tasks}  from '../__mocks__/resource';
 
 import {Request} from 'hapi';
 
@@ -25,91 +26,6 @@ describe('#render()', () => {
     expect(document.render(params, request)).toEqual({
       id: 'test-user',
       name: 'Test User'
-    });
-  });
-
-  describe('._links', () => {
-    it('indexes by `rel`', () => {
-      document.links = [{
-        rel: 'users',
-        href: '/users'
-      }, {
-        rel: 'tasks',
-        href: '/tasks'
-      }];
-
-      expect(document.render(params, request)).toEqual({
-        _links: {
-          users: {
-            href: '/users'
-          },
-          tasks: {
-            href: '/tasks'
-          }
-        }
-      });
-    });
-
-    it('indexes multiple links with the same `rel` name as an array', () => {
-      document.links = [{
-        rel: 'users',
-        name: 'collection',
-        href: '/users'
-      }, {
-        rel: 'users',
-        href: '/users'
-      }, {
-        rel: 'tasks',
-        href: '/tasks'
-      }];
-
-      expect(document.render(params, request)).toEqual({
-        _links: {
-          users: [{
-            href: '/users',
-            name: 'collection'
-          }, {
-            href: '/users'
-          }],
-          tasks: {
-            href: '/tasks'
-          }
-        }
-      });
-    });
-
-    it('sets `templated: true` when `href` is a URI template but no params are given', () => {
-      document.links = [{
-        rel: 'users',
-        href: '/users/{id}'
-      }];
-
-      expect(document.render(params, request)).toEqual({
-        _links: {
-          users: {
-            href: '/users/{id}',
-            templated: true
-          }
-        }
-      });
-    });
-
-    it('fills a URI template with values when params are given', () => {
-      document.links = [{
-        rel: 'users',
-        href: '/users/{id}',
-        params: {
-          id: 1337
-        }
-      }];
-
-      expect(document.render(params, request)).toEqual({
-        _links: {
-          users: {
-            href: '/users/1337'
-          }
-        }
-      });
     });
   });
 
@@ -207,6 +123,126 @@ describe('#render()', () => {
           users: [{
             id: 1
           }]
+        }
+      });
+    });
+  });
+
+  describe('._links', () => {
+    it('indexes by `rel`', () => {
+      document.links = [{
+        rel: 'users',
+        href: '/users'
+      }, {
+        rel: 'tasks',
+        href: '/tasks'
+      }];
+
+      expect(document.render(params, request)).toEqual({
+        _links: {
+          users: {
+            href: '/users'
+          },
+          tasks: {
+            href: '/tasks'
+          }
+        }
+      });
+    });
+
+    it('indexes multiple links with the same `rel` name as an array', () => {
+      document.links = [{
+        rel: 'users',
+        name: 'collection',
+        href: '/users'
+      }, {
+        rel: 'users',
+        href: '/users'
+      }, {
+        rel: 'tasks',
+        href: '/tasks'
+      }];
+
+      expect(document.render(params, request)).toEqual({
+        _links: {
+          users: [{
+            href: '/users',
+            name: 'collection'
+          }, {
+            href: '/users'
+          }],
+          tasks: {
+            href: '/tasks'
+          }
+        }
+      });
+    });
+
+    it('sets `templated: true` when `href` is a URI template but no params are given', () => {
+      document.links = [{
+        rel: 'users',
+        href: '/users/{id}'
+      }];
+
+      expect(document.render(params, request)).toEqual({
+        _links: {
+          users: {
+            href: '/users/{id}',
+            templated: true
+          }
+        }
+      });
+    });
+
+    it('fills a URI template with values when params are given', () => {
+      document.links = [{
+        rel: 'users',
+        href: '/users/{id}',
+        params: {
+          id: 1337
+        }
+      }];
+
+      expect(document.render(params, request)).toEqual({
+        _links: {
+          users: {
+            href: '/users/1337'
+          }
+        }
+      });
+    });
+  });
+
+  describe('._forms', () => {
+    it('indexes by `rel`', () => {
+      document.forms = [{
+        rel: 'users',
+        href: '/users',
+        name: 'create',
+        method: 'POST',
+        schema: users.schema
+      }, {
+        rel: 'tasks',
+        href: '/tasks',
+        name: 'create',
+        method: 'POST',
+        schema: tasks.schema
+      }];
+
+      expect(document.render(params, request)).toEqual({
+        _forms: {
+          users: {
+            href: '/users',
+            name: 'create',
+            method: 'POST',
+            schema: users.schema
+          },
+          tasks: {
+            href: '/tasks',
+            name: 'create',
+            method: 'POST',
+            schema: tasks.schema
+          }
         }
       });
     });

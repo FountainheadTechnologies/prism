@@ -2,7 +2,7 @@ import ReadCollection from '../ReadCollection';
 import ReadItem from '../ReadItem';
 import Root from '../Root';
 import Document from '../../Document';
-import Registry from '../../registry';
+import Registry from '../../Registry';
 import * as resource from '../../__mocks__/resource';
 
 var readTasks: ReadCollection;
@@ -19,7 +19,7 @@ describe('#path', () => {
 
 describe('#query()', () => {
   it('returns a read collection query', () => {
-    var query = readTasks.query({}, undefined as any);
+    var query = readTasks.query({}, {} as any);
     expect(query).toEqual({
       return: 'collection',
       source: resource.tasks.name,
@@ -51,7 +51,7 @@ describe('#query()', () => {
       }
     };
 
-    var query = readTasks.query(params, undefined as any);
+    var query = readTasks.query(params, {} as any);
     expect(query.conditions).toEqual([{
       field: 'owner',
       value: 'user1'
@@ -65,7 +65,7 @@ describe('#query()', () => {
       }
     };
 
-    var query = readTasks.query(params, undefined as any);
+    var query = readTasks.query(params, {} as any);
     expect(query.order).toEqual([{
       field: 'id',
       direction: 'desc'
@@ -77,7 +77,7 @@ describe('#query()', () => {
       page: '6'
     };
 
-    var query = readTasks.query(params, undefined as any);
+    var query = readTasks.query(params, {} as any);
     expect(query.page).toEqual({
       number: 6,
       size:   20
@@ -153,7 +153,7 @@ describe('#decorate()', () => {
         count: 55
       });
 
-      readTasks.decorate(document, params, undefined as any);
+      readTasks.decorate(document, params, {} as any);
 
       expect(document.links).toEqual(expectedLinks);
     })
@@ -193,7 +193,7 @@ describe('#decorate()', () => {
 
     var document = new Document({...properties});
 
-    readTasks.decorate(document, {}, undefined as any);
+    readTasks.decorate(document, {}, {} as any);
     expect(document.properties['items']).toBeUndefined();
 
     var task1 = new Document({
@@ -284,7 +284,7 @@ describe('filters', () => {
 
   it('adds a link to itself to the Root action', () => {
     var document = new Document({});
-    root.decorate(document);
+    root.decorate(document, {}, {} as any);
 
     expect(document.links).toEqual([{
       rel:  resource.tasks.name,
@@ -301,7 +301,7 @@ describe('filters', () => {
       id: 'user1'
     });
 
-    readUser.decorate(user, {}, undefined as any);
+    readUser.decorate(user, {}, {} as any);
 
     expect(user.links).toEqual([{
       rel: 'tasks',
@@ -318,7 +318,7 @@ describe('filters', () => {
       id: 'project1'
     });
 
-    readProject.decorate(project, {}, undefined as any);
+    readProject.decorate(project, {}, {} as any);
 
     expect(project.links).toEqual([{
       rel: 'tasks',
@@ -335,7 +335,7 @@ describe('filters', () => {
   it('recursively joins itself as a parent on child queries', () => {
     registry.registerAction(readUsers);
 
-    var query = readTasks.joins({}, undefined as any);
+    var query = readTasks.joins({}, {} as any);
     expect(query).toEqual([{
       source: 'users',
       path:   ['tasks', 'users'],
