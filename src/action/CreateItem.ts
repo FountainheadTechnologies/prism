@@ -8,6 +8,7 @@ import * as query from '../query';
 
 import * as Promise from 'bluebird';
 import {Request} from 'hapi';
+import {evolve, prepend, pathEq} from 'ramda';
 
 export default class CreateItem implements Action {
   path: string;
@@ -46,6 +47,9 @@ export default class CreateItem implements Action {
     }));
 
   filters = [
+    /**
+     * Register a form for this action in the root document
+     */
     <Filter<Root, 'decorate'>>{
       type: Root,
       name: 'decorate',
@@ -61,6 +65,50 @@ export default class CreateItem implements Action {
 
         return doc;
       }
-    }
+    },
+
+    /**
+     * Allow embedded objects to be recursively created on child resources by
+     * modifying child join query parameters
+     */
+    this.resource.relationships.has.map(child => <Filter<CreateItem, 'joins'>>({
+      type: CreateItem,
+      name: 'joins',
+      where: pathEq(['resource', 'name'], child.name),
+      filter: next => (params, request) => {
+        var joins = this.joins(params, request)
+          .map(evolve({
+            path: prepend(child.name)
+          }));
+
+        return next(params, request)
+          .concat(joins as any as query.Join[]);
+      }
+    })),
+
+    /**
+     * Add this schema as an alternative value for the Create form on child
+     * resources
+     */
+    this.resource.relationships.has.map(child => <Filter<CreateItem, 'schema'>>({
+      type: CreateItem,
+      name: 'schema',
+      where: pathEq(['resource', 'name'], child.name),
+      filter: next => (params, request) => {
+        var schema = next(params, request);
+        var prop   = schema.properties[child.to];
+
+        if (!prop.oneOf) {
+          schema.properties[child.to] = {
+            oneOf: [
+              prop,
+              this.schema(params, request)
+            ]
+          };
+        }
+
+        return schema;
+      }
+    })),
   ]
 }

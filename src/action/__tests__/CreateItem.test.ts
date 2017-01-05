@@ -10,7 +10,9 @@ import {Request} from 'hapi';
 var createTask: CreateItem;
 var request = {
   payload: {
-    test: 'data'
+    title: 'New Test Task',
+    owner: 1,
+    project: 1
   }
 } as any as Request;
 
@@ -59,10 +61,12 @@ describe('#schema()', () => {
 describe('filters', () => {
   var registry: Registry;
   var root: Root;
+  var createUser: CreateItem;
 
   beforeEach(() => {
     registry = new Registry();
     root = new Root();
+    createUser = new CreateItem(resource.users);
 
     registry.registerAction(root);
     registry.registerAction(createTask);
@@ -78,5 +82,46 @@ describe('filters', () => {
       method: createTask.method,
       schema: resource.tasks.schema
     }]);
+  });
+
+  it('recursively joins itself as a parent on child queries', () => {
+    registry.registerAction(createUser);
+
+    var joins = createTask.joins({}, request);
+    expect(joins).toEqual([{
+      source: 'users',
+      path: ['owner'],
+      from: 'owner',
+      to: 'id'
+    }, {
+      source: 'projects',
+      path: ['project'],
+      from: 'project',
+      to: 'id'
+    }, {
+      source: 'departments',
+      path: ['tasks', 'department'],
+      from: 'department',
+      to: 'id'
+    }]);
+  });
+
+  it('embeds its schema into Create forms on related children', () => {
+    registry.registerAction(createUser);
+
+    var document = new Document();
+    root.decorate(document, {}, request);
+
+    expect(document.forms[0].schema).toEqual({
+      ...resource.tasks.schema,
+      properties: {
+        ...resource.tasks.schema.properties,
+        owner: {
+          oneOf: [{
+            type: 'integer'
+          }, resource.users.schema]
+        }
+      }
+    });
   });
 });

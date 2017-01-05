@@ -16,7 +16,7 @@ export const tasks = {
       project: {type: 'integer'},
       owner: {type: 'integer'}
     },
-    required: ['id', 'title', 'project', 'owner']
+    required: ['title', 'project', 'owner']
   },
   primaryKeys: ['id'],
   relationships: {
@@ -47,7 +47,7 @@ export const users = {
       enabled: {type: 'boolean'},
       department: {type: 'integer'}
     },
-    required: ['id', 'username', 'password', 'department']
+    required: ['username', 'password', 'department']
   },
   primaryKeys: ['id'],
   relationships: {
@@ -58,8 +58,8 @@ export const users = {
     }],
     has: [{
       name: 'tasks',
-      from: 'owner',
-      to:   'id'
+      from: 'id',
+      to:   'owner'
     }]
   }
 } as Resource;
@@ -75,15 +75,15 @@ export const projects = {
       id: {type: 'integer'},
       name: {type: 'string'}
     },
-    required: ['id', 'name']
+    required: ['name']
   },
   primaryKeys: ['id'],
   relationships: {
     belongsTo: [],
     has: [{
       name: 'tasks',
-      from: 'project',
-      to:   'id'
+      from: 'id',
+      to:   'project'
     }]
   }
 } as Resource;
@@ -99,15 +99,15 @@ export const departments = {
       id: {type: 'integer'},
       name: {type: 'string'}
     },
-    required: ['id', 'name']
+    required: ['name']
   },
   primaryKeys: ['id'],
   relationships: {
     belongsTo: [],
     has: [{
       name: 'users',
-      from: 'department',
-      to:   'id'
+      from: 'id',
+      to:   'department'
     }]
   }
 } as Resource;

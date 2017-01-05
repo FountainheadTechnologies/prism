@@ -155,25 +155,26 @@ export default class PostgreSQL implements Source {
     query.joins
       .sort(join => join.path.length)
       .forEach(join => {
-        var alias  = join.path.join(this._options.joinMarker);
         var nested = path(join.path, query.data);
 
         if (typeof nested !== 'object') {
           return;
         }
 
+        var alias = join.path.join(this._options.joinMarker);
+
         var insert = squel.insert()
           .into(join.source)
           .setFields(nested)
           .returning(join.to);
+
+        sql.with(alias, insert);
 
         var select = squel.select()
           .from(alias)
           .field(join.to);
 
         query.data = assocPath(join.path, select, query.data);
-
-        sql.with(alias, insert);
-      })
+      });
   }
 }
