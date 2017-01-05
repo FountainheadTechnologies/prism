@@ -7,7 +7,7 @@ import Schema, {validate, sanitize} from '../schema';
 import * as query from '../query';
 
 import * as Promise from 'bluebird';
-import {Request} from 'hapi';
+import {Request, Response} from 'hapi';
 import {evolve, prepend, pathEq} from 'ramda';
 
 export default class CreateItem implements Action {
@@ -19,12 +19,19 @@ export default class CreateItem implements Action {
     this.path = this.resource.name;
   }
 
-  handle = (params: Params, request: Request): Promise<Item> => {
+  handle = (params: Params, request: Request): Promise<Response> => {
     var schema = this.schema(params, request);
     var source = this.resource.source;
 
     return validate(request.payload, schema)
-      .then(() => source.create(this.query(params, request)));
+      .then(() => source.create(this.query(params, request)))
+      .then(createdItem => {
+        var response = (request as any).generateResponse();
+        response.code(201);
+        response.plugins.prism = {createdItem};
+
+        return response;
+      });
   }
 
   schema = (params: Params, request: Request): Schema =>
@@ -53,6 +60,27 @@ export default class CreateItem implements Action {
     <Filter<Root, 'decorate'>>{
       type: Root,
       name: 'decorate',
+      filter: next => (doc, params, request) => {
+        next(doc, params, request);
+
+        doc.forms.push({
+          rel: this.resource.name,
+          href: this.path,
+          method: this.method,
+          schema: this.schema(params, request)
+        });
+
+        return doc;
+      }
+    },
+
+    /**
+     * Register a form for this action on ReadCollection documents
+     */
+    <Filter<ReadCollection, 'decorate'>>{
+      type: ReadCollection,
+      name: 'decorate',
+      where: pathEq(['resource', 'name'], this.resource.name),
       filter: next => (doc, params, request) => {
         next(doc, params, request);
 

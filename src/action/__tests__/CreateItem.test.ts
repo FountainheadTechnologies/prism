@@ -1,19 +1,27 @@
 import CreateItem from '../CreateItem';
 import Root from '../Root';
+import ReadCollection from '../ReadCollection';
 import Registry from '../../Registry';
 import Document from '../../Document';
 import * as schema from '../../schema';
 import * as resource from '../../__mocks__/resource';
 
-import {Request} from 'hapi';
+import {Request, Response} from 'hapi';
 
 var createTask: CreateItem;
+
+var response = {
+  code: jest.fn(),
+  plugins: {}
+} as any as Response;
+
 var request = {
   payload: {
     title: 'New Test Task',
     owner: 1,
     project: 1
-  }
+  },
+  generateResponse: jest.fn().mockReturnValue(response)
 } as any as Request;
 
 beforeEach(() => {
@@ -50,6 +58,14 @@ describe('#handle()', () => {
       data: request.payload
     });
   });
+
+  it('returns an empty response with a status of `201 Created`', async() => {
+    (resource.tasks.source.create as jest.Mock<any>).mockReturnValue(true);
+
+    await createTask.handle({}, request);
+    expect((request as any).generateResponse).toHaveBeenCalled();
+    expect(response.code).toHaveBeenCalledWith(201);
+  });
 });
 
 describe('#schema()', () => {
@@ -62,11 +78,13 @@ describe('filters', () => {
   var registry: Registry;
   var root: Root;
   var createUser: CreateItem;
+  var readTasks: ReadCollection;
 
   beforeEach(() => {
     registry = new Registry();
     root = new Root();
     createUser = new CreateItem(resource.users);
+    readTasks = new ReadCollection(resource.tasks);
 
     registry.registerAction(root);
     registry.registerAction(createTask);
@@ -75,6 +93,20 @@ describe('filters', () => {
   it('registers a form on the Root action', () => {
     var document = new Document();
     root.decorate(document, {}, request);
+
+    expect(document.forms).toEqual([{
+      rel: resource.tasks.name,
+      href: createTask.path,
+      method: createTask.method,
+      schema: resource.tasks.schema
+    }]);
+  });
+
+  it('registers a form on ReadCollection', () => {
+    registry.registerAction(readTasks);
+
+    var document = new Document({items: []});
+    readTasks.decorate(document, {}, request);
 
     expect(document.forms).toEqual([{
       rel: resource.tasks.name,

@@ -6,8 +6,10 @@ import * as query from '../query';
 import Document, {Embed, Link} from '../Document';
 import Root from './Root';
 import ReadCollection from './ReadCollection';
+import CreateItem from './CreateItem';
 
 import * as Promise from 'bluebird';
+import * as uriTpl  from 'uri-templates';
 import {Request} from 'hapi';
 import {is, evolve, pathEq, prepend} from 'ramda';
 
@@ -91,6 +93,18 @@ export default class ReadItem implements Action {
 
         return doc;
       }
+    },
+
+    <Filter<CreateItem, 'handle'>>{
+      type: CreateItem,
+      name: 'handle',
+      where: pathEq(['resource', 'name'], this.resource.name),
+      filter: next => (params, request) =>
+        next(params, request)
+          .tap(response => {
+            var href = uriTpl(this.path).fillFromObject(response.plugins.prism.createdItem);
+            response.location(href);
+          })
     },
 
     /**

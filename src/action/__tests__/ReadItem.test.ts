@@ -1,9 +1,12 @@
 import ReadItem from '../ReadItem';
 import ReadCollection from '../ReadCollection';
+import CreateItem from '../CreateItem';
 import Root from '../Root';
 import Document from '../../Document';
 import Registry from '../../Registry';
 import * as resource from '../../__mocks__/resource';
+
+import {Request, Response} from 'hapi';
 
 var readTask: ReadItem;
 
@@ -94,6 +97,7 @@ describe('filters', () => {
   var readUser: ReadItem;
   var readProject: ReadItem;
   var readTasks: ReadCollection;
+  var createTask: CreateItem;
 
   beforeEach(() => {
     registry = new Registry();
@@ -101,6 +105,7 @@ describe('filters', () => {
     readUser = new ReadItem(resource.users);
     readProject = new ReadItem(resource.projects);
     readTasks = new ReadCollection(resource.tasks);
+    createTask = new CreateItem(resource.tasks);
 
     registry.registerAction(root);
     registry.registerAction(readTask);
@@ -114,6 +119,30 @@ describe('filters', () => {
       rel:  resource.tasks.name,
       href: readTask.path
     }]);
+  });
+
+  it('sets the `Location` response header on CreateItem', async () => {
+    registry.registerAction(createTask);
+
+    var response = {
+      code: jest.fn(),
+      location: jest.fn(),
+      plugins: {}
+    } as any as Response;
+
+    var request = {
+      payload: {
+        title: 'New Test Task',
+        owner: 1,
+        project: 1
+      },
+      generateResponse: jest.fn().mockReturnValue(response)
+    } as any as Request;
+
+    (resource.tasks.source.create as jest.Mock<any>).mockReturnValue({id: 12});
+
+    await createTask.handle({}, request);
+    expect(response.location).toHaveBeenCalledWith('tasks/12');
   });
 
   it('recursively joins itself as a parent on child queries', () => {
