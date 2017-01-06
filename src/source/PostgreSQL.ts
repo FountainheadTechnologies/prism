@@ -3,6 +3,7 @@ import {Item, Collection} from '../types';
 import * as query from '../query';
 
 import {IDatabase} from 'pg-promise';
+import {badData} from 'boom';
 import * as Promise from 'bluebird';
 import * as _squel from 'squel';
 
@@ -35,7 +36,8 @@ export default class PostgreSQL implements Source {
 
     var statement = sql.toParam();
 
-    return this.db.oneOrNone(statement.text, statement.values) as any;
+    return this.db.oneOrNone(statement.text, statement.values)
+      .catch(handleConstraintViolation) as any;
   }
 
   read<T extends query.Read>(query: T): Promise<Item | Collection> {
@@ -84,7 +86,9 @@ export default class PostgreSQL implements Source {
     this._withJoins(sql, query);
 
     var statement = sql.toParam();
-    return this.db.oneOrNone(statement.text, statement.values) as any;
+
+    return this.db.oneOrNone(statement.text, statement.values)
+      .catch(handleConstraintViolation) as any;
   }
 
   delete<T extends query.Delete>(query: T): Promise<boolean> {
@@ -177,4 +181,26 @@ export default class PostgreSQL implements Source {
         query.data = assocPath(join.path, select, query.data);
       });
   }
+}
+
+const handleConstraintViolation = (error: any): never => {
+  if (error.routine !== 'ri_ReportViolation' || !error.detail) {
+    throw error;
+  }
+
+  const re = /^Key \((.+?)\)=\(\d+\) is not present in table ".+?"\.$/;
+  var [detail, key] = error.detail.match(re);
+
+  if (!key) {
+    throw error;
+  }
+
+  var err = badData();
+  err.output.payload.errors = [{
+    message:    'Constraint violation',
+    dataPath:   `/${key}`,
+    schemaPath: `/properties/${key}/constraint`
+  }];
+
+  throw err;
 }

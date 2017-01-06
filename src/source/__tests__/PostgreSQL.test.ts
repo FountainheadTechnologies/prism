@@ -2,7 +2,7 @@ import {tasks} from '../../__mocks__/resource';
 import db from '../__mocks__/pgPromise';
 import PostgreSQL from '../PostgreSQL';
 
-import {resolve} from 'bluebird';
+import {resolve, reject} from 'bluebird';
 
 var source: PostgreSQL;
 
@@ -64,6 +64,33 @@ describe('#create()', () => {
       'WITH project AS (INSERT INTO projects (name) VALUES ($1) RETURNING id), owner AS (INSERT INTO users (name) VALUES ($2) RETURNING id) INSERT INTO tasks (title, project, owner) VALUES ($3, (SELECT id FROM project), (SELECT id FROM owner)) RETURNING id',
       ['new project', 'new user', 'test insert task']
     );
+  });
+
+  it('transforms constraint violations to Boom errors', done => {
+    (db.oneOrNone as jest.Mock<any>).mockReturnValueOnce(reject({
+      routine: 'ri_ReportViolation',
+      detail: 'Key (owner)=(100) is not present in table "users".'
+    }));
+
+    source.create({
+      source: 'tasks',
+      schema: tasks.schema,
+      returning: tasks.primaryKeys,
+      data: {
+        title: 'test insert task',
+        project: 1,
+        owner: 100
+      }
+    }).catch(error => {
+      expect(error.isBoom).toBe(true);
+      expect(error.output.payload.errors).toEqual([{
+        message:  'Constraint violation',
+        dataPath: '/owner',
+        schemaPath: '/properties/owner/constraint'
+      }]);
+
+      done();
+    });
   });
 });
 
@@ -365,6 +392,36 @@ describe('#update()', () => {
       'UPDATE tasks SET owner = $1, title = $2 WHERE (tasks.id = $3) RETURNING id',
       [2, 'test update task', 1]
     );
+  });
+
+  it('transforms constraint violations to Boom errors', done => {
+    (db.oneOrNone as jest.Mock<any>).mockReturnValueOnce(reject({
+      routine: 'ri_ReportViolation',
+      detail: 'Key (owner)=(100) is not present in table "users".'
+    }));
+
+    source.update({
+      source: 'tasks',
+      schema: tasks.schema,
+      returning: tasks.primaryKeys,
+      conditions: [{
+        field: 'id',
+        value: 1
+      }],
+      data: {
+        owner: 100,
+        title: 'test update task'
+      }
+    }).catch(error => {
+      expect(error.isBoom).toBe(true);
+      expect(error.output.payload.errors).toEqual([{
+        message:  'Constraint violation',
+        dataPath: '/owner',
+        schemaPath: '/properties/owner/constraint'
+      }]);
+
+      done();
+    });
   });
 });
 
