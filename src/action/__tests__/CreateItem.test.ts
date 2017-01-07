@@ -97,6 +97,7 @@ describe('filters', () => {
     expect(document.forms).toEqual([{
       rel: resource.tasks.name,
       href: createTask.path,
+      name: 'create',
       method: createTask.method,
       schema: resource.tasks.schema
     }]);
@@ -111,6 +112,7 @@ describe('filters', () => {
     expect(document.forms).toEqual([{
       rel: resource.tasks.name,
       href: createTask.path,
+      name: 'create',
       method: createTask.method,
       schema: resource.tasks.schema
     }]);

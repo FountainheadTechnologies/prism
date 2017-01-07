@@ -66,6 +66,7 @@ export default class CreateItem implements Action {
         doc.forms.push({
           rel: this.resource.name,
           href: this.path,
+          name: 'create',
           method: this.method,
           schema: this.schema(params, request)
         });
@@ -87,6 +88,7 @@ export default class CreateItem implements Action {
         doc.forms.push({
           rel: this.resource.name,
           href: this.path,
+          name: 'create',
           method: this.method,
           schema: this.schema(params, request)
         });
