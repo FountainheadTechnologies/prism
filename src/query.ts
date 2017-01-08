@@ -24,11 +24,11 @@ export interface Page {
 
 export interface Query {
   source: string;
-  schema: Schema;
 }
 
 export interface Create extends Query {
   returning: string[];
+  schema: Schema;
   joins?: Join[];
   data: any;
 }
@@ -36,6 +36,7 @@ export interface Create extends Query {
 export interface Read extends Query {
   fields?: string[];
   conditions?: Condition[];
+  schema: Schema;
   joins?: Join[];
   order?: Order[];
   page?: Page;
@@ -45,6 +46,7 @@ export interface Read extends Query {
 export interface Update extends Query {
   conditions?: Condition[];
   returning: string[];
+  schema: Schema;
   joins?: Join[];
   data: any;
 }

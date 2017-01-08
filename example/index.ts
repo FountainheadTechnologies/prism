@@ -9,6 +9,7 @@ import ReadItem from 'prism/action/ReadItem';
 import ReadCollection from 'prism/action/ReadCollection';
 import CreateItem from 'prism/action/CreateItem';
 import UpdateItem from 'prism/action/UpdateItem';
+import DeleteItem from 'prism/action/DeleteItem';
 
 var server = new Server();
 server.connection({port: 8080});
@@ -34,7 +35,8 @@ server.register(prism)
           new ReadItem({source, ...config}),
           new ReadCollection({source, ...config}),
           new CreateItem({source, ...config}),
-          new UpdateItem({source, ...config})
+          new UpdateItem({source, ...config}),
+          new DeleteItem({source, ...config})
       ]);
     });
 

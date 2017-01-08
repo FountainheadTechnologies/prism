@@ -32,12 +32,12 @@ export interface RenderedLink {
 
 export interface Form extends Link {
   method: string;
-  schema: Schema;
+  schema?: Schema;
 }
 
 export interface RenderedForm extends RenderedLink {
   method: string;
-  schema: Schema;
+  schema?: Schema;
 }
 
 export default class Document {

@@ -64,7 +64,7 @@ describe('#handle()', () => {
     });
   });
 
-  it('returns an empty response with a status of `204 No Content`', async() => {
+  it('returns an empty response with a status of `204 No Content`', async () => {
     (resource.tasks.source.update as jest.Mock<any>).mockReturnValue(true);
 
     await updateTask.handle({}, hapi.request);
