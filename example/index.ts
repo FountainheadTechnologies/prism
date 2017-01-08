@@ -8,6 +8,7 @@ import PostgreSQL from 'prism/source/PostgreSQL';
 import ReadItem from 'prism/action/ReadItem';
 import ReadCollection from 'prism/action/ReadCollection';
 import CreateItem from 'prism/action/CreateItem';
+import UpdateItem from 'prism/action/UpdateItem';
 
 var server = new Server();
 server.connection({port: 8080});
@@ -32,7 +33,8 @@ server.register(prism)
       server.plugins['prism'].registerAction([
           new ReadItem({source, ...config}),
           new ReadCollection({source, ...config}),
-          new CreateItem({source, ...config})
+          new CreateItem({source, ...config}),
+          new UpdateItem({source, ...config})
       ]);
     });
 

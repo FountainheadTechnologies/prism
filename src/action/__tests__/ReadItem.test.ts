@@ -5,8 +5,7 @@ import Root from '../Root';
 import Document from '../../Document';
 import Registry from '../../Registry';
 import * as resource from '../../__mocks__/resource';
-
-import {Request, Response} from 'hapi';
+import * as hapi from '../__mocks__/hapi';
 
 var readTask: ReadItem;
 
@@ -124,25 +123,16 @@ describe('filters', () => {
   it('sets the `Location` response header on CreateItem', async () => {
     registry.registerAction(createTask);
 
-    var response = {
-      code: jest.fn(),
-      location: jest.fn(),
-      plugins: {}
-    } as any as Response;
-
-    var request = {
-      payload: {
-        title: 'New Test Task',
-        owner: 1,
-        project: 1
-      },
-      generateResponse: jest.fn().mockReturnValue(response)
-    } as any as Request;
+    hapi.request.payload = {
+      title: 'New Test Task',
+      owner: 1,
+      project: 1
+    };
 
     (resource.tasks.source.create as jest.Mock<any>).mockReturnValue({id: 12});
 
-    await createTask.handle({}, request);
-    expect(response.location).toHaveBeenCalledWith('tasks/12');
+    await createTask.handle({}, hapi.request);
+    expect(hapi.response.location).toHaveBeenCalledWith('tasks/12');
   });
 
   it('recursively joins itself as a parent on child queries', () => {
