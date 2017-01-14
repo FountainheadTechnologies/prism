@@ -22,6 +22,8 @@ export interface Link {
   params?: {
     [key: string]: any
   };
+  public?: boolean;
+  private?: boolean;
 }
 
 export interface RenderedLink {
@@ -57,19 +59,31 @@ export default class Document {
       upsert(result, "_embedded", embed.rel, _embedded, embed.alwaysArray);
     });
 
-    this.links.forEach(link => {
-      let _link = renderLink(link);
-      upsert(result, "_links", link.rel, _link);
-    });
+    this.links
+      .filter(link => isVisible(request, link))
+      .forEach(link => {
+        let _link = renderLink(link);
+        upsert(result, "_links", link.rel, _link);
+      });
 
-    this.forms.forEach(form => {
-      let _form = renderForm(form);
-      upsert(result, "_forms", form.rel, _form);
-    });
+    this.forms
+      .filter(form => isVisible(request, form))
+      .forEach(form => {
+        let _form = renderForm(form);
+        upsert(result, "_forms", form.rel, _form);
+      });
 
     return result;
   }
 }
+
+const isVisible = (request: Request, item: Link | Form): boolean => {
+  if (request.auth.error === null) {
+    return item.private !== false;
+  }
+
+  return item.public === true;
+};
 
 const renderLink = (link: Link): RenderedLink => {
   let _link = pick<Link, RenderedLink>(["href", "name"], link);

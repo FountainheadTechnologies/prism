@@ -1,11 +1,12 @@
 import Registry from "./Registry";
+import Security from "./security";
 import Action, {Filter, Params} from "./action";
 import Root from "./action/Root";
 import Document from "./Document";
 
 import {resolve} from "bluebird";
 import {Server, Request, IRouteConfiguration} from "hapi";
-import {splitEvery, fromPairs, partition, wrap, pick, map} from "ramda";
+import {assocPath, splitEvery, fromPairs, partition, wrap, pick, map} from "ramda";
 import {join} from "path";
 
 /**
@@ -19,16 +20,18 @@ export interface Options {
   root: string;
 
   /**
-   * Suppress the need for an authentication strategy to be configured before
-   * starting the server by setting to `true`
-   * @default `false`
+   * Explicitly enable "insecure" mode by setting to `false`. When not `false`
+   * the Root action will be configured to use the `optional` authentication
+   * mode. This is to allow non-authenticated clients to discover how to
+   * authenticate.
+   * @default `true`
    */
-  insecure: boolean;
+  secure: boolean;
 }
 
 const DEFAULT_OPTIONS: Options = {
   root: "/",
-  insecure: false
+  secure: true
 };
 
 const EXPOSED_API: Array<keyof Plugin> = [
@@ -43,7 +46,23 @@ export default class Plugin {
 
   constructor(protected readonly _server: Server, options: Partial<Options> = {}) {
     this._options = {...DEFAULT_OPTIONS, ...options};
-    this.registerAction(new Root());
+
+    this._server.ext("onPreStart", (server, next) => {
+      let root = new Root();
+
+      if (this._options.secure) {
+        if (!server.plugins["prism-security"]) {
+          throw Error("Secure mode enabled but `prism-security` plugin has not been registered.");
+        }
+
+        root.routeConfig = assocPath(["auth", "mode"], "optional", root.routeConfig);
+      }
+
+      this.registerAction(root);
+      this._registry.applyFilters();
+
+      return next();
+    });
   }
 
   registerAction(action: Action | Action[]): void {
@@ -94,6 +113,7 @@ export const toRoute = (action: Action): IRouteConfiguration => ({
         document.links.push({
           rel: "self",
           href: action.path,
+          public: true,
           params
         });
 

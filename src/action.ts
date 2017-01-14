@@ -31,7 +31,7 @@ interface Action {
 
   decorate?: (doc: Document, params?: Params, request?: Request) => Document;
 
-  filters?: Array<Filter<any, any> | Array<Filter<any, any>>>;
+  filters?: Array<Filter<Action, any> | Array<Filter<Action, any>>>;
 }
 
 export interface Type<T> {
