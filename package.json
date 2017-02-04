@@ -40,7 +40,8 @@
     "build": "npm run build:tsc && npm run build:copy",
     "build:tsc": "tsc",
     "build:copy": "node ./scripts/copy.js",
-    "clean": "rm -rf build"
+    "clean": "rm -rf build",
+    "test": "./node_modules/.bin/jest --no-cache"
   },
   "version": "1.0.0",
   "jest": {
