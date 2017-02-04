@@ -61,6 +61,7 @@
     "rootDir": "src",
     "testRegex": "(/__tests__/.*|\\.(test|spec))\\.ts$",
     "testResultsProcessor": "../node_modules/ts-jest/coverageprocessor.js",
+    "collectCoverageFrom": ["**/*.ts"],
     "moduleDirectories": [
       "node_modules",
       "src"
