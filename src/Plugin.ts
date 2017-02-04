@@ -51,7 +51,7 @@ export default class Plugin {
       let root = new Root();
 
       if (this._options.secure) {
-        if (!server.plugins["prism-security"]) {
+        if (!this._server.plugins["prism-security"]) {
           throw Error("Secure mode enabled but `prism-security` plugin has not been registered.");
         }
 

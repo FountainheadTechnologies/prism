@@ -7,5 +7,6 @@ export const response = {
 } as any as Response;
 
 export const request = {
+  auth: {},
   generateResponse: jest.fn().mockReturnValue(response)
 } as any as Request;

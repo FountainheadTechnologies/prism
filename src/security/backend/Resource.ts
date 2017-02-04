@@ -99,6 +99,7 @@ export default class Resource implements Backend {
     <Filter<ReadItem, "decorate">>{
       type: ReadItem,
       name: "decorate",
+      where: pathEq(["resource", "name"], this.resource.name),
       filter: next => (doc, params, request) => {
         next(doc, params, request);
 

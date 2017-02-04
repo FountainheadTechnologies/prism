@@ -111,6 +111,8 @@ describe("filters", () => {
   });
 
   it("adds a link to itself to the Root action", () => {
+    registry.applyFilters();
+
     let document = new Document({});
     root.decorate(document, {}, {} as any);
 
@@ -123,6 +125,7 @@ describe("filters", () => {
 
   it("sets the `Location` response header on CreateItem", async () => {
     registry.registerAction(createTask);
+    registry.applyFilters();
 
     hapi.request.payload = {
       title: "New Test Task",
@@ -138,6 +141,7 @@ describe("filters", () => {
 
   it("recursively joins itself as a parent on child queries", () => {
     registry.registerAction(readUser);
+    registry.applyFilters();
 
     let query = readTask.joins({}, undefined as any);
     expect(query).toEqual([{
@@ -160,6 +164,7 @@ describe("filters", () => {
 
   it("recursively embeds itself as a parent on child queries", () => {
     registry.registerAction(readUser);
+    registry.applyFilters();
 
     let document = new Document({
       id: "task1",
@@ -195,6 +200,7 @@ describe("filters", () => {
     registry.registerAction(readTasks);
     registry.registerAction(readUser);
     registry.registerAction(readProject);
+    registry.applyFilters();
 
     let document = new Document({
       count: 1,

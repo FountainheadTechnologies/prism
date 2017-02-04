@@ -6,7 +6,11 @@ import {Request} from "hapi";
 
 let document: Document;
 let params: Params = {};
-let request = undefined as any as Request;
+let request = {
+  auth: {
+    error: null
+  }
+} as any as Request;
 
 beforeEach(() => {
   document = new Document();
