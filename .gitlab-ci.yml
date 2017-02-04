@@ -1,0 +1,12 @@
+image: node:7
+
+before_script:
+  - npm install
+
+build:
+  script:
+    - npm run build
+
+test:
+  script:
+    - npm run test
