@@ -71,8 +71,8 @@ export default class Plugin {
   jwtOptions = (): JwtOptions => ({
     key: this._options.key,
 
-    validateFunc: (request, token, next) => {
-      return this._backend.validate(request, token)
+    validateFunc: (decoded, request, next) => {
+      return this._backend.validate(decoded, request)
         .then(result => {
           if (result === false) {
             return next(null, false);

@@ -78,10 +78,10 @@ export default class Resource implements Backend {
       });
   }
 
-  validate(token: any, request: Request): Promise<boolean | Object> {
+  validate(decoded: any, request: Request): Promise<boolean | Object> {
     let conditions = [...this.resource.primaryKeys.map(key => ({
       field: key,
-      value: token[this.resource.name][key]
+      value: decoded[this.resource.name][key]
     })), ...this._options.scope];
 
     return this.resource.source.read({

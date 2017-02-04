@@ -23,13 +23,13 @@ interface Backend {
   /**
    * Validate a token that was presented in a Request
    *
+   * @param decoded The token after being decoded
    * @param request The Request containing the token
-   * @param token The Token that was presented in `request`
    * @return A Promise that will resolve to `false` if the token is invalid, or
    * an Object that should be memoized for the duration of the request/response
    * cycle, such as the authenticated user's details
    */
-  validate(token: Object, request: Request): Promise<boolean | Object>;
+  validate(decoded: Object, request: Request): Promise<boolean | Object>;
 
   /**
    * The JSON Schema document that will be used to validate request payloads

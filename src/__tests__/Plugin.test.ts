@@ -1,13 +1,16 @@
 import Plugin, {toRoute} from "../Plugin";
-import server from "../__mocks__/server";
+import MockServer from "../__mocks__/server";
 
+import {Server} from "hapi";
 import {T, identity} from "ramda";
 import {resolve} from "bluebird";
 
 let plugin: Plugin;
+let server: Server;
 let action: any;
 
 beforeEach(() => {
+  server = new MockServer() as any as Server;
   plugin = new Plugin(server, {
     root: "/test",
     secure: false
@@ -36,30 +39,22 @@ it("registers a root action", () => {
 });
 
 describe("when `options.secure` is not set to false", () => {
+  beforeEach(() => {
+    plugin = new Plugin(server, {
+      root: "/test"
+    });
+  });
+
   describe("when `prism-security` plugin has not been registered", () => {
-    it("throws an error", () => {
-      let fn = () => {
-        plugin = new Plugin(server, {
-          root: "/test"
-        });
-
-        let onPreStartFn = (server.ext as jest.Mock<any>).mock.calls[0][1];
-        onPreStartFn(server, () => {});
-      };
-
+    it("throws an error when server starts", () => {
+      let fn = () => server.start();
       expect(fn).toThrowError("Secure mode enabled but `prism-security` plugin has not been registered");
     });
   });
 
   it("mutates the the root action to contain `optional` auth mode", () => {
     server.plugins["prism-security"] = "mockSecurityPlugin";
-
-    plugin = new Plugin(server, {
-      root: "/test"
-    });
-
-    let onPreStartFn = (server.ext as jest.Mock<any>).mock.calls[0][1];
-    onPreStartFn(server, () => {});
+    server.start();
 
     expect(server.route).toHaveBeenCalledWith({
       handler: jasmine.any(Function),
