@@ -46,6 +46,7 @@ export default class PostgreSQL implements Source {
 
     this._addFields(sql, query);
     this._addConditions(sql, query);
+    this._addOrder(sql, query);
     this._addJoins(sql, query);
     this._addPages(sql, query);
 
@@ -121,6 +122,14 @@ export default class PostgreSQL implements Source {
       query.conditions.forEach(condition => {
         (sql as any).where(`${query.source}.${condition.field} = ?`, condition.value);
       });
+    }
+  }
+
+  protected _addOrder(sql: SqlSelect, query: query.Read): void {
+    if (query.order) {
+      query.order.forEach(order => {
+        sql.order(`${query.source}.${order.field}`, order.direction.toLowerCase() === 'asc');
+      })
     }
   }
 
