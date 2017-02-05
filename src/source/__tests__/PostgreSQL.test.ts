@@ -351,8 +351,27 @@ describe('#read()', () => {
         [20, 40]
       );
     });
-  });
 
+    it('generates ORDER BY clause on the `items` query', async () => {
+      await source.read({
+        return: 'collection',
+        source: 'tasks',
+        schema: tasks.schema,
+        order: [{
+          field: 'project',
+          direction: 'desc'
+        }, {
+          field: 'title',
+          direction: 'ASC'
+        }]
+      });
+
+      expect(db.manyOrNone).toHaveBeenCalledWith(
+        'SELECT tasks.* FROM tasks ORDER BY tasks.project DESC, tasks.title ASC',
+        []
+      );
+    });
+  });
 });
 
 describe('#update()', () => {
