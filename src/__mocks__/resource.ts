@@ -1,113 +1,113 @@
-import Resource from '../resource';
-import source from './source';
+import Resource from "../resource";
+import source from "./source";
 
 export const tasks = {
-  name: 'tasks',
+  name: "tasks",
   source,
   schema: {
-    $schema: 'http://json-schema.org/draft-04/schema#',
-    title: 'tasks',
-    type: 'object',
+    $schema: "http://json-schema.org/draft-04/schema#",
+    title: "tasks",
+    type: "object",
     properties: {
-      id: {type: 'integer'},
-      title: {type: 'string'},
-      description: {type: 'string'},
-      complete: {type: 'boolean'},
-      project: {type: 'integer'},
-      owner: {type: 'integer'}
+      id: {type: "integer"},
+      title: {type: "string"},
+      description: {type: "string"},
+      complete: {type: "boolean"},
+      project: {type: "integer"},
+      owner: {type: "integer"}
     },
-    required: ['title', 'project', 'owner']
+    required: ["title", "project", "owner"]
   },
-  primaryKeys: ['id'],
+  primaryKeys: ["id"],
   relationships: {
     belongsTo: [{
-      name: 'users',
-      from: 'owner',
-      to:   'id'
+      name: "users",
+      from: "owner",
+      to:   "id"
     }, {
-      name: 'projects',
-      from: 'project',
-      to:   'id'
+      name: "projects",
+      from: "project",
+      to:   "id"
     }],
     has: []
   }
 } as Resource;
 
 export const users = {
-  name: 'users',
+  name: "users",
   source,
   schema: {
-    $schema: 'http://json-schema.org/draft-04/schema#',
-    title: 'users',
-    type: 'object',
+    $schema: "http://json-schema.org/draft-04/schema#",
+    title: "users",
+    type: "object",
     properties: {
-      id: {type: 'integer'},
-      username: {type: 'string'},
-      password: {type: 'string'},
-      enabled: {type: 'boolean'},
-      department: {type: 'integer'}
+      id: {type: "integer"},
+      username: {type: "string"},
+      password: {type: "string"},
+      enabled: {type: "boolean"},
+      department: {type: "integer"}
     },
-    required: ['username', 'password', 'department']
+    required: ["username", "password", "department"]
   },
-  primaryKeys: ['id'],
+  primaryKeys: ["id"],
   relationships: {
     belongsTo: [{
-      name: 'departments',
-      from: 'department',
-      to:   'id'
+      name: "departments",
+      from: "department",
+      to:   "id"
     }],
     has: [{
-      name: 'tasks',
-      from: 'id',
-      to:   'owner'
+      name: "tasks",
+      from: "id",
+      to:   "owner"
     }]
   }
 } as Resource;
 
 export const projects = {
-  name: 'projects',
+  name: "projects",
   source,
   schema: {
-    $schema: 'http://json-schema.org/draft-04/schema#',
-    title: 'projects',
-    type: 'object',
+    $schema: "http://json-schema.org/draft-04/schema#",
+    title: "projects",
+    type: "object",
     properties: {
-      id: {type: 'integer'},
-      name: {type: 'string'}
+      id: {type: "integer"},
+      name: {type: "string"}
     },
-    required: ['name']
+    required: ["name"]
   },
-  primaryKeys: ['id'],
+  primaryKeys: ["id"],
   relationships: {
     belongsTo: [],
     has: [{
-      name: 'tasks',
-      from: 'id',
-      to:   'project'
+      name: "tasks",
+      from: "id",
+      to:   "project"
     }]
   }
 } as Resource;
 
 export const departments = {
-  name: 'departments',
+  name: "departments",
   source,
   schema: {
-    $schema: 'http://json-schema.org/draft-04/schema#',
-    title: 'departments',
-    type: 'object',
+    $schema: "http://json-schema.org/draft-04/schema#",
+    title: "departments",
+    type: "object",
     properties: {
-      id: {type: 'integer'},
-      name: {type: 'string'}
+      id: {type: "integer"},
+      name: {type: "string"}
     },
-    required: ['name']
+    required: ["name"]
   },
-  primaryKeys: ['id'],
+  primaryKeys: ["id"],
   relationships: {
     belongsTo: [],
     has: [{
-      name: 'users',
-      from: 'id',
-      to:   'department'
+      name: "users",
+      from: "id",
+      to:   "department"
     }]
   }
 } as Resource;

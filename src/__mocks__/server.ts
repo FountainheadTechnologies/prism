@@ -1,4 +1,4 @@
-import {Server} from 'hapi';
+import {Server} from "hapi";
 
 export default {
   expose: jest.fn(),

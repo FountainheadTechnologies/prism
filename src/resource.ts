@@ -1,5 +1,5 @@
-import Source from './source';
-import Schema from './schema';
+import Source from "./source";
+import Schema from "./schema";
 
 /**
  * Defines a relationship between two resources
@@ -31,7 +31,7 @@ interface Resource {
   relationships: {
     belongsTo: Relationship[];
     has: Relationship[];
-  }
+  };
 }
 
 export default Resource;

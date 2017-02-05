@@ -1,7 +1,7 @@
-import * as query from './query';
-import {Item, Collection} from './types';
+import * as query from "./query";
+import {Item, Collection} from "./types";
 
-import * as Promise from 'bluebird';
+import * as Promise from "bluebird";
 
 interface Source {
   create<R extends Item | Collection>(query: query.Create): Promise<R>;

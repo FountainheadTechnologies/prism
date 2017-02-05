@@ -1,10 +1,10 @@
-import Resource from './resource';
-import Document from './Document';
+import Resource from "./resource";
+import Document from "./Document";
 
 import {
   Request,
   IRouteAdditionalConfigurationOptions
-} from 'hapi';
+} from "hapi";
 
 export interface Params {
   where?: {
@@ -23,7 +23,7 @@ export interface Params {
 interface Action {
   readonly method: string;
 
-  routeConfig?: IRouteAdditionalConfigurationOptions,
+  routeConfig?: IRouteAdditionalConfigurationOptions;
 
   path: string;
 
@@ -35,7 +35,7 @@ interface Action {
 }
 
 export interface Type<T> {
-  new (...args: any[]): T
+  new (...args: any[]): T;
 }
 
 export interface Filter<T, K extends keyof T> {

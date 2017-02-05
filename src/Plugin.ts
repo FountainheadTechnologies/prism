@@ -1,12 +1,12 @@
-import Registry from './Registry';
-import Action, {Filter, Params} from './action';
-import Root from './action/Root';
-import Document from './Document';
+import Registry from "./Registry";
+import Action, {Filter, Params} from "./action";
+import Root from "./action/Root";
+import Document from "./Document";
 
-import {resolve} from 'bluebird';
-import {Server, Request, IRouteConfiguration} from 'hapi';
-import {splitEvery, fromPairs, partition, wrap, pick, map} from 'ramda';
-import {join} from 'path';
+import {resolve} from "bluebird";
+import {Server, Request, IRouteConfiguration} from "hapi";
+import {splitEvery, fromPairs, partition, wrap, pick, map} from "ramda";
+import {join} from "path";
 
 /**
  * Configuration options that the Prism plugin accepts
@@ -14,7 +14,7 @@ import {join} from 'path';
 export interface Options {
   /**
    * The root path that all actions will be published relative to
-   * @default `''`
+   * @default `""`
    */
   root: string;
 
@@ -27,14 +27,14 @@ export interface Options {
 }
 
 const DEFAULT_OPTIONS: Options = {
-  root: '/',
+  root: "/",
   insecure: false
-}
+};
 
 const EXPOSED_API: Array<keyof Plugin> = [
-  'registerAction',
-  'registerFilter'
-]
+  "registerAction",
+  "registerFilter"
+];
 
 export default class Plugin {
   protected _options: Options;
@@ -55,10 +55,10 @@ export default class Plugin {
 
     this._registry.registerAction(action);
 
-    var route = toRoute(action);
+    let route = toRoute(action);
     this._server.route(route);
 
-    this._server.log('prism', `Action '${action.constructor.name}' routed to '${route.method}:${route.path}'`);
+    this._server.log("prism", `Action "${action.constructor.name}" routed to "${route.method}:${route.path}"`);
   }
 
   registerFilter(filter: Filter<Action, any> | Filter<Action, any>[]): void {
@@ -67,7 +67,7 @@ export default class Plugin {
 
   expose(): Object {
     return map((value: any) => {
-      if (typeof value === 'function') {
+      if (typeof value === "function") {
         return value.bind(this);
       }
 
@@ -81,18 +81,18 @@ export const toRoute = (action: Action): IRouteConfiguration => ({
   method: action.method,
   config: action.routeConfig,
   handler(request, reply) {
-    var start  = Date.now();
-    var params = mergeRequestParameters(request);
+    let start  = Date.now();
+    let params = mergeRequestParameters(request);
 
-    var dispatch = resolve(action.handle(params, request))
+    let dispatch = resolve(action.handle(params, request))
       .then(result => {
         if (!action.decorate) {
           return result;
         }
 
-        var document = action.decorate(new Document(result), params, request);
+        let document = action.decorate(new Document(result), params, request);
         document.links.push({
-          rel: 'self',
+          rel: "self",
           href: action.path,
           params
         });
@@ -105,16 +105,16 @@ export const toRoute = (action: Action): IRouteConfiguration => ({
 });
 
 export const dequery = (path: string): string =>
-  path.replace(/{\?.*?}/, '');
+  path.replace(/{\?.*?}/, "");
 
 export const mergeRequestParameters = (request: Request): Params => {
-  var queryParams = map((value: string) => {
-    if (value.indexOf(',') < 0) {
+  let queryParams = map((value: string) => {
+    if (value.indexOf(",") < 0) {
       return value;
     }
 
-    var parts = value.split(',');
-    var pairs = splitEvery(2, parts) as any;
+    let parts = value.split(",");
+    let pairs = splitEvery(2, parts) as any;
     return fromPairs(pairs);
   }, request.query);
 
@@ -122,4 +122,4 @@ export const mergeRequestParameters = (request: Request): Params => {
     ...request.params,
     ...queryParams
   };
-}
+};

@@ -1,4 +1,4 @@
-import Schema from './schema';
+import Schema from "./schema";
 
 export interface Condition {
   field: string;
@@ -40,7 +40,7 @@ export interface Read extends Query {
   joins?: Join[];
   order?: Order[];
   page?: Page;
-  return: 'collection' | 'item';
+  return: "collection" | "item";
 }
 
 export interface Update extends Query {
