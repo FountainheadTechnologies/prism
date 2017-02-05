@@ -143,6 +143,24 @@ describe("#read()", () => {
     );
   });
 
+  it("supports custom operators in WHERE terms", async() => {
+    await source.read({
+      return: "item",
+      source: "tasks",
+      schema: tasks.schema,
+      conditions: [{
+        field: "title",
+        value: "%foo%",
+        operator: 'LIKE'
+      }]
+    });
+
+    expect(db.oneOrNone).toHaveBeenCalledWith(
+      "SELECT tasks.* FROM tasks WHERE (tasks.title LIKE $1)",
+      ["%foo%"]
+    );
+  });
+
   it("generates JOIN clauses using `query.joins`", async () => {
     (db.oneOrNone as jest.Mock<any>).mockReturnValue(resolve({
       id: 1,

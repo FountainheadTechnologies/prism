@@ -120,7 +120,8 @@ export default class PostgreSQL implements Source {
   protected _addConditions(sql: SqlSelect | SqlUpdate | SqlDelete, query: query.Read | query.Update | query.Delete): void {
     if (query.conditions) {
       query.conditions.forEach(condition => {
-        (sql as any).where(`${query.source}.${condition.field} = ?`, condition.value);
+        let operator = condition.operator || '=';
+        (sql as any).where(`${query.source}.${condition.field} ${operator} ?`, condition.value);
       });
     }
   }

@@ -3,6 +3,7 @@ import Schema from "./schema";
 export interface Condition {
   field: string;
   value: any;
+  operator?: string;
 }
 
 export interface Join {
