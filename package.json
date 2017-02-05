@@ -21,6 +21,7 @@
     "jest": "^17.0.3",
     "merge-stream": "^1.0.1",
     "ts-jest": "^17.0.3",
+    "tslint": "^4.4.2",
     "typescript": "^2.1.4"
   },
   "jshintConfig": {
@@ -41,7 +42,9 @@
     "build:tsc": "tsc",
     "build:copy": "node ./scripts/copy.js",
     "clean": "rm -rf build",
-    "test": "./node_modules/.bin/jest --no-cache"
+    "pretest": "npm run lint",
+    "test": "./node_modules/.bin/jest --no-cache",
+    "lint": "./node_modules/.bin/tslint --project tsconfig.json"
   },
   "version": "1.0.0",
   "jest": {

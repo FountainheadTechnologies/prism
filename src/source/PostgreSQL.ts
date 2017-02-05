@@ -1,22 +1,22 @@
-import Source from '../source';
-import {Item, Collection} from '../types';
-import * as query from '../query';
+import Source from "../source";
+import {Item, Collection} from "../types";
+import * as query from "../query";
 
-import {IDatabase} from 'pg-promise';
-import {badData} from 'boom';
-import * as Promise from 'bluebird';
-import * as _squel from 'squel';
+import {IDatabase} from "pg-promise";
+import {badData} from "boom";
+import * as Promise from "bluebird";
+import * as _squel from "squel";
 
-import {omit, assocPath, path} from 'ramda';
+import {omit, assocPath, path} from "ramda";
 
 export interface Options {
-  joinMarker: string
+  joinMarker: string;
 }
 
-const squel = _squel.useFlavour('postgres');
+const squel = _squel.useFlavour("postgres");
 
 const DEFAULT_OPTIONS: Options = {
-  joinMarker: 'Δ'
+  joinMarker: "Δ"
 };
 
 export default class PostgreSQL implements Source {
@@ -27,21 +27,21 @@ export default class PostgreSQL implements Source {
   }
 
   create<T extends query.Create>(query: T): Promise<Item | Collection> {
-    var sql = squel.insert()
+    let sql = squel.insert()
       .into(query.source)
-      .returning(query.returning.join(','));
+      .returning(query.returning.join(","));
 
     this._withJoins(sql, query);
     sql.setFields(query.data);
 
-    var statement = sql.toParam();
+    let statement = sql.toParam();
 
     return this.db.oneOrNone(statement.text, statement.values)
       .catch(handleConstraintViolation) as any;
   }
 
   read<T extends query.Read>(query: T): Promise<Item | Collection> {
-    var sql = squel.select()
+    let sql = squel.select()
       .from(query.source);
 
     this._addFields(sql, query);
@@ -50,7 +50,7 @@ export default class PostgreSQL implements Source {
     this._addJoins(sql, query);
     this._addPages(sql, query);
 
-    if (query.return === 'item') {
+    if (query.return === "item") {
       let statement = sql.toParam();
 
       return Promise.resolve(this.db.oneOrNone(statement.text, statement.values))
@@ -60,14 +60,14 @@ export default class PostgreSQL implements Source {
     this._addPages(sql, query);
     let statement = sql.toParam();
 
-    var count = squel.select()
+    let count = squel.select()
       .from(query.source)
       .field(`COUNT(*)`);
 
     this._addConditions(count, query);
     this._addJoins(count, query, true);
 
-    var countStatement = count.toParam();
+    let countStatement = count.toParam();
 
     return Promise.props({
       items: this.db.manyOrNone(statement.text, statement.values)
@@ -78,27 +78,27 @@ export default class PostgreSQL implements Source {
   }
 
   update<T extends query.Update>(query: T): Promise<Item | Collection> {
-    var sql = squel.update()
+    let sql = squel.update()
       .table(query.source)
       .setFields(query.data)
-      .returning(query.returning.join(','));
+      .returning(query.returning.join(","));
 
     this._addConditions(sql, query);
     this._withJoins(sql, query);
 
-    var statement = sql.toParam();
+    let statement = sql.toParam();
 
     return this.db.oneOrNone(statement.text, statement.values)
       .catch(handleConstraintViolation) as any;
   }
 
   delete<T extends query.Delete>(query: T): Promise<boolean> {
-    var sql = squel.delete()
+    let sql = squel.delete()
       .from(query.source);
 
     this._addConditions(sql, query);
 
-    var statement = sql.toParam();
+    let statement = sql.toParam();
     return this.db.oneOrNone(statement.text, statement.values) as any;
   }
 
@@ -128,16 +128,16 @@ export default class PostgreSQL implements Source {
   protected _addOrder(sql: SqlSelect, query: query.Read): void {
     if (query.order) {
       query.order.forEach(order => {
-        sql.order(`${query.source}.${order.field}`, order.direction.toLowerCase() === 'asc');
-      })
+        sql.order(`${query.source}.${order.field}`, order.direction.toLowerCase() === "asc");
+      });
     }
   }
 
   protected _addJoins(sql: SqlSelect, query: query.Read, counting?: boolean) {
     if (query.joins) {
       query.joins.forEach(join => {
-        var alias = join.path.join(this._options.joinMarker);
-        var self  = join.path.slice(0, -1).join(this._options.joinMarker);
+        let alias = join.path.join(this._options.joinMarker);
+        let self  = join.path.slice(0, -1).join(this._options.joinMarker);
         sql.join(join.source, alias, `${alias}.${join.to} = ${self}.${join.from}`);
 
         if (!counting) {
@@ -153,8 +153,8 @@ export default class PostgreSQL implements Source {
     }
 
     return query.joins.reduce((result, join) => {
-      var path = join.path.slice(1);
-      var key  = join.path.join(this._options.joinMarker);
+      let path = join.path.slice(1);
+      let key  = join.path.join(this._options.joinMarker);
 
       return omit([key], assocPath(path, result[key], result));
     }, result);
@@ -168,22 +168,22 @@ export default class PostgreSQL implements Source {
     query.joins
       .sort(join => join.path.length)
       .forEach(join => {
-        var nested = path(join.path, query.data);
+        let nested = path(join.path, query.data);
 
-        if (typeof nested !== 'object') {
+        if (typeof nested !== "object") {
           return;
         }
 
-        var alias = join.path.join(this._options.joinMarker);
+        let alias = join.path.join(this._options.joinMarker);
 
-        var insert = squel.insert()
+        let insert = squel.insert()
           .into(join.source)
           .setFields(nested)
           .returning(join.to);
 
         sql.with(alias, insert);
 
-        var select = squel.select()
+        let select = squel.select()
           .from(alias)
           .field(join.to);
 
@@ -193,23 +193,23 @@ export default class PostgreSQL implements Source {
 }
 
 const handleConstraintViolation = (error: any): never => {
-  if (error.routine !== 'ri_ReportViolation' || !error.detail) {
+  if (error.routine !== "ri_ReportViolation" || !error.detail) {
     throw error;
   }
 
   const re = /^Key \((.+?)\)=\(\d+\) is not present in table ".+?"\.$/;
-  var [detail, key] = error.detail.match(re);
+  let [detail, key] = error.detail.match(re);
 
   if (!key) {
     throw error;
   }
 
-  var err = badData();
+  let err = badData();
   err.output.payload.errors = [{
-    message:    'Constraint violation',
+    message:    "Constraint violation",
     dataPath:   `/${key}`,
     schemaPath: `/properties/${key}/constraint`
   }];
 
   throw err;
-}
+};

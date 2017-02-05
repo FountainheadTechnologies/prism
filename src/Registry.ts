@@ -1,6 +1,6 @@
-import Action, {Filter, Type} from './action';
+import Action, {Filter, Type} from "./action";
 
-import {partition, always, wrap} from 'ramda';
+import {partition, always, wrap} from "ramda";
 
 export default class Registry {
   protected _actions: Action[] = [];
@@ -20,13 +20,13 @@ export default class Registry {
 
   registerFilter(filter: Filter<Action, any> | Filter<Action, any>[]): void {
     if (filter instanceof Array) {
-      return filter.forEach(filter=> this.registerFilter(filter));
+      return filter.forEach(filter => this.registerFilter(filter));
     }
 
-    var toApply = [filter, ...this._pendingFilters]
+    let toApply = [filter, ...this._pendingFilters];
 
     this._pendingFilters = toApply.filter(filter => {
-      var applied = this.withAction(filter.type, filter.where || always(true), (action: any) => {
+      let applied = this.withAction(filter.type, filter.where || always(true), (action: any) => {
         action[filter.name] = wrap(action[filter.name], (next: Function, ...args: any[]) => {
           return filter.filter(next)(...args);
         });
@@ -37,7 +37,7 @@ export default class Registry {
   }
 
   withAction(type: Type<Action>, where: (action: Action) => boolean, fn: (action: Action) => void): boolean {
-    var match = this._actions.find(action => action instanceof type && where(action) === true);
+    let match = this._actions.find(action => action instanceof type && where(action) === true);
 
     if (!match) {
       return false;

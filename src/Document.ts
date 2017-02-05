@@ -1,13 +1,13 @@
-import {Params} from './action';
-import Schema from './schema';
+import {Params} from "./action";
+import Schema from "./schema";
 
-import {Request} from 'hapi';
-import {clone, pick} from 'ramda';
-import * as uriTpl from 'uri-templates';
+import {Request} from "hapi";
+import {clone, pick} from "ramda";
+import * as uriTpl from "uri-templates";
 
 export type Properties = {
   [key: string]: any
-}
+};
 
 export interface Embed {
   rel: string;
@@ -21,7 +21,7 @@ export interface Link {
   name?: string;
   params?: {
     [key: string]: any
-  }
+  };
 }
 
 export interface RenderedLink {
@@ -50,21 +50,21 @@ export default class Document {
   constructor(public properties: Properties = {}) {}
 
   render(params: Params, request: Request) {
-    var result = clone(this.properties);
+    let result = clone(this.properties);
 
     this.embedded.forEach(embed => {
-      var _embedded = embed.document.render(params, request);
-      upsert(result, '_embedded', embed.rel, _embedded, embed.alwaysArray);
+      let _embedded = embed.document.render(params, request);
+      upsert(result, "_embedded", embed.rel, _embedded, embed.alwaysArray);
     });
 
     this.links.forEach(link => {
-      var _link = renderLink(link);
-      upsert(result, '_links', link.rel, _link);
+      let _link = renderLink(link);
+      upsert(result, "_links", link.rel, _link);
     });
 
     this.forms.forEach(form => {
-      var _form = renderForm(form);
-      upsert(result, '_forms', form.rel, _form);
+      let _form = renderForm(form);
+      upsert(result, "_forms", form.rel, _form);
     });
 
     return result;
@@ -72,8 +72,8 @@ export default class Document {
 }
 
 const renderLink = (link: Link): RenderedLink => {
-  var _link = pick<Link, RenderedLink>(['href', 'name'], link);
-  var isTemplated = link.href.indexOf('{') > -1;
+  let _link = pick<Link, RenderedLink>(["href", "name"], link);
+  let isTemplated = link.href.indexOf("{") > -1;
 
   if (!isTemplated) {
     return _link;
@@ -83,14 +83,14 @@ const renderLink = (link: Link): RenderedLink => {
     return {
       ..._link,
       templated: true
-    }
+    };
   }
 
   return {
     ..._link,
     href: uriTpl(link.href).fillFromObject(link.params)
   };
-}
+};
 
 const renderForm = (form: Form): RenderedForm => ({
   ...renderLink(form),
@@ -118,4 +118,4 @@ const upsert = (object: Properties, key: string, name: string, value: Object, al
   }
 
   object[key][name] = [object[key][name]].concat(value);
-}
+};
