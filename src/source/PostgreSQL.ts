@@ -118,13 +118,48 @@ export default class PostgreSQL implements Source {
   }
 
   protected _addConditions(sql: SqlSelect | SqlUpdate | SqlDelete, query: query.Read | query.Update | query.Delete): void {
+    const applyExpression = (target: any, method: "where" | "and" | "or", expression: Expression | [string, any]) => {
+      if (expression instanceof Array) {
+        target[method](expression[0], expression[1]);
+        return;
+      }
+
+      target[method](expression);
+    };
+
+    const buildExpression = (condition: query.Condition): Expression | [string, any] => {
+      let expr = (squel as any).expr() as Expression;
+
+      if ((condition as query.ConditionAnd).$and) {
+        (condition as query.ConditionAnd).$and.forEach(condition => {
+          applyExpression(expr, "and", buildExpression(condition));
+        });
+
+        return expr;
+      }
+
+      if ((condition as query.ConditionOr).$or) {
+        (condition as query.ConditionOr).$or.forEach(condition => {
+          applyExpression(expr, "or", buildExpression(condition));
+        });
+
+        return expr;
+      }
+
+      condition = condition as query.ConditionTerm;
+      let operator = condition.operator || "=";
+      return [
+        `${query.source}.${condition.field} ${operator} ?`,
+        condition.value
+      ];
+    };
+
     if (query.conditions) {
       query.conditions.forEach(condition => {
-        let operator = condition.operator || '=';
-        (sql as any).where(`${query.source}.${condition.field} ${operator} ?`, condition.value);
+        applyExpression(sql, "where", buildExpression(condition));
       });
     }
-  }
+  };
 
   protected _addOrder(sql: SqlSelect, query: query.Read): void {
     if (query.order) {

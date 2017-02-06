@@ -145,19 +145,112 @@ describe("#read()", () => {
 
   it("supports custom operators in WHERE terms", async() => {
     await source.read({
-      return: "item",
+      return: "collection",
       source: "tasks",
       schema: tasks.schema,
       conditions: [{
         field: "title",
         value: "%foo%",
-        operator: 'LIKE'
+        operator: "LIKE"
       }]
     });
 
-    expect(db.oneOrNone).toHaveBeenCalledWith(
+    expect(db.manyOrNone).toHaveBeenCalledWith(
       "SELECT tasks.* FROM tasks WHERE (tasks.title LIKE $1)",
       ["%foo%"]
+    );
+  });
+
+  it("generates AND clauses in WHERE terms when using multiple conditions", async () => {
+    await source.read({
+      return: "collection",
+      source: "tasks",
+      schema: tasks.schema,
+      conditions: [{
+        field: "title",
+        value: "%foo%",
+        operator: "LIKE"
+      }, {
+        field: "project",
+        value: 1
+      }]
+    });
+
+    expect(db.manyOrNone).toHaveBeenCalledWith(
+      "SELECT tasks.* FROM tasks WHERE (tasks.title LIKE $1) AND (tasks.project = $2)",
+      ["%foo%", 1]
+    );
+  });
+
+  it("generates AND clauses in WHERE terms when using $and", async () => {
+    await source.read({
+      return: "collection",
+      source: "tasks",
+      schema: tasks.schema,
+      conditions: [{
+        $and: [{
+          field: "title",
+          value: "%foo%",
+          operator: "LIKE"
+        }, {
+          field: "project",
+          value: 1
+        }]
+      }]
+    });
+
+    expect(db.manyOrNone).toHaveBeenCalledWith(
+      "SELECT tasks.* FROM tasks WHERE (tasks.title LIKE $1 AND tasks.project = $2)",
+      ["%foo%", 1]
+    );
+  });
+
+  it("generates OR clauses in WHERE terms when using $or", async () => {
+    await source.read({
+      return: "collection",
+      source: "tasks",
+      schema: tasks.schema,
+      conditions: [{
+        $or: [{
+          field: "title",
+          value: "%foo%",
+          operator: "LIKE"
+        }, {
+          field: "project",
+          value: 1
+        }]
+      }]
+    });
+
+    expect(db.manyOrNone).toHaveBeenCalledWith(
+      "SELECT tasks.* FROM tasks WHERE (tasks.title LIKE $1 OR tasks.project = $2)",
+      ["%foo%", 1]
+    );
+  });
+
+  it("generates AND and OR clauses in WHERE terms when using a combination of terms", async () => {
+    await source.read({
+      return: "collection",
+      source: "tasks",
+      schema: tasks.schema,
+      conditions: [{
+        $or: [{
+          field: "project",
+          value: 1
+        }, {
+          field: "project",
+          value: 2
+        }],
+      }, {
+        field: "title",
+        value: "%foo%",
+        operator: "LIKE"
+      }]
+    });
+
+    expect(db.manyOrNone).toHaveBeenCalledWith(
+      "SELECT tasks.* FROM tasks WHERE (tasks.project = $1 OR tasks.project = $2) AND (tasks.title LIKE $3)",
+      [1, 2, "%foo%"]
     );
   });
 

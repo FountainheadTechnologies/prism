@@ -1,6 +1,16 @@
 import Schema from "./schema";
 
-export interface Condition {
+export type Condition = ConditionAnd | ConditionOr | ConditionTerm;
+
+export interface ConditionAnd {
+  $and: Condition[];
+}
+
+export interface ConditionOr {
+  $or: Condition[];
+}
+
+export interface ConditionTerm {
   field: string;
   value: any;
   operator?: string;
