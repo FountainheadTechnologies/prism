@@ -143,6 +143,163 @@ describe("#read()", () => {
     );
   });
 
+  it("supports custom operators in WHERE terms", async() => {
+    await source.read({
+      return: "collection",
+      source: "tasks",
+      schema: tasks.schema,
+      conditions: [{
+        field: "title",
+        value: "%foo%",
+        operator: "LIKE"
+      }]
+    });
+
+    expect(db.manyOrNone).toHaveBeenCalledWith(
+      "SELECT tasks.* FROM tasks WHERE (tasks.title LIKE $1)",
+      ["%foo%"]
+    );
+  });
+
+  it("generates AND clauses in WHERE terms when using multiple conditions", async () => {
+    await source.read({
+      return: "collection",
+      source: "tasks",
+      schema: tasks.schema,
+      conditions: [{
+        field: "title",
+        value: "%foo%",
+        operator: "LIKE"
+      }, {
+        field: "project",
+        value: 1
+      }]
+    });
+
+    expect(db.manyOrNone).toHaveBeenCalledWith(
+      "SELECT tasks.* FROM tasks WHERE (tasks.title LIKE $1) AND (tasks.project = $2)",
+      ["%foo%", 1]
+    );
+  });
+
+  it("generates AND clauses in WHERE terms when using $and", async () => {
+    await source.read({
+      return: "collection",
+      source: "tasks",
+      schema: tasks.schema,
+      conditions: [{
+        $and: [{
+          field: "title",
+          value: "%foo%",
+          operator: "LIKE"
+        }, {
+          field: "project",
+          value: 1
+        }]
+      }]
+    });
+
+    expect(db.manyOrNone).toHaveBeenCalledWith(
+      "SELECT tasks.* FROM tasks WHERE (tasks.title LIKE $1 AND tasks.project = $2)",
+      ["%foo%", 1]
+    );
+  });
+
+  it("generates OR clauses in WHERE terms when using $or", async () => {
+    await source.read({
+      return: "collection",
+      source: "tasks",
+      schema: tasks.schema,
+      conditions: [{
+        $or: [{
+          field: "title",
+          value: "%foo%",
+          operator: "LIKE"
+        }, {
+          field: "project",
+          value: 1
+        }]
+      }]
+    });
+
+    expect(db.manyOrNone).toHaveBeenCalledWith(
+      "SELECT tasks.* FROM tasks WHERE (tasks.title LIKE $1 OR tasks.project = $2)",
+      ["%foo%", 1]
+    );
+  });
+
+  it("generates AND and OR clauses in WHERE terms when using a combination of terms", async () => {
+    await source.read({
+      return: "collection",
+      source: "tasks",
+      schema: tasks.schema,
+      conditions: [{
+        $or: [{
+          field: "project",
+          value: 1
+        }, {
+          field: "project",
+          value: 2
+        }],
+      }, {
+        field: "title",
+        value: "%foo%",
+        operator: "LIKE"
+      }]
+    });
+
+    expect(db.manyOrNone).toHaveBeenCalledWith(
+      "SELECT tasks.* FROM tasks WHERE (tasks.project = $1 OR tasks.project = $2) AND (tasks.title LIKE $3)",
+      [1, 2, "%foo%"]
+    );
+  });
+
+  it("generates raw WHERE terms when using $raw`", async () => {
+    await source.read({
+      return: "collection",
+      source: "tasks",
+      schema: tasks.schema,
+      conditions: [{
+        $raw: {
+          fragment: "CONCAT(tasks.title, tasks.description) LIKE ?",
+          values: ["%test%"]
+        }
+      }]
+    });
+
+    expect(db.manyOrNone).toHaveBeenCalledWith(
+      "SELECT tasks.* FROM tasks WHERE (CONCAT(tasks.title, tasks.description) LIKE ($1))",
+      ["%test%"]
+    );
+  });
+
+  it("combines $raw, $and and $or", async () => {
+    await source.read({
+      return: "collection",
+      source: "tasks",
+      schema: tasks.schema,
+      conditions: [{
+        $or: [{
+          $raw: {
+            fragment: "CONCAT(tasks.title, tasks.description) LIKE ?",
+            values: ["%test%"]
+          }
+        }, {
+          field: "project",
+          value: 1
+        }]
+      }, {
+        field: "owner",
+        value: 2
+      }]
+    });
+
+    expect(db.manyOrNone).toHaveBeenCalledWith(
+      "SELECT tasks.* FROM tasks WHERE (CONCAT(tasks.title, tasks.description) LIKE ($1) OR tasks.project = $2) AND (tasks.owner = $3)",
+      ["%test%", 1, 2]
+    );
+  });
+
   it("generates JOIN clauses using `query.joins`", async () => {
     (db.oneOrNone as jest.Mock<any>).mockReturnValue(resolve({
       id: 1,
