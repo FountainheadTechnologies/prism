@@ -254,6 +254,52 @@ describe("#read()", () => {
     );
   });
 
+  it("generates raw WHERE terms when using $raw`", async () => {
+    await source.read({
+      return: "collection",
+      source: "tasks",
+      schema: tasks.schema,
+      conditions: [{
+        $raw: {
+          fragment: "CONCAT(tasks.title, tasks.description) LIKE ?",
+          values: ["%test%"]
+        }
+      }]
+    });
+
+    expect(db.manyOrNone).toHaveBeenCalledWith(
+      "SELECT tasks.* FROM tasks WHERE (CONCAT(tasks.title, tasks.description) LIKE ($1))",
+      ["%test%"]
+    );
+  });
+
+  it("combines $raw, $and and $or", async () => {
+    await source.read({
+      return: "collection",
+      source: "tasks",
+      schema: tasks.schema,
+      conditions: [{
+        $or: [{
+          $raw: {
+            fragment: "CONCAT(tasks.title, tasks.description) LIKE ?",
+            values: ["%test%"]
+          }
+        }, {
+          field: "project",
+          value: 1
+        }]
+      }, {
+        field: "owner",
+        value: 2
+      }]
+    });
+
+    expect(db.manyOrNone).toHaveBeenCalledWith(
+      "SELECT tasks.* FROM tasks WHERE (CONCAT(tasks.title, tasks.description) LIKE ($1) OR tasks.project = $2) AND (tasks.owner = $3)",
+      ["%test%", 1, 2]
+    );
+  });
+
   it("generates JOIN clauses using `query.joins`", async () => {
     (db.oneOrNone as jest.Mock<any>).mockReturnValue(resolve({
       id: 1,

@@ -146,6 +146,11 @@ export default class PostgreSQL implements Source {
         return expr;
       }
 
+      if ((condition as query.Raw).$raw) {
+        let {fragment, values} = (condition as query.Raw).$raw;
+        return [fragment, values];
+      }
+
       condition = condition as query.ConditionTerm;
       let operator = condition.operator || "=";
       return [
