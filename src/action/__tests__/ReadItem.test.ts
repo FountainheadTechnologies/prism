@@ -116,7 +116,8 @@ describe("filters", () => {
 
     expect(document.links).toEqual([{
       rel:  resource.tasks.name,
-      href: readTask.path
+      href: readTask.path,
+      name: "item"
     }]);
   });
 

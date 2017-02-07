@@ -88,7 +88,8 @@ export default class ReadItem implements Action {
 
         doc.links.push({
           rel:  this.resource.name,
-          href: this.path
+          href: this.path,
+          name: "item"
         });
 
         return doc;
