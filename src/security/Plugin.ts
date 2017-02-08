@@ -30,7 +30,14 @@ export default class Plugin {
       throw Error("Private key for token signing/verification was not specified");
     }
 
-    this._options = {...DEFAULT_OPTIONS, ...options};
+    this._options = {
+      ...DEFAULT_OPTIONS,
+      ...options,
+      sign: {
+        ...DEFAULT_OPTIONS.sign,
+        ...options.sign,
+      }
+    };
 
     _server.ext("onPreStart", (server, next) => {
       if (!this._backend) {
@@ -86,7 +93,9 @@ export default class Plugin {
 
 const DEFAULT_OPTIONS = {
   key: "thisApplicationIsNotSecure",
-  sign: {}
+  sign: {
+    expiresIn: "1d"
+  }
 };
 
 const EXPOSED_API: Array<keyof Plugin> = [

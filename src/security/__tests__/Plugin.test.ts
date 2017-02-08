@@ -51,14 +51,57 @@ describe("#registerBackend()", () => {
     expect(server.plugins["prism"].registerFilter).toHaveBeenCalledWith(backend.filters);
   });
 
-  it("registers a CreateToken action using backend and options", () => {
+  it("registers a CreateToken action using backend and default options", () => {
     plugin.registerBackend(backend);
     let createToken = server.plugins["prism"].registerAction.mock.calls[0][0];
 
     expect(createToken._backend).toBe(backend);
     expect(createToken._options).toEqual({
       key: "testPrivateKey",
-      sign: {}
+      sign: {
+        expiresIn: "1d"
+      }
+    });
+  });
+
+  it("registers a CreateToken action using custom options", () => {
+    plugin = new Plugin(server, {
+      key: "testPrivateKey",
+      sign: {
+        expiresIn: "12h"
+      }
+    });
+    plugin.registerBackend(backend);
+
+    let createToken = server.plugins["prism"].registerAction.mock.calls[0][0];
+
+    expect(createToken._backend).toBe(backend);
+    expect(createToken._options).toEqual({
+      key: "testPrivateKey",
+      sign: {
+        expiresIn: "12h"
+      }
+    });
+  });
+
+  it("registers a CreateToken action using merged custom options", () => {
+    plugin = new Plugin(server, {
+      key: "testPrivateKey",
+      sign: {
+        issuer: "testApplication"
+      }
+    });
+    plugin.registerBackend(backend);
+
+    let createToken = server.plugins["prism"].registerAction.mock.calls[0][0];
+
+    expect(createToken._backend).toBe(backend);
+    expect(createToken._options).toEqual({
+      key: "testPrivateKey",
+      sign: {
+        issuer: "testApplication",
+        expiresIn: "1d"
+      }
     });
   });
 });
