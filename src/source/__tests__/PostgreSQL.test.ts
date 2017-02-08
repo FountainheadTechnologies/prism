@@ -334,7 +334,7 @@ describe("#read()", () => {
     });
 
     expect(db.oneOrNone).toHaveBeenCalledWith(
-      "SELECT tasks.*, row_to_json(tasksΔusers.*) AS tasksΔusers, row_to_json(tasksΔprojects.*) AS tasksΔprojects FROM tasks INNER JOIN users AS tasksΔusers ON (tasksΔusers.id = tasks.owner) INNER JOIN projects AS tasksΔprojects ON (tasksΔprojects.id = tasks.project)",
+      "SELECT tasks.*, row_to_json(tasksΔusers.*) AS tasksΔusers, row_to_json(tasksΔprojects.*) AS tasksΔprojects FROM tasks LEFT JOIN users AS tasksΔusers ON (tasksΔusers.id = tasks.owner) LEFT JOIN projects AS tasksΔprojects ON (tasksΔprojects.id = tasks.project)",
       []
     );
 
@@ -347,6 +347,48 @@ describe("#read()", () => {
         id: 1,
         username: "test user 1"
       },
+      projects: {
+        id: 1,
+        name: "test project 1"
+      }
+    });
+  });
+
+  it("omits mising JOIN properties", async () => {
+    (db.oneOrNone as jest.Mock<any>).mockReturnValue(resolve({
+      id: 1,
+      title: "test task 1 with joined data",
+      user: 1,
+      project: 1,
+      "tasksΔusers": null,
+      "tasksΔprojects": {
+        id: 1,
+        name: "test project 1"
+      }
+    }));
+
+    let result = await source.read({
+      return: "item",
+      source: "tasks",
+      schema: tasks.schema,
+      joins: [{
+        source: "users",
+        path:   ["tasks", "users"],
+        from:   "owner",
+        to:     "id"
+      }, {
+        source: "projects",
+        path:   ["tasks", "projects"],
+        from:   "project",
+        to:     "id"
+      }]
+    });
+
+    expect(result).toEqual({
+      id: 1,
+      title: "test task 1 with joined data",
+      user: 1,
+      project: 1,
       projects: {
         id: 1,
         name: "test project 1"
@@ -451,12 +493,12 @@ describe("#read()", () => {
       });
 
       expect(db.manyOrNone).toHaveBeenCalledWith(
-        "SELECT tasks.*, row_to_json(tasksΔusers.*) AS tasksΔusers, row_to_json(tasksΔprojects.*) AS tasksΔprojects FROM tasks INNER JOIN users AS tasksΔusers ON (tasksΔusers.id = tasks.owner) INNER JOIN projects AS tasksΔprojects ON (tasksΔprojects.id = tasks.project)",
+        "SELECT tasks.*, row_to_json(tasksΔusers.*) AS tasksΔusers, row_to_json(tasksΔprojects.*) AS tasksΔprojects FROM tasks LEFT JOIN users AS tasksΔusers ON (tasksΔusers.id = tasks.owner) LEFT JOIN projects AS tasksΔprojects ON (tasksΔprojects.id = tasks.project)",
         []
       );
 
       expect(db.one).toHaveBeenCalledWith(
-        "SELECT COUNT(*) FROM tasks INNER JOIN users AS tasksΔusers ON (tasksΔusers.id = tasks.owner) INNER JOIN projects AS tasksΔprojects ON (tasksΔprojects.id = tasks.project)",
+        "SELECT COUNT(*) FROM tasks LEFT JOIN users AS tasksΔusers ON (tasksΔusers.id = tasks.owner) LEFT JOIN projects AS tasksΔprojects ON (tasksΔprojects.id = tasks.project)",
         []
       );
 

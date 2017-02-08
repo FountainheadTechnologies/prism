@@ -179,7 +179,7 @@ export default class PostgreSQL implements Source {
       query.joins.forEach(join => {
         let alias = join.path.join(this._options.joinMarker);
         let self  = join.path.slice(0, -1).join(this._options.joinMarker);
-        sql.join(join.source, alias, `${alias}.${join.to} = ${self}.${join.from}`);
+        sql.left_join(join.source, alias, `${alias}.${join.to} = ${self}.${join.from}`);
 
         if (!counting) {
           sql.field(`row_to_json(${alias}.*) AS ${alias}`);
@@ -195,9 +195,13 @@ export default class PostgreSQL implements Source {
 
     return query.joins.reduce((result, join) => {
       let path = join.path.slice(1);
-      let key  = join.path.join(this._options.joinMarker);
+      let key   = join.path.join(this._options.joinMarker);
 
-      return omit([key], assocPath(path, result[key], result));
+      if (result[key]) {
+        result = assocPath(path, result[key], result);
+      }
+
+      return omit([key], result);
     }, result);
   }
 
