@@ -13,6 +13,7 @@
     "@types/bluebird": "^3.0.35",
     "@types/boom": "0.0.32",
     "@types/hapi": "^13.0.37",
+    "@types/hapi-auth-jwt2": "^7.0.0",
     "@types/jest": "^16.0.1",
     "@types/jsonwebtoken": "^7.2.0",
     "@types/ramda": "0.0.2",
@@ -24,7 +25,6 @@
     "merge-stream": "^1.0.1",
     "ts-jest": "^17.0.3",
     "tslint": "^4.4.2",
-    "typed-hapi-auth-jwt2": "^7.0.0",
     "typescript": "^2.1.4"
   },
   "jshintConfig": {
@@ -61,7 +61,9 @@
     "rootDir": "src",
     "testRegex": "(/__tests__/.*|\\.(test|spec))\\.ts$",
     "testResultsProcessor": "../node_modules/ts-jest/coverageprocessor.js",
-    "collectCoverageFrom": ["**/*.ts"],
+    "collectCoverageFrom": [
+      "**/*.ts"
+    ],
     "moduleDirectories": [
       "node_modules",
       "src"
