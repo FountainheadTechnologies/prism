@@ -85,6 +85,8 @@ describe("filters", () => {
   });
 
   it("registers a form on the Root action", () => {
+    registry.applyFilters();
+
     let document = new Document();
     root.decorate(document, {}, hapi.request);
 
@@ -99,6 +101,7 @@ describe("filters", () => {
 
   it("registers a form on ReadCollection", () => {
     registry.registerAction(readTasks);
+    registry.applyFilters();
 
     let document = new Document({items: []});
     readTasks.decorate(document, {}, hapi.request);
@@ -114,6 +117,7 @@ describe("filters", () => {
 
   it("recursively joins itself as a parent on child queries", () => {
     registry.registerAction(createUser);
+    registry.applyFilters();
 
     let joins = createTask.joins({}, hapi.request);
     expect(joins).toEqual([{
@@ -136,6 +140,7 @@ describe("filters", () => {
 
   it("embeds its schema into Create forms on related children", () => {
     registry.registerAction(createUser);
+    registry.applyFilters();
 
     let document = new Document();
     root.decorate(document, {}, hapi.request);

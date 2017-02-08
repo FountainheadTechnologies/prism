@@ -4,13 +4,9 @@ import {partition, always, wrap} from "ramda";
 
 export default class Registry {
   protected _actions: Action[] = [];
-  protected _pendingFilters: Filter<Action, any>[] = [];
+  protected _filters: Filter<Action, any>[] = [];
 
-  registerAction(action: Action | Action[]): void {
-    if (action instanceof Array) {
-      return action.forEach(this.registerAction);
-    }
-
+  registerAction(action: Action): void {
     this._actions.push(action);
 
     if (action.filters) {
@@ -23,28 +19,25 @@ export default class Registry {
       return filter.forEach(filter => this.registerFilter(filter));
     }
 
-    let toApply = [filter, ...this._pendingFilters];
-
-    this._pendingFilters = toApply.filter(filter => {
-      let applied = this.withAction(filter.type, filter.where || always(true), (action: any) => {
-        action[filter.name] = wrap(action[filter.name], (next: Function, ...args: any[]) => {
-          return filter.filter(next)(...args);
-        });
-      });
-
-      return !applied;
-    });
+    this._filters.push(filter);
   }
 
-  withAction(type: Type<Action>, where: (action: Action) => boolean, fn: (action: Action) => void): boolean {
-    let match = this._actions.find(action => action instanceof type && where(action) === true);
+  applyFilters(): void {
+    this._filters.forEach(filter => {
+      this._actions
+        .forEach((action: any) => {
+          if (!(action instanceof filter.type)) {
+            return;
+          }
 
-    if (!match) {
-      return false;
-    }
+          if (filter.where && filter.where(action) === false) {
+            return;
+          }
 
-    fn(match);
-
-    return true;
+          action[filter.name] = wrap(action[filter.name], (next: Function, ...args: any[]) => {
+            return filter.filter(next)(...args);
+          });
+        });
+    });
   }
 }

@@ -283,6 +283,8 @@ describe("filters", () => {
   });
 
   it("adds a link to itself to the Root action", () => {
+    registry.applyFilters();
+
     let document = new Document({});
     root.decorate(document, {}, {} as any);
 
@@ -296,6 +298,7 @@ describe("filters", () => {
   it("adds links to itself to parent ReadItem actions", () => {
     registry.registerAction(readUser);
     registry.registerAction(readProject);
+    registry.applyFilters();
 
     let user = new Document({
       id: "user1"
@@ -334,6 +337,7 @@ describe("filters", () => {
 
   it("recursively joins itself as a parent on child queries", () => {
     registry.registerAction(readUsers);
+    registry.applyFilters();
 
     let query = readTasks.joins({}, {} as any);
     expect(query).toEqual([{

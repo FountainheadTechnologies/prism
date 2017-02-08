@@ -11,6 +11,9 @@ import CreateItem from 'prism/action/CreateItem';
 import UpdateItem from 'prism/action/UpdateItem';
 import DeleteItem from 'prism/action/DeleteItem';
 
+import security from 'prism/security';
+import Resource from 'prism/security/backend/Resource';
+
 var server = new Server();
 server.connection({port: 8080});
 
@@ -24,8 +27,15 @@ var db = pgPromise(pgpOptions)({
 
 var source = new PostgreSQL(db);
 
-server.register(prism)
-  .then(() => console.log('Registered Prism plugin'))
+server.register([{
+  register: prism,
+}, {
+  register: security,
+  options: {
+    key: 'example'
+  }
+}])
+  .then(() => console.log('Registered Prism plugins'))
   .then(() => inspect(db))
   .then(tableConfigs => {
     tableConfigs.forEach((config: any) => {
@@ -38,6 +48,11 @@ server.register(prism)
           new UpdateItem({source, ...config}),
           new DeleteItem({source, ...config})
       ]);
+
+      if (config.name === 'users') {
+          let backend = new Resource({source, ...config});
+          server.plugins['prism-security'].registerBackend(backend);
+      }
     });
 
     return server.start();

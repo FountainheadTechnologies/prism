@@ -99,6 +99,8 @@ describe("filters", () => {
   });
 
   it("registers a form on the Root action", () => {
+    registry.applyFilters();
+
     let document = new Document();
     root.decorate(document, {}, hapi.request);
 
@@ -116,6 +118,7 @@ describe("filters", () => {
 
   it("registers a form on ReadItem", () => {
     registry.registerAction(readTask);
+    registry.applyFilters();
 
     let document = new Document({
       id: 1337

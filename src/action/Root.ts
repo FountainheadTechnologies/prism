@@ -8,6 +8,8 @@ export default class Root implements Action {
 
   method = "GET";
 
+  routeConfig = {};
+
   handle = () => ({});
 
   decorate = (doc: Document, params: Params, request: Request): Document =>
