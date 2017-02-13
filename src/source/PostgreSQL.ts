@@ -111,7 +111,15 @@ export default class PostgreSQL implements Source {
 
   protected _addFields(sql: SqlSelect, query: query.Read): void {
     if (query.fields) {
-      sql.fields(query.fields.map(field => `${query.source}.${field}`));
+      let fields = query.fields.map(field => {
+        if ((field as query.Raw).$raw) {
+          return (field as query.Raw).$raw.fragment;
+        }
+
+        return `${query.source}.${field}`;
+      });
+
+      sql.fields(fields);
     } else {
       sql.field(`${query.source}.*`);
     }

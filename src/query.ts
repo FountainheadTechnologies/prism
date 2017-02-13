@@ -1,5 +1,14 @@
 import Schema from "./schema";
 
+export interface Raw {
+  $raw: {
+    fragment: any;
+    values?: any[];
+  };
+}
+
+export type Field = string | Raw;
+
 export type Condition = ConditionAnd | ConditionOr | ConditionTerm | Raw;
 
 export interface ConditionAnd {
@@ -14,13 +23,6 @@ export interface ConditionTerm {
   field: string;
   value: any;
   operator?: string;
-}
-
-export interface Raw {
-  $raw: {
-    fragment: any;
-    values?: any[];
-  };
 }
 
 export interface Join {
@@ -52,7 +54,7 @@ export interface Create extends Query {
 }
 
 export interface Read extends Query {
-  fields?: string[];
+  fields?: Field[];
   conditions?: Condition[];
   schema: Schema;
   joins?: Join[];

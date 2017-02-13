@@ -126,6 +126,24 @@ describe("#read()", () => {
     );
   });
 
+  it("supports raw field names in `query.fields`", async () => {
+    await source.read({
+      return: "item",
+      source: "tasks",
+      schema: tasks.schema,
+      fields: ["owner", {
+        $raw: {
+          fragment: "COUNT(tasks.project) OVER ()"
+        }
+      }]
+    });
+
+    expect(db.oneOrNone).toHaveBeenCalledWith(
+      "SELECT tasks.owner, COUNT(tasks.project) OVER () FROM tasks",
+      []
+    );
+  });
+
   it("generates WHERE terms using `query.conditions`", async () => {
     await source.read({
       return: "item",
