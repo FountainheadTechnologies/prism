@@ -15,6 +15,7 @@ const registerPlugin = (server: Server, options: Partial<Options>, next: Functio
 
 export default Object.assign(registerPlugin, {
   attributes: {
-    pkg: require("./package.json")
+    name: "prism",
+    version: require("./package.json").version
   }
 });

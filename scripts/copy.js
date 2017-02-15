@@ -25,7 +25,7 @@ Promise
 	.then(() => readJsonAsync(pathTo('package.json')))
   .then(packageJSON => {
 	  Object.assign(packageJSON, {
-		  name: 'prism',
+		  name: '@warrenseymour/prism',
 		  private: false
 	  });
 
