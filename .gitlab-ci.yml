@@ -10,3 +10,13 @@ build:
 test:
   script:
     - npm run test
+
+pages:
+  stage: deploy
+  script:
+  - echo 'Nothing to do...'
+  artifacts:
+    paths:
+    - website
+  only:
+  - master
