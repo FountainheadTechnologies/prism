@@ -14,8 +14,10 @@ test:
 pages:
   stage: deploy
   script:
-  - cd public-site && npm install && ./node_modules/.bin/hexo generate
-  - mv public-site/public ./public
+  - cd public-site
+  - npm install
+  - ./node_modules/.bin/hexo generate
+  - mv ./public ../
   artifacts:
     paths:
     - public
