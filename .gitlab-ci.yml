@@ -14,7 +14,7 @@ test:
 pages:
   stage: deploy
   script:
-  - cd public-site && npm install && hexo generate
+  - cd public-site && npm install && ./node_modules/.bin/hexo generate
   artifacts:
     paths:
     - public-site/public
