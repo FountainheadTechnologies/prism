@@ -15,8 +15,9 @@ pages:
   stage: deploy
   script:
   - cd public-site && npm install && ./node_modules/.bin/hexo generate
+  - mv public-site/public ./public
   artifacts:
     paths:
-    - public-site/public
+    - public
   only:
   - master
