@@ -1,0 +1,41 @@
+docs:
+  getting-started:
+    - index
+    - installation
+    - configuration
+
+  support:
+    - faq
+    - raising-an-issue
+
+  concepts:
+    - hypermedia
+    - typescript
+    - extending
+    - security
+    - performance
+    - standards
+
+  architecture:
+    - summary
+    - registry
+    - actions
+    - filters
+    - documents
+    - data-sources
+    - security-backends
+
+  contributing:
+    - contributors-guide
+    - writing-documentation
+    - design-principles
+
+tutorials:
+  first:
+    - steps
+
+  security:
+    - steps
+
+  filters:
+    - steps

@@ -1,0 +1,21 @@
+<% var section = currentSection(); var sections = sidebar() %>
+<div class="sidebar">
+<% for (sectionName in sections) { %>
+    <% var items = sections[sectionName] %>
+    <p class="section">
+        <%= __(`${section}.${sectionName}.title`) %>
+    </p>
+    <ul class="items">
+        <% for (itemIndex in items) { %>
+        <% var item = items[itemIndex] %>
+        <li class="item">
+            <% var href = `${config.root}${section}` %>
+            <% if (item !== 'index') href += `/${item}.html` %>
+            <a href="<%= href %>">
+                <%= __([section, sectionName, item].join('.')) %>
+            </a>
+        </li>
+        <% } %>
+    </ul>
+<% } %>
+</div>

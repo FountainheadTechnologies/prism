@@ -14,9 +14,9 @@ test:
 pages:
   stage: deploy
   script:
-  - echo 'Nothing to do...'
+  - cd public-site && npm install && hexo generate
   artifacts:
     paths:
-    - public
+    - public-site/public
   only:
   - master

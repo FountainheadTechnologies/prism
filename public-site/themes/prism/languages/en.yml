@@ -1,0 +1,43 @@
+nav:
+  docs: Documentation
+  tutorials: Tutorials
+  api: API Reference
+  addons: Addons
+  community: Community
+
+docs:
+  getting-started:
+    title: Getting Started
+    index: Overview
+    installation: Installation
+    configuration: Configuration
+
+  support:
+    title: Support
+    faq: FAQ
+    raising-an-issue: Reporting Bugs & Issues
+
+  concepts:
+    title: Concepts
+    hypermedia: Hypermedia
+    typescript: TypeScript
+    extending: Customizing & Extending
+    security: Security
+    performance: Performance
+    standards: Standards & Compliance
+
+  architecture:
+    title: Architecture
+    summary: Summary
+    registry: The Registry
+    actions: Actions
+    filters: Filters
+    documents: Documents
+    data-sources: Data Sources
+    security-backends: Security Backends
+
+  contributing:
+    title: Contributing
+    contributors-guide: Contributors' Guide
+    writing-documentation: Writing Documentation
+    design-principles: Design Principles
