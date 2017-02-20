@@ -1,19 +1,19 @@
-import Action, {Params, Filter} from "../action";
-import Resource from "../resource";
+import {Action, Params, Filter} from "../action";
+import {Resource} from "../resource";
 import {Item} from "../types";
-import Schema from "../schema";
+import {Schema} from "../schema";
 import * as query from "../query";
-import Document, {Embed, Link} from "../Document";
-import Root from "./Root";
-import ReadCollection from "./ReadCollection";
-import CreateItem from "./CreateItem";
+import {Document, Embed, Link} from "../Document";
+import {Root} from "./Root";
+import {ReadCollection} from "./ReadCollection";
+import {CreateItem} from "./CreateItem";
 
 import * as Promise from "bluebird";
 import * as uriTpl  from "uri-templates";
 import {Request} from "hapi";
 import {is, evolve, pathEq, prepend} from "ramda";
 
-export default class ReadItem implements Action {
+export class ReadItem implements Action {
   path: string;
 
   method = "GET";

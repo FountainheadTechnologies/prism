@@ -1,7 +1,7 @@
 import {resolve} from "bluebird";
 import {IDatabase} from "pg-promise";
 
-export default {
+export const db = {
   oneOrNone:  jest.fn(() => resolve({
     name: "mockOneOrNoneResult"
   })),

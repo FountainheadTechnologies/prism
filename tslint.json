@@ -53,6 +53,7 @@
             true,
             "spaces"
         ],
+        "no-default-export": true,
         "no-eval": true,
         "no-internal-module": true,
         "no-trailing-whitespace": true,

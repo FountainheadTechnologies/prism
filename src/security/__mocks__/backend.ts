@@ -1,6 +1,6 @@
-import Backend from "../backend";
+import {Backend} from "../backend";
 
-export default {
+export const backend = {
   issue: jest.fn(),
   validate: jest.fn(),
   schema: {

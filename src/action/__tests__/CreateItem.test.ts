@@ -1,8 +1,8 @@
-import CreateItem from "../CreateItem";
-import Root from "../Root";
-import ReadCollection from "../ReadCollection";
-import Registry from "../../Registry";
-import Document from "../../Document";
+import {CreateItem} from "../CreateItem";
+import {Root} from "../Root";
+import {ReadCollection} from "../ReadCollection";
+import {Registry} from "../../Registry";
+import {Document} from "../../Document";
 import * as schema from "../../schema";
 import * as resource from "../../__mocks__/resource";
 import * as hapi from "../__mocks__/hapi";

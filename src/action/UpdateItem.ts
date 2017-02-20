@@ -1,15 +1,15 @@
-import Action, {Params, Filter} from "../action";
-import ReadItem from "./ReadItem";
-import Root from "./Root";
-import Resource from "../resource";
-import Schema, {validate} from "../schema";
+import {Action, Params, Filter} from "../action";
+import {ReadItem} from "./ReadItem";
+import {Root} from "./Root";
+import {Resource} from "../resource";
+import {Schema, validate} from "../schema";
 import * as query from "../query";
 
 import * as Promise from "bluebird";
 import {Request, Response} from "hapi";
 import {omit, pathEq} from "ramda";
 
-export default class UpdateItem implements Action {
+export class UpdateItem implements Action {
   path: string;
 
   method = "PATCH";

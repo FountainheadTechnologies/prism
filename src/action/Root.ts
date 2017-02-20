@@ -1,9 +1,9 @@
-import Action, {Params} from "../action";
-import Document from "../Document";
+import {Action, Params} from "../action";
+import {Document} from "../Document";
 
 import {Request} from "hapi";
 
-export default class Root implements Action {
+export class Root implements Action {
   path = "";
 
   method = "GET";

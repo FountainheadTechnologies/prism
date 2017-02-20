@@ -5,7 +5,7 @@ import {badData} from "boom";
 import {pick} from "ramda";
 import * as Promise from "bluebird";
 
-interface Schema {
+export interface Schema {
   $schema: string;
   title: string;
   type: string;
@@ -14,8 +14,6 @@ interface Schema {
   };
   required: string[];
 }
-
-export default Schema;
 
 export const validate = (data: Item | Collection, schema: Schema): Promise<boolean> => {
   let test = validateMultiple(data, schema);

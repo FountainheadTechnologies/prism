@@ -1,16 +1,16 @@
-import Action, {Params, Filter} from "../action";
-import ReadCollection from "./ReadCollection";
-import Root from "./Root";
-import Resource from "../resource";
+import {Action, Params, Filter} from "../action";
+import {ReadCollection} from "./ReadCollection";
+import {Root} from "./Root";
+import {Resource} from "../resource";
 import {Item} from "../types";
-import Schema, {validate, sanitize} from "../schema";
+import {Schema, validate, sanitize} from "../schema";
 import * as query from "../query";
 
 import * as Promise from "bluebird";
 import {Request, Response} from "hapi";
 import {evolve, prepend, pathEq} from "ramda";
 
-export default class CreateItem implements Action {
+export class CreateItem implements Action {
   path: string;
 
   method = "POST";

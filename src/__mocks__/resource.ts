@@ -1,5 +1,5 @@
-import Resource from "../resource";
-import source from "./source";
+import {Resource} from "../resource";
+import {source} from "./source";
 
 export const tasks = {
   name: "tasks",

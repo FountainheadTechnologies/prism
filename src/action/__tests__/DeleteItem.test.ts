@@ -1,8 +1,8 @@
-import DeleteItem from "../DeleteItem";
-import ReadItem from "../ReadItem";
-import Root from "../Root";
-import Document from "../../Document";
-import Registry from "../../Registry";
+import {DeleteItem} from "../DeleteItem";
+import {ReadItem} from "../ReadItem";
+import {Root} from "../Root";
+import {Document} from "../../Document";
+import {Registry} from "../../Registry";
 
 import * as resource from "../../__mocks__/resource";
 import * as hapi from "../__mocks__/hapi";

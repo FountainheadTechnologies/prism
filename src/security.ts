@@ -1,4 +1,4 @@
-import Plugin, {Options} from "./security/Plugin";
+import {Plugin, Options} from "./security/Plugin";
 
 import {Server} from "hapi";
 import * as hapiJwt from "hapi-auth-jwt2";
@@ -12,7 +12,7 @@ const registerPlugin = (server: Server, options: Partial<Options>, next: Functio
     .then(() => next());
 };
 
-export default Object.assign(registerPlugin, {
+module.exports = Object.assign(registerPlugin, {
   attributes: {
     name: "prism-security",
     version: require("./package.json").version

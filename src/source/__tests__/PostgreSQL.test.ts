@@ -1,6 +1,6 @@
 import {tasks} from "../../__mocks__/resource";
-import db from "../__mocks__/pgPromise";
-import PostgreSQL from "../PostgreSQL";
+import {db} from "../__mocks__/pgPromise";
+import {PostgreSQL} from "../PostgreSQL";
 
 import {resolve, reject} from "bluebird";
 

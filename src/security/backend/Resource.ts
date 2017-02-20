@@ -1,11 +1,11 @@
-import Backend from "../backend";
-import _Resource from "../../resource";
-import ReadItem from "../../action/ReadItem";
-import CreateItem from "../../action/CreateItem";
-import UpdateItem from "../../action/UpdateItem";
+import {Backend} from "../backend";
+import {Resource as _Resource} from "../../resource";
+import {ReadItem} from "../../action/ReadItem";
+import {CreateItem} from "../../action/CreateItem";
+import {UpdateItem} from "../../action/UpdateItem";
 import {Filter} from "../../action";
 import {Condition} from "../../query";
-import Schema, {validate} from "../../schema";
+import {Schema, validate} from "../../schema";
 
 import {pick, pathEq, partialRight} from "ramda";
 import {hash, compare} from "bcrypt";
@@ -15,7 +15,7 @@ import * as Promise from "bluebird";
 /**
  * Security backend that performs authentication using a Prism Resource
  */
-export default class Resource implements Backend {
+export class Resource implements Backend {
   protected _options: Options;
 
   schema: Schema;

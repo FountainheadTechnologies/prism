@@ -1,11 +1,11 @@
-import Action, {Params, Filter} from "../action";
-import Resource from "../resource";
+import {Action, Params, Filter} from "../action";
+import {Resource} from "../resource";
 import {Collection} from "../types";
-import Schema from "../schema";
+import {Schema} from "../schema";
 import * as query from "../query";
-import Document, {Link, Embed} from "../Document";
-import Root from "./Root";
-import ReadItem from "./ReadItem";
+import {Document, Link, Embed} from "../Document";
+import {Root} from "./Root";
+import {ReadItem} from "./ReadItem";
 
 import * as Promise from "bluebird";
 import {Request} from "hapi";
@@ -19,7 +19,7 @@ const DEFAULT_OPTIONS: Options = {
   pageSize: 20
 };
 
-export default class ReadCollection implements Action {
+export class ReadCollection implements Action {
   protected _options: Options;
 
   path: string;
