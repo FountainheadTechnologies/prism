@@ -1,8 +1,7 @@
-import Registry from "./Registry";
-import Security from "./security";
-import Action, {Filter, Params} from "./action";
-import Root from "./action/Root";
-import Document from "./Document";
+import {Registry} from "./Registry";
+import {Action, Filter, Params} from "./action";
+import {Root} from "./action/Root";
+import {Document} from "./Document";
 
 import {resolve} from "bluebird";
 import {Server, Request, IRouteConfiguration} from "hapi";
@@ -39,7 +38,7 @@ const EXPOSED_API: Array<keyof Plugin> = [
   "registerFilter"
 ];
 
-export default class Plugin {
+export class Plugin {
   protected _options: Options;
 
   protected _registry = new Registry();

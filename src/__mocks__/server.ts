@@ -1,6 +1,6 @@
 import {Server} from "hapi";
 
-export default class MockServer {
+export class MockServer {
   protected _preStartFns: Function[] = [];
 
   plugins = {};

@@ -1,14 +1,14 @@
-import Action, {Params, Filter} from "../action";
-import ReadItem from "./ReadItem";
-import Root from "./Root";
-import Resource from "../resource";
+import {Action, Params, Filter} from "../action";
+import {ReadItem} from "./ReadItem";
+import {Root} from "./Root";
+import {Resource} from "../resource";
 import * as query from "../query";
 
 import * as Promise from "bluebird";
 import {Request, Response} from "hapi";
 import {pathEq} from "ramda";
 
-export default class DeleteItem implements Action {
+export class DeleteItem implements Action {
   path: string;
 
   method = "DELETE";

@@ -1,5 +1,5 @@
-import Plugin, {toRoute} from "../Plugin";
-import MockServer from "../__mocks__/server";
+import {Plugin, toRoute} from "../Plugin";
+import {MockServer} from "../__mocks__/server";
 
 import {Server} from "hapi";
 import {T, identity} from "ramda";

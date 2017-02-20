@@ -1,5 +1,5 @@
-import Resource from "./resource";
-import Document from "./Document";
+import {Resource} from "./resource";
+import {Document} from "./Document";
 
 import {
   Request,
@@ -20,7 +20,7 @@ export interface Params {
   [key: string]: any;
 }
 
-interface Action {
+export interface Action {
   readonly method: string;
 
   routeConfig?: IRouteAdditionalConfigurationOptions;
@@ -44,5 +44,3 @@ export interface Filter<T, K extends keyof T> {
   where?: (action: T) => boolean;
   filter: (next: T[K]) => T[K];
 }
-
-export default Action;

@@ -1,8 +1,8 @@
-import Action, {Filter, Type} from "./action";
+import {Action, Filter, Type} from "./action";
 
 import {partition, always, wrap} from "ramda";
 
-export default class Registry {
+export class Registry {
   protected _actions: Action[] = [];
   protected _filters: Filter<Action, any>[] = [];
 

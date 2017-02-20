@@ -1,4 +1,4 @@
-import Schema from "../schema";
+import {Schema} from "../schema";
 import {Filter} from "../action";
 
 import {Request} from "hapi";
@@ -8,7 +8,7 @@ import * as Promise from "bluebird";
  * A security backend implements the checking of preconditions when issuing a
  * new token or validating an existing one presented in an HTTP request
  */
-interface Backend {
+export interface Backend {
   /**
    * Issue a new token based upon a request's payload
    *
@@ -42,5 +42,3 @@ interface Backend {
    */
   filters?: Array<Filter<any, any>>;
 }
-
-export default Backend;

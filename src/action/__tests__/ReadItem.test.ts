@@ -1,9 +1,9 @@
-import ReadItem from "../ReadItem";
-import ReadCollection from "../ReadCollection";
-import CreateItem from "../CreateItem";
-import Root from "../Root";
-import Document from "../../Document";
-import Registry from "../../Registry";
+import {ReadItem} from "../ReadItem";
+import {ReadCollection} from "../ReadCollection";
+import {CreateItem} from "../CreateItem";
+import {Root} from "../Root";
+import {Document} from "../../Document";
+import {Registry} from "../../Registry";
 import * as resource from "../../__mocks__/resource";
 import * as hapi from "../__mocks__/hapi";
 

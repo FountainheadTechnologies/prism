@@ -1,4 +1,4 @@
-import Source from "../source";
+import {Source} from "../source";
 import {Item, Collection} from "../types";
 import * as query from "../query";
 
@@ -19,7 +19,7 @@ const DEFAULT_OPTIONS: Options = {
   joinMarker: "Δ"
 };
 
-export default class PostgreSQL implements Source {
+export class PostgreSQL implements Source {
   protected _options: Options;
 
   constructor(readonly db: IDatabase<{}>, options?: Partial<Options>) {

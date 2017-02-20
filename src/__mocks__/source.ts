@@ -1,6 +1,6 @@
-import Source from "../source";
+import {Source} from "../source";
 
-export default {
+export const source = {
   create: jest.fn(),
   read:   jest.fn(),
   update: jest.fn(),

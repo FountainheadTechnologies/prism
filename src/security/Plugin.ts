@@ -1,6 +1,6 @@
-import CreateToken from "./CreateToken";
-import Backend from "./backend";
-import Prism from "../Plugin";
+import {CreateToken} from "./CreateToken";
+import {Backend} from "./backend";
+import {Plugin as Prism} from "../Plugin";
 
 import {Server} from "hapi";
 import {map, pick} from "ramda";
@@ -20,7 +20,7 @@ export interface Options {
   sign: SignOptions;
 }
 
-export default class Plugin {
+export class Plugin {
   protected _options: Options;
 
   protected _backend: Backend;

@@ -1,6 +1,6 @@
-import Plugin from "../Plugin";
-import backend from "../__mocks__/backend";
-import MockServer from "../../__mocks__/server";
+import {Plugin} from "../Plugin";
+import {backend} from "../__mocks__/backend";
+import {MockServer} from "../../__mocks__/server";
 import {request} from "../../action/__mocks__/hapi";
 
 import {Server} from "hapi";

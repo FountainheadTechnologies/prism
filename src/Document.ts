@@ -1,5 +1,5 @@
 import {Params} from "./action";
-import Schema from "./schema";
+import {Schema} from "./schema";
 
 import {Request} from "hapi";
 import {clone, pick} from "ramda";
@@ -42,7 +42,7 @@ export interface RenderedForm extends RenderedLink {
   schema?: Schema;
 }
 
-export default class Document {
+export class Document {
   embedded: Embed[] = [];
 
   links: Link[] = [];

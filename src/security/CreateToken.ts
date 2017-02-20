@@ -1,14 +1,14 @@
-import Action, {Params, Filter} from "../action";
-import Root from "../action/Root";
-import Document from "../Document";
-import Backend from "./backend";
+import {Action, Params, Filter} from "../action";
+import {Root} from "../action/Root";
+import {Document} from "../Document";
+import {Backend} from "./backend";
 import {Options} from "./Plugin";
 
 import * as Promise from "bluebird";
 import {Request} from "hapi";
 import {sign} from "jsonwebtoken";
 
-export default class CreateToken implements Action {
+export class CreateToken implements Action {
   method = "POST";
 
   path = "token";

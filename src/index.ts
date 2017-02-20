@@ -1,4 +1,4 @@
-import Plugin, {Options} from "./Plugin";
+import {Plugin, Options} from "./Plugin";
 
 import {Server} from "hapi";
 
@@ -13,7 +13,7 @@ const registerPlugin = (server: Server, options: Partial<Options>, next: Functio
   next();
 };
 
-export default Object.assign(registerPlugin, {
+module.exports = Object.assign(registerPlugin, {
   attributes: {
     name: "prism",
     version: require("./package.json").version

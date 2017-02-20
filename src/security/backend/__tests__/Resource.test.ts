@@ -1,11 +1,11 @@
-import Resource from "../Resource";
+import {Resource} from "../Resource";
 import {users} from "../../../__mocks__/resource";
 import {request} from "../../../action/__mocks__/hapi";
-import Registry from "../../../Registry";
-import ReadItem from "../../../action/ReadItem";
-import CreateItem from "../../../action/CreateItem";
-import UpdateItem from "../../../action/UpdateItem";
-import Document from "../../../Document";
+import {Registry} from "../../../Registry";
+import {ReadItem} from "../../../action/ReadItem";
+import {CreateItem} from "../../../action/CreateItem";
+import {UpdateItem} from "../../../action/UpdateItem";
+import {Document} from "../../../Document";
 
 import {resolve, reject} from "bluebird";
 import {merge} from "ramda";

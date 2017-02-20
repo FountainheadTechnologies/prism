@@ -1,4 +1,4 @@
-import Document from "../Document";
+import {Document} from "../Document";
 import {Params} from "../action";
 import {users, tasks}  from "../__mocks__/resource";
 
