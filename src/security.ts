@@ -12,7 +12,7 @@ const registerPlugin = (server: Server, options: Partial<Options>, next: Functio
     .then(() => next());
 };
 
-module.exports = Object.assign(registerPlugin, {
+export const PrismSecurity = Object.assign(registerPlugin, {
   attributes: {
     name: "prism-security",
     version: require("./package.json").version
