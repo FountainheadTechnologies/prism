@@ -1,5 +1,6 @@
 import {Backend} from "../backend";
 import {Resource as _Resource} from "../../resource";
+import {Root} from "../../action/Root";
 import {ReadItem} from "../../action/ReadItem";
 import {CreateItem} from "../../action/CreateItem";
 import {UpdateItem} from "../../action/UpdateItem";
@@ -144,6 +145,32 @@ export class Resource implements Backend {
             request.payload[this._options.password] = hash;
             return next(params, request);
           });
+      }
+    },
+
+    <Filter<Root, "decorate">>{
+      type: Root,
+      name: "decorate",
+      filter: (next, self, registry) => (doc, params, request) => {
+        doc = next(doc, params, request);
+
+        if (!request.auth || request.auth.error) {
+          return doc;
+        }
+
+        let read = registry.findActions(ReadItem, pathEq(["resource", "name"], this.resource.name))[0];
+        if (!read) {
+          return doc;
+        }
+
+        doc.links.push({
+          rel: this.resource.name,
+          name: "identity",
+          href: read.path,
+          params: pick(this.resource.primaryKeys, request.auth.credentials),
+        });
+
+        return doc;
       }
     }
   ];

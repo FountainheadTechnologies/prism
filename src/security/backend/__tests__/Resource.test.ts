@@ -2,6 +2,7 @@ import {Resource} from "../Resource";
 import {users} from "../../../__mocks__/resource";
 import {request} from "../../../action/__mocks__/hapi";
 import {Registry} from "../../../Registry";
+import {Root} from "../../../action/Root";
 import {ReadItem} from "../../../action/ReadItem";
 import {CreateItem} from "../../../action/CreateItem";
 import {UpdateItem} from "../../../action/UpdateItem";
@@ -120,16 +121,19 @@ describe("#validate()", () => {
 
 describe("filters", () => {
   let registry: Registry;
+  let root: Root;
   let readItem: ReadItem;
   let createItem: CreateItem;
   let updateItem: UpdateItem;
 
   beforeEach(() => {
     registry = new Registry();
+    root = new Root();
     readItem = new ReadItem(users);
     createItem = new CreateItem(users);
     updateItem = new UpdateItem(users);
 
+    registry.registerAction(root);
     registry.registerAction(readItem);
     registry.registerAction(createItem);
     registry.registerAction(updateItem);
@@ -186,6 +190,28 @@ describe("filters", () => {
 
     expect((users.source.update as jest.Mock<any>).mock.calls[0][0].data).toEqual({
       password: "hashed:newpassword"
+    });
+  });
+
+  it("adds a link to current user to Root resource", () => {
+    let doc = new Document();
+
+    root.decorate(doc, {}, merge(request, {
+      auth: {
+        credentials: {
+          id: 12,
+          password: "hashed:password"
+        }
+      }
+    }));
+
+    expect(doc.links.find(link => link.name === "identity")).toEqual({
+      rel: "users",
+      name: "identity",
+      href: "users/{id}",
+      params: {
+        id: 12
+      }
     });
   });
 });
