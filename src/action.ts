@@ -1,5 +1,6 @@
 import {Resource} from "./resource";
 import {Document} from "./Document";
+import {Registry} from "./Registry";
 
 import {
   Request,
@@ -42,5 +43,5 @@ export interface Filter<T, K extends keyof T> {
   type: Type<T>;
   name: K;
   where?: (action: T) => boolean;
-  filter: (next: T[K]) => T[K];
+  filter: (next: T[K], self: T, registry: Registry) => T[K];
 }

@@ -13,7 +13,7 @@ const registerPlugin = (server: Server, options: Partial<Options>, next: Functio
   next();
 };
 
-module.exports = Object.assign(registerPlugin, {
+export const Prism = Object.assign(registerPlugin, {
   attributes: {
     name: "prism",
     version: require("./package.json").version
