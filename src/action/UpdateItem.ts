@@ -1,7 +1,7 @@
 import {Action, Params, Filter} from "../action";
 import {ReadItem} from "./ReadItem";
 import {Root} from "./Root";
-import {Resource} from "../resource";
+import {Resource, initialize} from "../resource";
 import {Schema, validate} from "../schema";
 import * as query from "../query";
 
@@ -14,7 +14,9 @@ export class UpdateItem implements Action {
 
   method = "PATCH";
 
-  constructor(readonly resource: Resource) {
+  readonly resource = initialize(this._resource);
+
+  constructor(protected _resource: Partial<Resource>) {
     let keys = this.resource.primaryKeys.map(key => `{${key}}`);
     this.path = [this.resource.name, ...keys].join("/");
   }
