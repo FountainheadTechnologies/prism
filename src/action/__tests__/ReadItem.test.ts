@@ -13,6 +13,15 @@ beforeEach(() => {
   readTask = new ReadItem(resource.tasks);
 });
 
+it("throws if `resource.primaryKeys` is empty", () => {
+  let fn = () => new ReadItem({
+    name: "tasks",
+    source: resource.tasks.source
+  });
+
+  expect(fn).toThrowError("`resource.primaryKeys` must specify at least one primary key");
+});
+
 describe("#path", () => {
   it("is resource name and primary keys, joined by `/`", () => {
     expect(readTask.path).toBe("tasks/{id}");

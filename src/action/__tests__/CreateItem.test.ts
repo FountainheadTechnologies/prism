@@ -64,7 +64,7 @@ describe("#handle()", () => {
 describe("#schema()", () => {
   it("returns resource schema", () => {
     let schema = createTask.schema({}, hapi.request);
-    expect(schema).toBe(resource.tasks.schema);
+    expect(schema).toEqual(resource.tasks.schema);
   });
 });
 

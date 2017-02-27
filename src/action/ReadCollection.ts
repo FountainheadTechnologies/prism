@@ -1,5 +1,5 @@
 import {Action, Params, Filter} from "../action";
-import {Resource} from "../resource";
+import {Resource, initialize} from "../resource";
 import {Collection} from "../types";
 import {Schema} from "../schema";
 import * as query from "../query";
@@ -26,9 +26,11 @@ export class ReadCollection implements Action {
 
   method = "GET";
 
-  constructor(readonly resource: Resource, options?: Partial<Options>) {
-    this.path = `${this.resource.name}{?where,page,order}`;
+  readonly resource = initialize(this._resource, {requirePK: false});
+
+  constructor(protected _resource: Partial<Resource>, options?: Partial<Options>) {
     this._options = {...DEFAULT_OPTIONS, ...options};
+    this.path = `${this.resource.name}{?where,page,order}`;
   }
 
   handle = (params: Params, request: Request): Promise<Collection> =>

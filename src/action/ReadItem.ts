@@ -1,5 +1,5 @@
 import {Action, Params, Filter} from "../action";
-import {Resource} from "../resource";
+import {Resource, initialize} from "../resource";
 import {Item} from "../types";
 import {Schema} from "../schema";
 import * as query from "../query";
@@ -18,7 +18,9 @@ export class ReadItem implements Action {
 
   method = "GET";
 
-  constructor(readonly resource: Resource) {
+  readonly resource = initialize(this._resource);
+
+  constructor(protected _resource: Partial<Resource>) {
     let keys = this.resource.primaryKeys.map(key => `{${key}}`);
     this.path = [this.resource.name, ...keys].join("/");
   }

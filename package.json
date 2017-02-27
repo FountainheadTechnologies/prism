@@ -16,6 +16,7 @@
     "@types/hapi-auth-jwt2": "^7.0.0",
     "@types/jest": "^16.0.1",
     "@types/jsonwebtoken": "^7.2.0",
+    "@types/lodash": "^4.14.53",
     "@types/ramda": "0.0.2",
     "@types/squel": "github:warrenseymour/squel.d.ts#4147639",
     "@types/tv4": "^1.2.28",

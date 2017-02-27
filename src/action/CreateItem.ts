@@ -1,7 +1,7 @@
 import {Action, Params, Filter} from "../action";
 import {ReadCollection} from "./ReadCollection";
 import {Root} from "./Root";
-import {Resource} from "../resource";
+import {Resource, initialize} from "../resource";
 import {Item} from "../types";
 import {Schema, validate, sanitize} from "../schema";
 import * as query from "../query";
@@ -15,7 +15,9 @@ export class CreateItem implements Action {
 
   method = "POST";
 
-  constructor(readonly resource: Resource) {
+  readonly resource = initialize(this._resource);
+
+  constructor(protected _resource: Partial<Resource>) {
     this.path = this.resource.name;
   }
 
