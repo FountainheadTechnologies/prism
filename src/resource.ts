@@ -1,7 +1,6 @@
 import {Source} from "./source";
 import {Schema} from "./schema";
-import {clone} from "ramda";
-import {defaultsDeep} from "lodash";
+import {defaultsDeep, clone} from "lodash";
 
 /**
  * Defines a relationship between two resources
