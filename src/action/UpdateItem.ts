@@ -7,7 +7,7 @@ import * as query from "../query";
 
 import * as Promise from "bluebird";
 import {Request, Response} from "hapi";
-import {omit, pathEq} from "ramda";
+import {pathEq} from "ramda";
 
 export class UpdateItem implements Action {
   path: string;
@@ -35,8 +35,10 @@ export class UpdateItem implements Action {
       });
   }
 
-  schema = (params: Params, request: Request): Schema =>
-    omit(["required"], this.resource.schema);
+  schema = (params: Params, request: Request): Schema => ({
+    ...this.resource.schema,
+    required: []
+  })
 
   query = (params: Params, request: Request): query.Update => ({
     conditions: this.conditions(params, request),

@@ -26,7 +26,7 @@ describe("#handle()", () => {
     };
   });
 
-  it("validates request payload against resource schema with `required` omitted", async () => {
+  it("validates request payload against resource schema with `required` empty", async () => {
     spyOn(schema, "validate").and.callThrough();
 
     let params = {
@@ -37,7 +37,7 @@ describe("#handle()", () => {
 
     let updateSchema = {
       ...resource.tasks.schema,
-      required: undefined
+      required: []
     };
 
     expect(schema.validate).toHaveBeenCalledWith(hapi.request.payload, updateSchema);
@@ -74,12 +74,12 @@ describe("#handle()", () => {
 });
 
 describe("#schema()", () => {
-  it("returns resource schema with `required` omitted", () => {
+  it("returns resource schema with `required` empty", () => {
     let schema = updateTask.schema({}, hapi.request);
 
     expect(schema).toEqual({
       ...resource.tasks.schema,
-      required: undefined
+      required: []
     });
   });
 });
@@ -111,7 +111,7 @@ describe("filters", () => {
       method: updateTask.method,
       schema: {
         ...resource.tasks.schema,
-        required: undefined
+        required: []
       }
     }]);
   });
@@ -136,7 +136,7 @@ describe("filters", () => {
       method: updateTask.method,
       schema: {
         ...resource.tasks.schema,
-        required: undefined
+        required: []
       }
     }]);
   });
