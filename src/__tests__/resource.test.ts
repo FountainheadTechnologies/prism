@@ -12,6 +12,11 @@ describe(".initialize()", () => {
     expect(fn).toThrowError("`resource.primaryKeys` must specify at least one primary key");
   });
 
+  it("does not throw if `primaryKeys` is missing or empty but `options.requirePK` is not `true`", () => {
+    let fn = () => resource.initialize({name: "test", source: mockResource.tasks.source}, {requirePK: false});
+    expect(fn).not.toThrow();
+  });
+
   it("clones `resource`", () => {
     let result = resource.initialize(mockResource.tasks);
     expect(result).not.toBe(mockResource.tasks);

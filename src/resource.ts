@@ -82,7 +82,7 @@ const DEFAULT_OPTIONS: Options = {
 export const initialize = (resource: Partial<Resource>, options: Partial<Options> = {}): Resource => {
   options = {
     ...DEFAULT_OPTIONS,
-    options
+    ...options
   };
 
   if (!resource.name || !resource.source) {
