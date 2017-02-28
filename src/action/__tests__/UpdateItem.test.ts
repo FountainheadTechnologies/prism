@@ -116,7 +116,7 @@ describe("filters", () => {
     }]);
   });
 
-  it("registers a form on ReadItem", () => {
+  it("registers a form on ReadItem with `default` populated", () => {
     registry.registerAction(readTask);
     registry.applyFilters();
 
@@ -136,7 +136,10 @@ describe("filters", () => {
       method: updateTask.method,
       schema: {
         ...resource.tasks.schema,
-        required: []
+        required: [],
+        default: {
+          id: 1337
+        }
       }
     }]);
   });

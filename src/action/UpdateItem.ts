@@ -95,13 +95,18 @@ export class UpdateItem implements Action {
       filter: next => (doc, params, request) => {
         next(doc, params, request);
 
+        let schema: Schema = {
+          ...this.schema(params, request),
+          default: doc.properties
+        };
+
         doc.forms.push({
           rel: this.resource.name,
           href: this.path,
           name: "update",
           params: doc.properties,
           method: this.method,
-          schema: this.schema(params, request)
+          schema: schema
         });
 
         return doc;

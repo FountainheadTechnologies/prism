@@ -13,6 +13,7 @@ export interface Schema {
     [key: string]: any
   };
   required: string[];
+  default?: any;
 }
 
 export const validate = (data: Item | Collection, schema: Schema): Promise<boolean> => {
