@@ -7,8 +7,6 @@ import {Registry} from "../../Registry";
 import * as resource from "../../__mocks__/resource";
 import * as hapi from "../__mocks__/hapi";
 
-import {resolve} from "bluebird";
-
 let deleteTask: DeleteItem;
 
 beforeEach(() => {
@@ -22,7 +20,7 @@ it("is a DELETE request to resource name and primary keys, joined by `/`", () =>
 
 describe("#handle()", () => {
   beforeEach(() => {
-    (resource.tasks.source.delete as jest.Mock<any>).mockReturnValue(resolve(true));
+    (resource.tasks.source.delete as jest.Mock<any>).mockReturnValue(Promise.resolve(true));
   });
 
   it("deletes an item", async () => {
@@ -64,11 +62,11 @@ describe("filters", () => {
     registry.registerAction(deleteTask);
   });
 
-  it("registers a form on the Root action", () => {
+  it("registers a form on the Root action", async () => {
     registry.applyFilters();
 
     let document = new Document();
-    root.decorate(document, {}, hapi.request);
+    await root.decorate(document, {}, hapi.request);
 
     expect(document.forms).toEqual([{
       rel: resource.tasks.name,
@@ -78,7 +76,7 @@ describe("filters", () => {
     }]);
   });
 
-  it("registers a form on ReadItem", () => {
+  it("registers a form on ReadItem", async () => {
     registry.registerAction(readTask);
     registry.applyFilters();
 
@@ -86,7 +84,7 @@ describe("filters", () => {
       id: 1337
     });
 
-    readTask.decorate(document, {}, hapi.request);
+    await readTask.decorate(document, {}, hapi.request);
 
     expect(document.forms).toEqual([{
       rel: resource.tasks.name,

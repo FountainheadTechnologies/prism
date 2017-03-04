@@ -2,8 +2,6 @@ import {tasks} from "../../__mocks__/resource";
 import {db} from "../__mocks__/pgPromise";
 import {PostgreSQL} from "../PostgreSQL";
 
-import {resolve, reject} from "bluebird";
-
 let source: PostgreSQL;
 
 beforeEach(() => {
@@ -67,7 +65,7 @@ describe("#create()", () => {
   });
 
   it("transforms constraint violations to Boom errors", done => {
-    (db.oneOrNone as jest.Mock<any>).mockReturnValueOnce(reject({
+    (db.oneOrNone as jest.Mock<any>).mockReturnValueOnce(Promise.reject({
       routine: "ri_ReportViolation",
       detail: "Key (owner)=(100) is not present in table \"users\"."
     }));
@@ -319,7 +317,7 @@ describe("#read()", () => {
   });
 
   it("generates JOIN clauses using `query.joins`", async () => {
-    (db.oneOrNone as jest.Mock<any>).mockReturnValue(resolve({
+    (db.oneOrNone as jest.Mock<any>).mockReturnValue(Promise.resolve({
       id: 1,
       title: "test task 1 with joined data",
       user: 1,
@@ -373,7 +371,7 @@ describe("#read()", () => {
   });
 
   it("omits mising JOIN properties", async () => {
-    (db.oneOrNone as jest.Mock<any>).mockReturnValue(resolve({
+    (db.oneOrNone as jest.Mock<any>).mockReturnValue(Promise.resolve({
       id: 1,
       title: "test task 1 with joined data",
       user: 1,
@@ -416,7 +414,7 @@ describe("#read()", () => {
 
   describe("when no result is returned", () => {
     it("rejects with a Boom error", done => {
-      (db.oneOrNone as jest.Mock<any>).mockReturnValueOnce(resolve(null));
+      (db.oneOrNone as jest.Mock<any>).mockReturnValueOnce(Promise.resolve(null));
       return source.read({
         return: "item",
         source: "tasks",
@@ -484,7 +482,7 @@ describe("#read()", () => {
     });
 
     it("generates JOIN clauses for both queries", async () => {
-      (db.manyOrNone as jest.Mock<any>).mockReturnValue(resolve([{
+      (db.manyOrNone as jest.Mock<any>).mockReturnValue(Promise.resolve([{
         id: 1,
         title: "test task 1 with joined data",
         user: 1,
@@ -650,7 +648,7 @@ describe("#update()", () => {
   });
 
   it("transforms constraint violations to Boom errors", done => {
-    (db.oneOrNone as jest.Mock<any>).mockReturnValueOnce(reject({
+    (db.oneOrNone as jest.Mock<any>).mockReturnValueOnce(Promise.reject({
       routine: "ri_ReportViolation",
       detail: "Key (owner)=(100) is not present in table \"users\"."
     }));
@@ -710,7 +708,7 @@ describe("#delete()", () => {
   });
 
   it("throws a notFound error if no rows were deleted", async () => {
-    (db.result as jest.Mock<any>).mockReturnValueOnce(resolve({
+    (db.result as jest.Mock<any>).mockReturnValueOnce(Promise.resolve({
       rowCount: 0
     }));
 

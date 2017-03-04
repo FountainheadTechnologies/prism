@@ -74,8 +74,8 @@ describe("#handle()", () => {
 });
 
 describe("#schema()", () => {
-  it("returns resource schema with `required` empty", () => {
-    let schema = updateTask.schema({}, hapi.request);
+  it("returns resource schema with `required` empty", async () => {
+    let schema = await updateTask.schema({}, hapi.request);
 
     expect(schema).toEqual({
       ...resource.tasks.schema,
@@ -98,11 +98,11 @@ describe("filters", () => {
     registry.registerAction(updateTask);
   });
 
-  it("registers a form on the Root action", () => {
+  it("registers a form on the Root action", async () => {
     registry.applyFilters();
 
     let document = new Document();
-    root.decorate(document, {}, hapi.request);
+    await root.decorate(document, {}, hapi.request);
 
     expect(document.forms).toEqual([{
       rel: resource.tasks.name,
@@ -116,7 +116,7 @@ describe("filters", () => {
     }]);
   });
 
-  it("registers a form on ReadItem with `default` populated", () => {
+  it("registers a form on ReadItem with `default` populated", async () => {
     registry.registerAction(readTask);
     registry.applyFilters();
 
@@ -124,7 +124,7 @@ describe("filters", () => {
       id: 1337
     });
 
-    readTask.decorate(document, {}, hapi.request);
+    await readTask.decorate(document, {}, hapi.request);
 
     expect(document.forms).toEqual([{
       rel: resource.tasks.name,

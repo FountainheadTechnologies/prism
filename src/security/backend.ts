@@ -2,7 +2,6 @@ import {Schema} from "../schema";
 import {Filter} from "../action";
 
 import {Request} from "hapi";
-import * as Promise from "bluebird";
 
 /**
  * A security backend implements the checking of preconditions when issuing a

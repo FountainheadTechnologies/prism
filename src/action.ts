@@ -4,6 +4,7 @@ import {Registry} from "./Registry";
 
 import {
   Request,
+  Response,
   IRouteAdditionalConfigurationOptions
 } from "hapi";
 
@@ -28,9 +29,9 @@ export interface Action {
 
   path: string;
 
-  handle: (params: Params, request?: Request) => any;
+  handle: (params: Params, request?: Request) => Promise<Response | {}>;
 
-  decorate?: (doc: Document, params?: Params, request?: Request) => Document;
+  decorate?: (doc: Document, params?: Params, request?: Request) => Promise<Document>;
 
   filters?: Array<Filter<Action, any> | Array<Filter<Action, any>>>;
 }

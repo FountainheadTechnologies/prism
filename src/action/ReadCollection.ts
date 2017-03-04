@@ -7,7 +7,6 @@ import {Document, Link, Embed} from "../Document";
 import {Root} from "./Root";
 import {ReadItem} from "./ReadItem";
 
-import * as Promise from "bluebird";
 import {Request} from "hapi";
 import {toPairs, pathEq, evolve, prepend} from "ramda";
 
@@ -33,24 +32,32 @@ export class ReadCollection implements Action {
     this.path = `${this.resource.name}{?where,page,order}`;
   }
 
-  handle = (params: Params, request: Request): Promise<Collection> =>
-    this.resource.source
-    .read<Collection>(this.query(params, request));
+  handle = async (params: Params, request: Request): Promise<Collection> => {
+    let query = await this.query(params, request);
+    return this.resource.source.read<Collection>(query);
+  }
 
-  query = (params: Params, request: Request): query.Read => ({
-    return: "collection",
-    source: this.resource.name,
-    schema: this.schema(params, request),
-    joins:  this.joins(params, request),
-    conditions: this.conditions(params, request),
-    order: this.order(params, request),
-    page: this.page(params, request)
-  })
+  query = async (params: Params, request: Request): Promise<query.Read> =>
+    Promise.all([
+      this.schema(params, request),
+      this.joins(params, request),
+      this.conditions(params, request),
+      this.order(params, request),
+      this.page(params, request)
+    ]).then(([schema, joins, conditions, order, page]) => ({
+      return: "collection" as "collection",
+      source: this.resource.name,
+      schema,
+      joins,
+      conditions,
+      order,
+      page
+    } as query.Read))
 
-  schema = (params: Params, request: Request): Schema =>
+  schema = async (params: Params, request: Request): Promise<Schema> =>
     this.resource.schema;
 
-  joins = (params: Params, request: Request): query.Join[] =>
+  joins = async (params: Params, request: Request): Promise<query.Join[]> =>
     this.resource.relationships.belongsTo.map(parent => ({
       source: parent.name,
       path:   [this.resource.name, parent.name],
@@ -58,11 +65,11 @@ export class ReadCollection implements Action {
       to:     parent.to
     }))
 
-  conditions = (params: Params, request: Request): query.Condition[] =>
+  conditions = async (params: Params, request: Request): Promise<query.Condition[]> =>
     toPairs<string, string>(params["where"])
       .map(([field, value]) => ({field, value}));
 
-  order = (params: Params, request: Request): query.Order[] => {
+  order = async (params: Params, request: Request): Promise<query.Order[]> => {
     if (!params["order"]) {
       return this.resource.primaryKeys.map(field => ({
         field,
@@ -74,25 +81,31 @@ export class ReadCollection implements Action {
       .map(([field, direction]) => ({field, direction}));
   }
 
-  page = (params: Params, request: Request): query.Page => ({
+  page = async (params: Params, request: Request): Promise<query.Page> => ({
     number: params.page ? parseInt(params.page, 10) : 1,
     size:   this._options.pageSize
   })
 
-  decorate = (doc: Document, params: Params, request: Request): Document => {
-    doc.embedded.push(...this.embedded(doc, params, request));
-    doc.links.push(...this.links(doc, params, request));
+  decorate = async (doc: Document, params: Params, request: Request): Promise<Document> => {
+    let embedded = await this.embedded(doc, params, request);
+    doc.embedded.push(...embedded);
+
+    let links = await this.links(doc, params, request);
+    doc.links.push(...links);
 
     delete doc.properties["items"];
 
     return doc;
   }
 
-  embedded = (doc: Document, params: Params, request: Request): Embed[] =>
-    (doc.properties["items"] as Array<any>)
+  embedded = async (doc: Document, params: Params, request: Request): Promise<Embed[]> => {
+    let embedItems = (doc.properties["items"] as Array<any>)
       .map(item => this.embedItem(item, params, request));
 
-  embedItem = (item: any, params: Params, request: Request): Embed => {
+    return Promise.all(embedItems);
+  }
+
+  embedItem = async (item: any, params: Params, request: Request): Promise<Embed> => {
     let document = new Document(item);
 
     this.resource.relationships.belongsTo.forEach(parent => {
@@ -111,7 +124,7 @@ export class ReadCollection implements Action {
     };
   }
 
-  links = (doc: Document, params: Params, request: Request): Link[] => {
+  links = async (doc: Document, params: Params, request: Request): Promise<Link[]> => {
     if (doc.properties["count"] < this._options.pageSize) {
       return [];
     }
@@ -168,8 +181,8 @@ export class ReadCollection implements Action {
     <Filter<Root, "decorate">>{
       type: Root,
       name: "decorate",
-      filter: next => (doc, params, request) => {
-        next(doc, params, request);
+      filter: next => async (doc, params, request) => {
+        await next(doc, params, request);
 
         doc.links.push({
           rel:  this.resource.name,
@@ -189,15 +202,16 @@ export class ReadCollection implements Action {
       type: ReadCollection,
       name: "joins",
       where: pathEq(["resource", "name"], child.name),
-      filter: next => (params, request) => {
-        let joins = this.joins(params, request)
-          .map(evolve({
+      filter: next => (params, request) =>
+        Promise.all([
+          next(params, request),
+          this.joins(params, request),
+        ]).then(([childJoins, ownJoins]) => ([
+          ...childJoins,
+          ...ownJoins.map(evolve({
             path: prepend(child.name)
-          }));
-
-        return next(params, request)
-          .concat(joins as any as query.Join[]);
-      }
+          }))
+        ]))
     })),
 
     /**
@@ -207,8 +221,8 @@ export class ReadCollection implements Action {
       type: ReadItem,
       name: "decorate",
       where: pathEq(["resource", "name"], parent.name),
-      filter: next => (doc, params, request) => {
-        next(doc, params, request);
+      filter: next => async (doc, params, request) => {
+        await next(doc, params, request);
 
         doc.links.push({
           rel: this.resource.name,
