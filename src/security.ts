@@ -18,3 +18,5 @@ export const PrismSecurity = Object.assign(registerPlugin, {
     version: require("./package.json").version
   }
 });
+
+export {Resource as ResourceBackend} from "./security/backend/Resource";

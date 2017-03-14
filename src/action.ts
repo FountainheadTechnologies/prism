@@ -45,3 +45,9 @@ export interface Filter<T, K extends keyof T> {
   where?: (action: T) => boolean;
   filter: (next: T[K], self: T, registry: Registry) => T[K];
 }
+
+export {ReadItem} from "./action/ReadItem";
+export {ReadCollection} from "./action/ReadCollection";
+export {CreateItem} from "./action/CreateItem";
+export {UpdateItem} from "./action/UpdateItem";
+export {DeleteItem} from "./action/DeleteItem";
