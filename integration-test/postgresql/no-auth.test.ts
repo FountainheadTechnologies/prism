@@ -16,11 +16,7 @@ var db = pgPromise({
 });
 
 beforeAll(async () => {
-	server = new Server(/*{
-    debug: {
-      request: ['error']
-    }
-  }*/);
+	server = new Server();
 	server.connection({port: 8080});
 
   await server.register({

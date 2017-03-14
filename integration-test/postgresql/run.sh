@@ -16,5 +16,5 @@ setup
 $(npm bin)/jest ./no-auth.test.ts
 teardown
 
-#setup
-#$(npm bin)/jest ./auth.test.ts
+setup
+$(npm bin)/jest ./auth.test.ts

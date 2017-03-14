@@ -1,6 +1,6 @@
-import fetch, {Response} from 'node-fetch';
+import {Response} from 'node-fetch';
 import * as schemas from './common/schemas';
-import {getProperties} from './common/util';
+import {fetch, getProperties} from './common/util';
 
 describe('GET / (Root)', () => {
   var document;
@@ -18,15 +18,17 @@ describe('GET / (Root)', () => {
 
   ['tasks', 'projects', 'users', 'departments'].forEach(name => {
     it(`contains Item and Collection links for '${name}'`, () => {
-      expect(document._links[name]).toEqual([{
+      expect(document._links[name]).toContainEqual({
         name: 'item',
         href: `/${name}/{id}`,
         templated: true
-      }, {
+      });
+
+      expect(document._links[name]).toContainEqual({
         name: 'collection',
         href: `/${name}{?where,page,order}`,
         templated: true
-      }]);
+      });
     });
 
     it(`contains Create, Update and Delete forms for '${name}'`, () => {

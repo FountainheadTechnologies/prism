@@ -28,7 +28,8 @@
     "testRegex": "\\.test\\.ts$",
     "moduleFileExtensions": [
       "ts",
-      "js"
+      "js",
+      "json"
     ]
   }
 }

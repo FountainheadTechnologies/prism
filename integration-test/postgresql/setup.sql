@@ -45,7 +45,7 @@ INSERT INTO departments (name) VALUES
 -- Password is '{{username}}-password'
 INSERT INTO users (username, password, enabled, department) VALUES
 	('Freddy_Feil48', '$2a$04$0cSHRk6Eh8ppEj3Lhb9utu3xMGmn.E4pckSbs2KJRq2.ovhLl2gci', true, 1),
-	('Kaley6', '$2a$04$UG5hLhdh3mU0rn.pAaoTUOa8B5WbmogcbFakeMbIFAsEM1T4loDau', true, 1),
+	('Kaley6', '$2a$06$XFnj1o/CzYCxVT6O8TaqtuU0Wr91PXiBjqTaH/R7Yx5zH6rheMj3i', true, 1),
 	('Cali_Lockman', '$2a$04$NGJ71G1JW4lSXq4LY2bYPO9zzLA5rTx2FzdvRLqSjvcyg83LWnsze', true, 2),
 	('Lois.Thompson', '$2a$04$rS1cG3r7ptfStvbdhrZhauNJSmArd2IZ5OmuiMA1oRRfTKoV7Eele', false, 2),
 	('Jeffrey_Hayes', '$2a$04$8y/.27VfapjYgu1y/Uit..nSIMknXMf5ni.p.EtsEOfQ8011FIzka', false, 3),
