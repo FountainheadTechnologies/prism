@@ -110,7 +110,7 @@ export class CreateItem implements Action {
       filter: next => (params, request) => {
         let joins = this.joins(params, request)
           .map(evolve({
-            path: prepend(child.name)
+            path: prepend(child.to)
           }));
 
         return next(params, request)

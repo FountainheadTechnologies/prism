@@ -132,7 +132,7 @@ describe("filters", () => {
       to: "id"
     }, {
       source: "departments",
-      path: ["tasks", "department"],
+      path: ["owner", "department"],
       from: "department",
       to: "id"
     }]);
