@@ -11,6 +11,23 @@ test:
   script:
     - npm run test
 
+integration-test:
+  services:
+    - postgres
+
+  variables:
+    POSTGRES_HOST: postgres
+    POSTGRES_USER: prism-integration-test-user
+    POSTGRES_PASSWORD: prism-integration-test-password
+
+  script:
+    - apt-get update -y
+    - apt-get install postgresql-client -y
+    - export PGPASSWORD=$POSTGRES_PASSWORD
+    - npm run build
+    - cd integration-test/postgresql
+    - ./run.sh
+
 pages:
   stage: deploy
   script:

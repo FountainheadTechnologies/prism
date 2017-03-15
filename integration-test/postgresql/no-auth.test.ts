@@ -11,8 +11,8 @@ var server: Server;
 
 var db = pgPromise({
   database: 'prism-integration-test',
-  host: process.env.PRISM_TEST_DB_HOST || '/var/run/postgresql',
-  user: process.env.PRISM_TEST_DB_USER,
+  host: process.env.POSTGRES_HOST || '/var/run/postgresql',
+  user: process.env.POSTGRES_USER,
 });
 
 beforeAll(async () => {

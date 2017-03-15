@@ -3,11 +3,11 @@
 trap teardown EXIT
 
 setup() {
-	  psql -f setup.sql
+	  psql -h "${POSTGRES_HOST:-/var/run/postgresql}" -U "${POSTGRES_USER}" -f setup.sql
 }
 
 teardown() {
-	  psql -f teardown.sql
+	  psql -h "${POSTGRES_HOST:-/var/run/postgresql}" -U "${POSTGRES_USER}" -f teardown.sql
 }
 
 npm install
