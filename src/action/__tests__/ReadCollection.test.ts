@@ -36,7 +36,10 @@ describe("#query()", () => {
         from:   "project",
         to:     "id"
       }],
-      order: [],
+      order: [{
+        field: "id",
+        direction: "asc"
+      }],
       page: {
         number: 1,
         size: 20

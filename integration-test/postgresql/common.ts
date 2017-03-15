@@ -219,7 +219,7 @@ describe('GET /tasks?page=3 (ReadCollection - 3rd Page)', () => {
 
   it('limits and offsets embedded documents', () => {
     expect(document._embedded.tasks.length).toBe(20);
-    expect(document._embedded.tasks[0].id).toBe(12);
+    expect(document._embedded.tasks[0].id).toBe(41);
   });
 });
 

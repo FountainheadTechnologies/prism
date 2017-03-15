@@ -62,9 +62,17 @@ export class ReadCollection implements Action {
     toPairs<string, string>(params["where"])
       .map(([field, value]) => ({field, value}));
 
-  order = (params: Params, request: Request): query.Order[] =>
-    toPairs<string, string>(params["order"])
+  order = (params: Params, request: Request): query.Order[] => {
+    if (!params["order"]) {
+      return this.resource.primaryKeys.map(field => ({
+        field,
+        direction: "asc"
+      }));
+    }
+
+    return toPairs<string, string>(params["order"])
       .map(([field, direction]) => ({field, direction}));
+  }
 
   page = (params: Params, request: Request): query.Page => ({
     number: params.page ? parseInt(params.page, 10) : 1,
