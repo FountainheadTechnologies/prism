@@ -125,12 +125,14 @@ export class ReadCollection implements Action {
         rel: "first",
         href: this.path,
         params: {
+          ...params,
           page: 1
         }
       }, {
         rel: "prev",
         href: this.path,
         params: {
+          ...params,
           page: current - 1
         }
       });
@@ -141,12 +143,14 @@ export class ReadCollection implements Action {
         rel: "next",
         href: this.path,
         params: {
+          ...params,
           page: current + 1
         }
       }, {
         rel: "last",
         href: this.path,
         params: {
+          ...params,
           page: last
         }
       });
