@@ -6,6 +6,7 @@ import {IDatabase} from "pg-promise";
 import {badData} from "boom";
 import * as Promise from "bluebird";
 import * as _squel from "squel";
+import {notFound} from "boom";
 
 import {omit, assocPath, path} from "ramda";
 
@@ -54,6 +55,11 @@ export class PostgreSQL implements Source {
       let statement = sql.toParam();
 
       return Promise.resolve(this.db.oneOrNone(statement.text, statement.values))
+        .tap(result => {
+          if (result === null) {
+            throw notFound();
+          }
+        })
         .then(result => this._mergeJoins(result, query));
     }
 
@@ -99,7 +105,14 @@ export class PostgreSQL implements Source {
     this._addConditions(sql, query);
 
     let statement = sql.toParam();
-    return this.db.oneOrNone(statement.text, statement.values) as any;
+    return this.db.result(statement.text, statement.values)
+      .then(result => {
+        if (result.rowCount === 0) {
+          throw notFound();
+        }
+
+        return true;
+      }) as any;
   }
 
   protected _addPages(sql: SqlSelect, query: query.Read): void {

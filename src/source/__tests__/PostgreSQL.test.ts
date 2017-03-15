@@ -414,6 +414,25 @@ describe("#read()", () => {
     });
   });
 
+  describe("when no result is returned", () => {
+    it("rejects with a Boom error", done => {
+      (db.oneOrNone as jest.Mock<any>).mockReturnValueOnce(resolve(null));
+      return source.read({
+        return: "item",
+        source: "tasks",
+        schema: tasks.schema,
+      }).catch(err => {
+        expect(err.isBoom).toBe(true);
+        expect(err.output.payload).toEqual({
+          statusCode: 404,
+          error: "Not Found"
+        });
+
+        done();
+      });
+    });
+  });
+
   describe("when `query.return` is `collection`", () => {
     it("creates two SELECT queries", async () => {
       let result = await source.read({
@@ -668,7 +687,7 @@ describe("#delete()", () => {
       schema: tasks.schema
     });
 
-    expect(db.oneOrNone).toHaveBeenCalledWith(
+    expect(db.result).toHaveBeenCalledWith(
       "DELETE FROM tasks",
       []
     );
@@ -684,9 +703,29 @@ describe("#delete()", () => {
       }]
     });
 
-    expect(db.oneOrNone).toHaveBeenCalledWith(
+    expect(db.result).toHaveBeenCalledWith(
       "DELETE FROM tasks WHERE (tasks.id = $1)",
       [1]
     );
+  });
+
+  it("throws a notFound error if no rows were deleted", async () => {
+    (db.result as jest.Mock<any>).mockReturnValueOnce(resolve({
+      rowCount: 0
+    }));
+
+    try {
+      await source.delete({
+        source: "tasks",
+        schema: tasks.schema,
+        conditions: [{
+          field: "id",
+          value: 1
+        }]
+      });
+    } catch (e) {
+      expect(e.isBoom).toBe(true);
+      expect(e.message).toBe("Not Found");
+    }
   });
 });

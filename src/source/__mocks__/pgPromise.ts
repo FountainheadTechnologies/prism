@@ -12,5 +12,8 @@ export const db = {
   }])),
   one: jest.fn(() => resolve({
     count: "2"
+  })),
+  result: jest.fn(() => resolve({
+    rowCount: 2
   }))
 } as any as IDatabase<{}>;
