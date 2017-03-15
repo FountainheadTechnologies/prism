@@ -35,8 +35,8 @@ describe("#handle()", () => {
     issueResponse = "validToken";
 
     let response = await createToken.handle({}, request);
-
-    expect(response).toEqual({
+    expect(response.code).toHaveBeenCalledWith(201);
+    expect((request as any).generateResponse).toHaveBeenLastCalledWith({
       token: "eyJhbGciOiJIUzI1NiJ9.dmFsaWRUb2tlbg.NPccG0bOa7uV0HHGuPt04Rt1O3aOIsifqgkyHRpX3pQ"
     });
   });

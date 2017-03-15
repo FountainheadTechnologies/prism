@@ -5,7 +5,7 @@ import {Backend} from "./backend";
 import {Options} from "./Plugin";
 
 import * as Promise from "bluebird";
-import {Request} from "hapi";
+import {Request, Response} from "hapi";
 import {sign} from "jsonwebtoken";
 
 export class CreateToken implements Action {
@@ -16,18 +16,21 @@ export class CreateToken implements Action {
   constructor(protected _backend: Backend, protected _options: Options) {
   }
 
-  handle = (params: Params, request: Request): Promise<any> =>
+  handle = (params: Params, request: Request): Promise<Response> =>
     this._backend.issue(request.payload)
       .then(token => {
         if (token === false) {
           let response = (request as any).generateResponse();
           response.code(403);
-
           return response;
         }
 
         return Promise.fromCallback(cb => sign(token, this._options.key, this._options.sign, cb))
-          .then(token => ({token}));
+          .then(token => {
+            let response = (request as any).generateResponse({token});
+            response.code(201);
+            return response;
+          });
       })
 
   routeConfig = {

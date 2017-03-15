@@ -54,6 +54,13 @@ export class Resource implements Backend {
         return: "item",
         conditions
       }))
+      .catch(error => {
+        if (error.isBoom && error.output && error.output.statusCode === 404) {
+          return null;
+        }
+
+        throw error;
+      })
       .then(result => {
         if (result === null) {
           /**

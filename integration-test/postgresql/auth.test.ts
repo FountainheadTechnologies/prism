@@ -289,6 +289,8 @@ describe('No token', () => {
 });
 
 describe('Valid token', () => {
+  require('./common.ts');
+
   describe('GET / (Root)', () => {
     var document;
 
@@ -326,7 +328,7 @@ describe('Valid token', () => {
 
   describe('POST /users (CreateItem)', () => {
     it('automatically hashes the password', async () => {
-      await fetch('http://localhost:8080/users', {
+      var result = await fetch('http://localhost:8080/users', {
         method: 'POST',
         body: JSON.stringify({
           username: 'new-user',
@@ -335,7 +337,7 @@ describe('Valid token', () => {
         })
       });
 
-      var {password} = await db.one('SELECT password FROM users WHERE id=7');
+      var {password} = await db.one('SELECT password FROM users WHERE id=9');
       expect(password.substring(0, 7)).toEqual('$2a$04$');
     });
   });
@@ -353,6 +355,4 @@ describe('Valid token', () => {
       expect(password.substring(0, 7)).toEqual('$2a$04$');
     });
   });
-
-  require('./common.ts');
 });

@@ -568,7 +568,7 @@ describe('POST /tasks (CreateItem - Embedded Project, User and Department)', () 
     expect(properties).toEqual({
       id: 7,
       username: 'testUser',
-      password: 'testUserHashedPassword',
+      password: jasmine.any(String),
       enabled: true,
       department: 4
     });
