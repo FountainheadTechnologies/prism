@@ -14,18 +14,22 @@ export class Registry {
     }
   }
 
-  findActions<T extends Action>(type: Type<T>, where?: (action: Action) => boolean) {
-    return this._actions.filter(action => {
-      if (!(action instanceof type)) {
-        return;
-      }
+  findActions<T extends Action>(types: Type<T>[], where?: (action: Action) => boolean) {
+    return this._actions
+      .filter(action => {
+        for (let type in types) {
+          if (action instanceof types[type]) {
+            return true;
+          }
+        }
+      })
+      .filter(action => {
+        if (where && where(action) === false) {
+          return;
+        }
 
-      if (where && where(action) === false) {
-        return;
-      }
-
-      return true;
-    });
+        return true;
+      });
   }
 
   registerFilter(filter: Filter<Action, any> | Filter<Action, any>[]): void {
@@ -38,7 +42,9 @@ export class Registry {
 
   applyFilters(): void {
     this._filters.forEach(filter => {
-      this.findActions(filter.type, filter.where)
+      let types = filter.type instanceof Array ? filter.type : [filter.type];
+
+      this.findActions(types, filter.where)
         .forEach((action: any) => {
           let wrapper = (next: Function, ...args: any[]) =>
             filter.filter(next, action, this)(...args);

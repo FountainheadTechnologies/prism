@@ -1,5 +1,6 @@
 import {Action, Params, Filter} from "../action";
 import {ReadCollection} from "./ReadCollection";
+import {UpdateItem} from "./UpdateItem";
 import {Root} from "./Root";
 import {Resource, initialize} from "../resource";
 import {Item} from "../types";
@@ -104,7 +105,7 @@ export class CreateItem implements Action {
      * modifying child join query parameters
      */
     this.resource.relationships.has.map(child => <Filter<CreateItem, "joins">>({
-      type: CreateItem,
+      type: [CreateItem, UpdateItem],
       name: "joins",
       where: pathEq(["resource", "name"], child.name),
       filter: next => (params, request) => {
@@ -123,7 +124,7 @@ export class CreateItem implements Action {
      * resources
      */
     this.resource.relationships.has.map(child => <Filter<CreateItem, "schema">>({
-      type: CreateItem,
+      type: [CreateItem, UpdateItem],
       name: "schema",
       where: pathEq(["resource", "name"], child.name),
       filter: next => (params, request) => {

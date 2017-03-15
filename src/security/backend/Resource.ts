@@ -115,24 +115,7 @@ export class Resource implements Backend {
      * persisting
      */
     <Filter<CreateItem, "handle">>{
-      type: CreateItem,
-      name: "handle",
-      where: pathEq(["resource", "name"], this.resource.name),
-      filter: next => (params, request) => {
-        if (!request.payload[this._options.password]) {
-          return next(params, request);
-        }
-
-        return this._options.hash(request.payload[this._options.password])
-          .then(hash => {
-            request.payload[this._options.password] = hash;
-            return next(params, request);
-          });
-      }
-    },
-
-    <Filter<UpdateItem, "handle">>{
-      type: UpdateItem,
+      type: [CreateItem, UpdateItem],
       name: "handle",
       where: pathEq(["resource", "name"], this.resource.name),
       filter: next => (params, request) => {
@@ -158,7 +141,7 @@ export class Resource implements Backend {
           return doc;
         }
 
-        let read = registry.findActions(ReadItem, pathEq(["resource", "name"], this.resource.name))[0];
+        let read = registry.findActions([ReadItem], pathEq(["resource", "name"], this.resource.name))[0];
         if (!read) {
           return doc;
         }

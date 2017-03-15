@@ -40,7 +40,7 @@ export interface Type<T> {
 }
 
 export interface Filter<T, K extends keyof T> {
-  type: Type<T>;
+  type: Type<T> | Type<T>[];
   name: K;
   where?: (action: T) => boolean;
   filter: (next: T[K], self: T, registry: Registry) => T[K];

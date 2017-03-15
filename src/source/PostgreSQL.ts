@@ -86,13 +86,14 @@ export class PostgreSQL implements Source {
   update<T extends query.Update>(query: T): Promise<Item | Collection> {
     let sql = squel.update()
       .table(query.source)
-      .setFields(query.data)
       .returning(query.returning.join(","));
 
     this._addConditions(sql, query);
     this._withJoins(sql, query);
 
-    let statement = sql.toParam();
+    let statement = sql
+      .setFields(query.data)
+      .toParam();
 
     return this.db.oneOrNone(statement.text, statement.values)
       .catch(handleConstraintViolation) as any;

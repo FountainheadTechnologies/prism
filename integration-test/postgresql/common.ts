@@ -859,9 +859,9 @@ describe('PATCH /tasks/2 (UpdateItem - Embedded Project)', () => {
     expect(properties).toEqual({
       id: 2,
       title: 'Set to new Project',
-      complete: false,
-      description: null,
-      owner: 7,
+      complete: true,
+      description: "I'll parse the digital USB bandwidth, that should pixel the FTP transmitter!",
+      owner: 2,
       project: 6
     });
   });
@@ -873,7 +873,7 @@ describe('PATCH /tasks/2 (UpdateItem - Embedded Project)', () => {
 
     expect(properties).toEqual({
       id: 6,
-      title: 'Test Project Three',
+      name: 'Test Project Three',
     });
   });
 });
@@ -885,6 +885,7 @@ describe('PATCH /tasks/2 (UpdateItem - Invalid embedded Project)', () => {
     response = await fetch('http://localhost:8080/tasks/2', {
       method: 'PATCH',
       body: JSON.stringify({
+        title: 'Set to new Project Two',
         project: {
           title: 'Used `title` instead of `name`'
         }
@@ -930,10 +931,10 @@ describe('PATCH /tasks/2 (UpdateItem - Invalid embedded Project)', () => {
 
     expect(properties).toEqual({
       id: 2,
-      title: 'Modified Task 2',
+      title: 'Set to new Project',
       description: "I'll parse the digital USB bandwidth, that should pixel the FTP transmitter!",
       complete: true,
-      project: 2,
+      project: 6,
       owner: 2
     })
   });
