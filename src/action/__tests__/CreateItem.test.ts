@@ -62,8 +62,8 @@ describe("#handle()", () => {
 });
 
 describe("#schema()", () => {
-  it("returns resource schema", () => {
-    let schema = createTask.schema({}, hapi.request);
+  it("returns resource schema", async () => {
+    let schema = await createTask.schema({}, hapi.request);
     expect(schema).toEqual(resource.tasks.schema);
   });
 });
@@ -84,11 +84,11 @@ describe("filters", () => {
     registry.registerAction(createTask);
   });
 
-  it("registers a form on the Root action", () => {
+  it("registers a form on the Root action", async () => {
     registry.applyFilters();
 
     let document = new Document();
-    root.decorate(document, {}, hapi.request);
+    await root.decorate(document, {}, hapi.request);
 
     expect(document.forms).toEqual([{
       rel: resource.tasks.name,
@@ -99,12 +99,12 @@ describe("filters", () => {
     }]);
   });
 
-  it("registers a form on ReadCollection", () => {
+  it("registers a form on ReadCollection", async () => {
     registry.registerAction(readTasks);
     registry.applyFilters();
 
     let document = new Document({items: []});
-    readTasks.decorate(document, {}, hapi.request);
+    await readTasks.decorate(document, {}, hapi.request);
 
     expect(document.forms).toEqual([{
       rel: resource.tasks.name,
@@ -115,11 +115,11 @@ describe("filters", () => {
     }]);
   });
 
-  it("recursively joins itself as a parent on child queries", () => {
+  it("recursively joins itself as a parent on child queries", async () => {
     registry.registerAction(createUser);
     registry.applyFilters();
 
-    let joins = createTask.joins({}, hapi.request);
+    let joins = await createTask.joins({}, hapi.request);
     expect(joins).toEqual([{
       source: "users",
       path: ["owner"],
@@ -138,12 +138,12 @@ describe("filters", () => {
     }]);
   });
 
-  it("embeds its schema into Create forms on related children", () => {
+  it("embeds its schema into Create forms on related children", async () => {
     registry.registerAction(createUser);
     registry.applyFilters();
 
     let document = new Document();
-    root.decorate(document, {}, hapi.request);
+    await root.decorate(document, {}, hapi.request);
 
     expect(document.forms[0].schema).toEqual({
       ...resource.tasks.schema,

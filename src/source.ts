@@ -1,8 +1,6 @@
 import * as query from "./query";
 import {Item, Collection} from "./types";
 
-import * as Promise from "bluebird";
-
 export interface Source {
   create<R extends Item | Collection>(query: query.Create): Promise<R>;
 

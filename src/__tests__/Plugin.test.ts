@@ -3,7 +3,6 @@ import {MockServer} from "../__mocks__/server";
 
 import {Server} from "hapi";
 import {T, identity} from "ramda";
-import {resolve} from "bluebird";
 
 let plugin: Plugin;
 let server: Server;
@@ -139,7 +138,7 @@ describe("toRoute()", () => {
     });
 
     it("creates a document with result of `action.handle()` and renders it", () => {
-      let dispatch = resolve();
+      let dispatch = Promise.resolve();
 
       route.handler(request, (_dispatch: any) => {
         dispatch = _dispatch;

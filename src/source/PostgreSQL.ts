@@ -4,7 +4,6 @@ import * as query from "../query";
 
 import {IDatabase} from "pg-promise";
 import {badData} from "boom";
-import * as Promise from "bluebird";
 import * as _squel from "squel";
 import {notFound} from "boom";
 
@@ -41,46 +40,50 @@ export class PostgreSQL implements Source {
       .catch(handleConstraintViolation) as any;
   }
 
-  read<T extends query.Read>(query: T): Promise<Item | Collection> {
-    let sql = squel.select()
+  async read<T extends query.Read>(query: T): Promise<Item | Collection> {
+    let itemQuery = squel.select()
       .from(query.source);
 
-    this._addFields(sql, query);
-    this._addConditions(sql, query);
-    this._addOrder(sql, query);
-    this._addJoins(sql, query);
-    this._addPages(sql, query);
+    this._addFields(itemQuery, query);
+    this._addConditions(itemQuery, query);
+    this._addOrder(itemQuery, query);
+    this._addJoins(itemQuery, query);
+    this._addPages(itemQuery, query);
 
     if (query.return === "item") {
-      let statement = sql.toParam();
+      let statement = itemQuery.toParam();
 
-      return Promise.resolve(this.db.oneOrNone(statement.text, statement.values))
-        .tap(result => {
-          if (result === null) {
-            throw notFound();
-          }
-        })
-        .then(result => this._mergeJoins(result, query));
+      let result = await this.db.oneOrNone(statement.text, statement.values);
+      if (result === null) {
+        throw notFound();
+      }
+
+      return this._mergeJoins(result, query);
     }
 
-    this._addPages(sql, query);
-    let statement = sql.toParam();
+    this._addPages(itemQuery, query);
+    let itemStatement = itemQuery.toParam();
 
-    let count = squel.select()
+    let countQuery = squel.select()
       .from(query.source)
       .field(`COUNT(*)`);
 
-    this._addConditions(count, query);
-    this._addJoins(count, query, true);
+    this._addConditions(countQuery, query);
+    this._addJoins(countQuery, query, true);
 
-    let countStatement = count.toParam();
+    let countStatement = countQuery.toParam();
 
-    return Promise.props({
-      items: this.db.manyOrNone(statement.text, statement.values)
-        .then(results => results.map(result => this._mergeJoins(result, query))),
-      count: this.db.one(countStatement.text, countStatement.values)
-        .then(result => parseInt(result.count, 10))
-    });
+    let items = this.db.manyOrNone(itemStatement.text, itemStatement.values)
+      .then(results => results.map(
+        result => this._mergeJoins(result, query)
+      ));
+
+    let count = this.db.one(countStatement.text, countStatement.values)
+      .then(result => parseInt(result.count, 10));
+
+    return Promise
+      .all([items, count])
+      .then(([items, count]) => ({items, count}));
   }
 
   update<T extends query.Update>(query: T): Promise<Item | Collection> {

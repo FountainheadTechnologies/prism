@@ -18,8 +18,8 @@ describe("#path", () => {
 });
 
 describe("#query()", () => {
-  it("returns a read collection query", () => {
-    let query = readTasks.query({}, {} as any);
+  it("returns a read collection query", async () => {
+    let query = await readTasks.query({}, {} as any);
     expect(query).toEqual({
       return: "collection",
       source: resource.tasks.name,
@@ -47,40 +47,40 @@ describe("#query()", () => {
     });
   });
 
-  it("converts `params.where` into conditions", () => {
+  it("converts `params.where` into conditions", async () => {
     let params = {
       where: {
         owner: "user1"
       }
     };
 
-    let query = readTasks.query(params, {} as any);
+    let query = await readTasks.query(params, {} as any);
     expect(query.conditions).toEqual([{
       field: "owner",
       value: "user1"
     }]);
   });
 
-  it("converts `params.order` into order clauses", () => {
+  it("converts `params.order` into order clauses", async () => {
     let params = {
       order: {
         "id": "desc"
       }
     };
 
-    let query = readTasks.query(params, {} as any);
+    let query = await readTasks.query(params, {} as any);
     expect(query.order).toEqual([{
       field: "id",
       direction: "desc"
     }]);
   });
 
-  it("uses `params.page` to determine page number", () => {
+  it("uses `params.page` to determine page number", async () => {
     let params = {
       page: "6"
     };
 
-    let query = readTasks.query(params, {} as any);
+    let query = await readTasks.query(params, {} as any);
     expect(query.page).toEqual({
       number: 6,
       size:   20
@@ -149,20 +149,20 @@ describe("#decorate()", () => {
       }]
     }];
 
-    tests.forEach(({page, expectedLinks}) => {
+    tests.forEach(async ({page, expectedLinks}) => {
       let params = {page};
       let document = new Document({
         items: [],
         count: 55
       });
 
-      readTasks.decorate(document, params, {} as any);
+      await readTasks.decorate(document, params, {} as any);
 
       expect(document.links).toEqual(expectedLinks);
     });
   });
 
-  it("embeds each document in `items` and omits `items`", () => {
+  it("embeds each document in `items` and omits `items`", async () => {
     let properties = {
       items: [{
         id: "task1",
@@ -196,7 +196,7 @@ describe("#decorate()", () => {
 
     let document = new Document({...properties});
 
-    readTasks.decorate(document, {}, {} as any);
+    await readTasks.decorate(document, {}, {} as any);
     expect(document.properties["items"]).toBeUndefined();
 
     let task1 = new Document({
@@ -285,11 +285,11 @@ describe("filters", () => {
     registry.registerAction(readTasks);
   });
 
-  it("adds a link to itself to the Root action", () => {
+  it("adds a link to itself to the Root action", async () => {
     registry.applyFilters();
 
     let document = new Document({});
-    root.decorate(document, {}, {} as any);
+    await root.decorate(document, {}, {} as any);
 
     expect(document.links).toEqual([{
       rel:  resource.tasks.name,
@@ -298,7 +298,7 @@ describe("filters", () => {
     }]);
   });
 
-  it("adds links to itself to parent ReadItem actions", () => {
+  it("adds links to itself to parent ReadItem actions", async () => {
     registry.registerAction(readUser);
     registry.registerAction(readProject);
     registry.applyFilters();
@@ -307,7 +307,7 @@ describe("filters", () => {
       id: "user1"
     });
 
-    readUser.decorate(user, {}, {} as any);
+    await readUser.decorate(user, {}, {} as any);
 
     expect(user.links).toEqual([{
       rel: "tasks",
@@ -324,7 +324,7 @@ describe("filters", () => {
       id: "project1"
     });
 
-    readProject.decorate(project, {}, {} as any);
+    await readProject.decorate(project, {}, {} as any);
 
     expect(project.links).toEqual([{
       rel: "tasks",
@@ -338,11 +338,11 @@ describe("filters", () => {
     }]);
   });
 
-  it("recursively joins itself as a parent on child queries", () => {
+  it("recursively joins itself as a parent on child queries", async () => {
     registry.registerAction(readUsers);
     registry.applyFilters();
 
-    let query = readTasks.joins({}, {} as any);
+    let query = await readTasks.joins({}, {} as any);
     expect(query).toEqual([{
       source: "users",
       path:   ["tasks", "users"],

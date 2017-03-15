@@ -3,7 +3,6 @@ import {Action, Filter, Params} from "./action";
 import {Root} from "./action/Root";
 import {Document} from "./Document";
 
-import {resolve} from "bluebird";
 import {Server, Request, IRouteConfiguration} from "hapi";
 import {assocPath, splitEvery, fromPairs, partition, wrap, pick, map} from "ramda";
 import {join} from "path";
@@ -98,17 +97,18 @@ export const toRoute = (action: Action): IRouteConfiguration => ({
   path:   dequery(action.path),
   method: action.method,
   config: action.routeConfig,
-  handler(request, reply) {
-    let start  = Date.now();
+  async handler(request, reply) {
     let params = mergeRequestParameters(request);
 
-    let dispatch = resolve(action.handle(params, request))
-      .then(result => {
+    let dispatch = Promise.resolve(action.handle(params, request))
+      .then(async result => {
         if (!action.decorate) {
           return result;
         }
 
-        let document = action.decorate(new Document(result), params, request);
+        let document = new Document(result);
+        await action.decorate(document, params, request);
+
         document.links.push({
           rel: "self",
           href: action.path,

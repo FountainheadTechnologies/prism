@@ -4,7 +4,6 @@ import {Document} from "../Document";
 import {Backend} from "./backend";
 import {Options} from "./Plugin";
 
-import * as Promise from "bluebird";
 import {Request, Response} from "hapi";
 import {sign} from "jsonwebtoken";
 
@@ -16,22 +15,27 @@ export class CreateToken implements Action {
   constructor(protected _backend: Backend, protected _options: Options) {
   }
 
-  handle = (params: Params, request: Request): Promise<Response> =>
-    this._backend.issue(request.payload)
-      .then(token => {
-        if (token === false) {
-          let response = (request as any).generateResponse();
-          response.code(403);
-          return response;
+  handle = async (params: Params, request: Request): Promise<Response> => {
+    let token = await this._backend.issue(request.payload);
+    if (token === false) {
+      let response = (request as any).generateResponse();
+      response.code(403);
+
+      return response;
+    }
+
+    return new Promise<Response>((resolve, reject) => {
+      sign(token, this._options.key, this._options.sign, (err, token) => {
+        if (err) {
+          return reject(err);
         }
 
-        return Promise.fromCallback(cb => sign(token, this._options.key, this._options.sign, cb))
-          .then(token => {
-            let response = (request as any).generateResponse({token});
-            response.code(201);
-            return response;
-          });
-      })
+        let response = (request as any).generateResponse({token});
+        response.code(201);
+        return resolve(response);
+      });
+    });
+  }
 
   routeConfig = {
     auth: false
@@ -44,8 +48,8 @@ export class CreateToken implements Action {
     <Filter<Root, "decorate">>{
       type: Root,
       name: "decorate",
-      filter: next => (doc, params, request) => {
-        next(doc, params, request);
+      filter: next => async (doc, params, request) => {
+        doc = await next(doc, params, request);
 
         doc.forms.push({
           rel: "token",

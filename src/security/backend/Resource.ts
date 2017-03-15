@@ -11,7 +11,6 @@ import {Schema, validate} from "../../schema";
 import {pick, pathEq, partialRight} from "ramda";
 import {hash, compare} from "bcrypt";
 import {Request} from "hapi";
-import * as Promise from "bluebird";
 
 /**
  * Security backend that performs authentication using a Prism Resource
@@ -41,56 +40,60 @@ export class Resource implements Backend {
     };
   }
 
-  issue(payload: any): Promise<boolean | Object> {
-    let conditions = [{
+  async issue(payload: any): Promise<boolean | Object> {
+    let conditions = [
+      ...this._options.scope, {
       field: this._options.identity,
       value: payload[this._options.identity]
-    }, ...this._options.scope];
+    }];
 
-    return validate(payload, this.schema)
-      .then(() => this.resource.source.read({
+    let result;
+
+    try {
+      await validate(payload, this.schema);
+      result = await this.resource.source.read({
         source: this.resource.name,
         schema: this.schema,
         return: "item",
         conditions
-      }))
-      .catch(error => {
-        if (error.isBoom && error.output && error.output.statusCode === 404) {
-          return null;
-        }
-
-        throw error;
-      })
-      .then(result => {
-        if (result === null) {
-          /**
-           * @todo This leads to discovery of valid usernames through a timing
-           * attack; make it constant-time
-           */
-          return false;
-        }
-
-        let given  = payload[this._options.password];
-        let actual = (result as any)[this._options.password];
-
-        return this._options.compare(given, actual)
-          .then(match => {
-            if (match === false) {
-              return false;
-            }
-
-            return {
-              [this.resource.name]: pick(this.resource.primaryKeys, result)
-            };
-          });
       });
+    } catch (error) {
+      if (error.isBoom && error.output && error.output.statusCode === 404) {
+        return false;
+      }
+
+      throw error;
+    }
+
+    if (result === null) {
+      /**
+        * @todo This leads to discovery of valid usernames through a timing
+        * attack; make it constant-time
+        */
+      return false;
+    }
+
+    let given  = payload[this._options.password];
+    let actual = (result as any)[this._options.password];
+    let match = await this._options.compare(given, actual);
+
+    if (match === false) {
+      return false;
+    }
+
+    return {
+      [this.resource.name]: pick(this.resource.primaryKeys, result)
+    };
   }
 
   validate(decoded: any, request: Request): Promise<boolean | Object> {
-    let conditions = [...this.resource.primaryKeys.map(key => ({
-      field: key,
-      value: decoded[this.resource.name][key]
-    })), ...this._options.scope];
+    let conditions = [
+      ...this._options.scope,
+      ...this.resource.primaryKeys.map(key => ({
+        field: key,
+        value: decoded[this.resource.name][key]
+      }))
+    ];
 
     return this.resource.source.read({
       source: this.resource.name,
@@ -108,8 +111,8 @@ export class Resource implements Backend {
       type: ReadItem,
       name: "decorate",
       where: pathEq(["resource", "name"], this.resource.name),
-      filter: next => (doc, params, request) => {
-        next(doc, params, request);
+      filter: next => async (doc, params, request) => {
+        await next(doc, params, request);
 
         doc.properties[this._options.password] = this._options.redact;
 
@@ -125,24 +128,21 @@ export class Resource implements Backend {
       type: [CreateItem, UpdateItem],
       name: "handle",
       where: pathEq(["resource", "name"], this.resource.name),
-      filter: next => (params, request) => {
-        if (!request.payload[this._options.password]) {
-          return next(params, request);
+      filter: next => async (params, request) => {
+        if (request.payload[this._options.password]) {
+          let hash = await this._options.hash(request.payload[this._options.password]);
+          request.payload[this._options.password] = hash;
         }
 
-        return this._options.hash(request.payload[this._options.password])
-          .then(hash => {
-            request.payload[this._options.password] = hash;
-            return next(params, request);
-          });
+        return next(params, request);
       }
     },
 
     <Filter<Root, "decorate">>{
       type: Root,
       name: "decorate",
-      filter: (next, self, registry) => (doc, params, request) => {
-        doc = next(doc, params, request);
+      filter: (next, self, registry) => async (doc, params, request) => {
+        await next(doc, params, request);
 
         if (!request.auth || request.auth.error) {
           return doc;
@@ -224,7 +224,7 @@ const DEFAULT_OPTIONS: Options = {
   password: "password",
   redact:   "**REDACTED**",
 
-  compare: Promise.promisify(compare),
+  compare: compare,
   hash:    partialRight(hash, [4]) as any,
 
   scope: []

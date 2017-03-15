@@ -8,7 +8,6 @@ import {CreateItem} from "../../../action/CreateItem";
 import {UpdateItem} from "../../../action/UpdateItem";
 import {Document} from "../../../Document";
 
-import {resolve, reject} from "bluebird";
 import {merge} from "ramda";
 
 let resource: Resource;
@@ -32,7 +31,7 @@ describe("#schema", () => {
 
 describe("#issue()", () => {
   beforeEach(() => {
-    (users.source.read as jest.Mock<any>).mockReturnValue(resolve({
+    (users.source.read as jest.Mock<any>).mockReturnValue(Promise.resolve({
       id: 12,
       email: "user@test.com",
       password: "hashed:password"
@@ -83,7 +82,7 @@ describe("#issue()", () => {
 
   describe("when `read` query does not return a result", () => {
     it("resolves to `false`", async () => {
-      (users.source.read as jest.Mock<any>).mockReturnValue(resolve(null));
+      (users.source.read as jest.Mock<any>).mockReturnValue(Promise.resolve(null));
       let result = await resource.issue({email: "user1@test.com", password: "password"});
       expect(result).toBe(false);
     });
@@ -112,7 +111,7 @@ describe("#validate()", () => {
   });
 
   it("coerces any error to `false`", async () => {
-    (users.source.read as jest.Mock<any>).mockReturnValue(reject("oops"));
+    (users.source.read as jest.Mock<any>).mockReturnValue(Promise.reject("oops"));
 
     let result = await resource.validate(token, request);
     expect(result).toBe(false);
@@ -141,13 +140,13 @@ describe("filters", () => {
     registry.applyFilters();
   });
 
-  it("redacts `password` in ReadItem#decorate", () => {
+  it("redacts `password` in ReadItem#decorate", async () => {
     let document = new Document({
       email: "user@test.com",
       password: "hashed:password"
     });
 
-    readItem.decorate(document, {}, request);
+    await readItem.decorate(document, {}, request);
 
     expect(document.properties).toEqual({
       email: "user@test.com",
@@ -156,7 +155,7 @@ describe("filters", () => {
   });
 
   it("hashes passwords during create", async () => {
-    (users.source.create as jest.Mock<any>).mockReturnValue(resolve({
+    (users.source.create as jest.Mock<any>).mockReturnValue(Promise.resolve({
       id: 13
     }));
 
@@ -178,9 +177,9 @@ describe("filters", () => {
   });
 
   it("hashes passwords during update", async () => {
-    (users.source.update as jest.Mock<any>).mockReturnValue(resolve({
+    (users.source.update as jest.Mock<any>).mockReturnValue({
       id: 12
-    }));
+    });
 
     await updateItem.handle({}, merge(request, {
       payload: {
@@ -193,10 +192,10 @@ describe("filters", () => {
     });
   });
 
-  it("adds a link to current user to Root resource", () => {
+  it("adds a link to current user to Root resource", async () => {
     let doc = new Document();
 
-    root.decorate(doc, {}, merge(request, {
+    await root.decorate(doc, {}, merge(request, {
       auth: {
         credentials: {
           id: 12,

@@ -5,7 +5,6 @@ import {Resource, initialize} from "../resource";
 import {Schema, validate} from "../schema";
 import * as query from "../query";
 
-import * as Promise from "bluebird";
 import {Request, Response} from "hapi";
 import {pathEq} from "ramda";
 
@@ -21,41 +20,45 @@ export class UpdateItem implements Action {
     this.path = [this.resource.name, ...keys].join("/");
   }
 
-  handle = (params: Params, request: Request): Promise<Response> => {
-    let schema = this.schema(params, request);
-    let source = this.resource.source;
+  handle = async (params: Params, request: Request): Promise<Response> => {
+    let schema = await this.schema(params, request);
+    await validate(request.payload, schema);
 
-    return validate(request.payload, schema)
-      .then(() => source.update(this.query(params, request)))
-      .then(() => {
-        let response = (request as any).generateResponse();
-        response.code(204);
+    let query = await this.query(params, request);
+    await this.resource.source.update(query);
 
-        return response;
-      });
+    let response = (request as any).generateResponse();
+    response.code(204);
+
+    return response;
   }
 
-  schema = (params: Params, request: Request): Schema => ({
+  schema = async (params: Params, request: Request): Promise<Schema> => ({
     ...this.resource.schema,
     required: []
   })
 
-  query = (params: Params, request: Request): query.Update => ({
-    conditions: this.conditions(params, request),
-    returning: this.resource.primaryKeys,
-    source: this.resource.name,
-    schema: this.schema(params, request),
-    joins:  this.joins(params, request),
-    data:   request.payload
-  })
+  query = async (params: Params, request: Request): Promise<query.Update> =>
+    Promise.all([
+      this.conditions(params, request),
+      this.schema(params, request),
+      this.joins(params, request)
+    ]).then(([conditions, schema, joins]) => ({
+      returning: this.resource.primaryKeys,
+      source: this.resource.name,
+      data: request.payload,
+      conditions,
+      schema,
+      joins
+    }))
 
-  conditions = (params: Params, request: Request): query.Condition[] =>
+  conditions = async (params: Params, request: Request): Promise<query.Condition[]> =>
     this.resource.primaryKeys.map(key => ({
       field: key,
       value: params[key]
     }))
 
-  joins = (params: Params, request: Request): query.Join[] =>
+  joins = async (params: Params, request: Request): Promise<query.Join[]> =>
     this.resource.relationships.belongsTo.map(parent => ({
       source: parent.name,
       path:   [parent.from],
@@ -70,19 +73,21 @@ export class UpdateItem implements Action {
     <Filter<Root, "decorate">>{
       type: Root,
       name: "decorate",
-      filter: next => (doc, params, request) => {
-        next(doc, params, request);
+      filter: next => async (doc, params, request) =>
+        Promise.all([
+          next(doc, params, request),
+          this.schema(params, request)
+        ]).then(([doc, schema]) => {
+          doc.forms.push({
+            rel: this.resource.name,
+            href: this.path,
+            name: "update",
+            method: this.method,
+            schema
+          });
 
-        doc.forms.push({
-          rel: this.resource.name,
-          href: this.path,
-          name: "update",
-          method: this.method,
-          schema: this.schema(params, request)
-        });
-
-        return doc;
-      }
+          return doc;
+        })
     },
 
     /**
@@ -92,25 +97,25 @@ export class UpdateItem implements Action {
       type: ReadItem,
       name: "decorate",
       where: pathEq(["resource", "name"], this.resource.name),
-      filter: next => (doc, params, request) => {
-        next(doc, params, request);
+      filter: next => async (doc, params, request) =>
+        Promise.all([
+          next(doc, params, request),
+          this.schema(params, request)
+        ]).then(([doc, schema]) => {
+          doc.forms.push({
+            rel: this.resource.name,
+            href: this.path,
+            name: "update",
+            params: doc.properties,
+            method: this.method,
+            schema: {
+              ...schema,
+            default: doc.properties
+            }
+          });
 
-        let schema: Schema = {
-          ...this.schema(params, request),
-          default: doc.properties
-        };
-
-        doc.forms.push({
-          rel: this.resource.name,
-          href: this.path,
-          name: "update",
-          params: doc.properties,
-          method: this.method,
-          schema: schema
-        });
-
-        return doc;
-      }
+          return doc;
+        })
     }
   ];
 }

@@ -4,7 +4,6 @@ import {Root} from "./Root";
 import {Resource} from "../resource";
 import * as query from "../query";
 
-import * as Promise from "bluebird";
 import {Request, Response} from "hapi";
 import {pathEq} from "ramda";
 
@@ -18,22 +17,22 @@ export class DeleteItem implements Action {
     this.path = [this.resource.name, ...keys].join("/");
   }
 
-  handle = (params: Params, request: Request): Promise<Response> =>
-    this.resource.source
-      .delete(this.query(params, request))
-      .then(() => {
-        let response = (request as any).generateResponse();
-        response.code(204);
+  handle = async (params: Params, request: Request): Promise<Response> => {
+    let query = await this.query(params, request);
+    await this.resource.source.delete(query);
 
-        return response;
-      })
+    let response = (request as any).generateResponse();
+    response.code(204);
 
-  query = (params: Params, request: Request): query.Delete => ({
-    conditions: this.conditions(params, request),
+    return response;
+  }
+
+  query = async (params: Params, request: Request): Promise<query.Delete> => ({
+    conditions: await this.conditions(params, request),
     source: this.resource.name
   })
 
-  conditions = (params: Params, request: Request): query.Condition[] =>
+  conditions = async (params: Params, request: Request): Promise<query.Condition[]> =>
     this.resource.primaryKeys.map(key => ({
       field: key,
       value: params[key]
@@ -46,8 +45,8 @@ export class DeleteItem implements Action {
     <Filter<Root, "decorate">>{
       type: Root,
       name: "decorate",
-      filter: next => (doc, params, request) => {
-        next(doc, params, request);
+      filter: next => async (doc, params, request) => {
+        await next(doc, params, request);
 
         doc.forms.push({
           rel: this.resource.name,
@@ -67,8 +66,8 @@ export class DeleteItem implements Action {
       type: ReadItem,
       name: "decorate",
       where: pathEq(["resource", "name"], this.resource.name),
-      filter: next => (doc, params, request) => {
-        next(doc, params, request);
+      filter: next => async (doc, params, request) => {
+        await next(doc, params, request);
 
         doc.forms.push({
           rel: this.resource.name,

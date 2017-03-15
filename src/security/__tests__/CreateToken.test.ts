@@ -5,8 +5,6 @@ import {Registry} from "../../Registry";
 import {Root} from "../../action/Root";
 import {Document} from "../../Document";
 
-import {resolve} from "bluebird";
-
 let createToken: CreateToken;
 
 beforeEach(() => {
@@ -28,7 +26,7 @@ describe("#handle()", () => {
   let issueResponse: any;
 
   beforeEach(() => {
-    (backend.issue as jest.Mock<any>).mockImplementation(() => resolve(issueResponse));
+    (backend.issue as jest.Mock<any>).mockImplementation(() => Promise.resolve(issueResponse));
   });
 
   it("signs result of `backend.issue()` and sets to value of `token`", async () => {
@@ -63,9 +61,9 @@ describe("filters", () => {
     registry.applyFilters();
   });
 
-  it("adds a form to itself to the Root action that is only visible to non-authenticated users", () => {
+  it("adds a form to itself to the Root action that is only visible to non-authenticated users", async () => {
     let document = new Document();
-    root.decorate(document, {}, request);
+    await root.decorate(document, {}, request);
 
     expect(document.forms).toEqual([{
       rel: "token",

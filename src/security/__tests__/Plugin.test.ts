@@ -5,7 +5,6 @@ import {request} from "../../action/__mocks__/hapi";
 
 import {Server} from "hapi";
 import {Options as JwtOptions} from "hapi-auth-jwt2";
-import {resolve} from "bluebird";
 
 let server: Server;
 let plugin: Plugin;
@@ -121,7 +120,7 @@ describe("#jwtOptions", () => {
   beforeEach(() => {
     plugin.registerBackend(backend);
     options = plugin.jwtOptions();
-    (backend.validate as jest.Mock<any>).mockImplementation(() => resolve(validateResult));
+    (backend.validate as jest.Mock<any>).mockImplementation(() => Promise.resolve(validateResult));
   });
 
   it("creates a JWT options object", () => {

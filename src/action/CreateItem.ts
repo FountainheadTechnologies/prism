@@ -7,7 +7,6 @@ import {Item} from "../types";
 import {Schema, validate, sanitize} from "../schema";
 import * as query from "../query";
 
-import * as Promise from "bluebird";
 import {Request, Response} from "hapi";
 import {evolve, prepend, pathEq} from "ramda";
 
@@ -22,33 +21,36 @@ export class CreateItem implements Action {
     this.path = this.resource.name;
   }
 
-  handle = (params: Params, request: Request): Promise<Response> => {
-    let schema = this.schema(params, request);
-    let source = this.resource.source;
+  handle = async (params: Params, request: Request): Promise<Response> => {
+    let schema = await this.schema(params, request);
+    await validate(request.payload, schema);
 
-    return validate(request.payload, schema)
-      .then(() => source.create(this.query(params, request)))
-      .then(createdItem => {
-        let response = (request as any).generateResponse();
-        response.code(201);
-        response.plugins.prism = {createdItem};
+    let query = await this.query(params, request);
+    let createdItem = await this.resource.source.create(query);
 
-        return response;
-      });
+    let response = (request as any).generateResponse();
+    response.code(201);
+    response.plugins.prism = {createdItem};
+
+    return response;
   }
 
-  schema = (params: Params, request: Request): Schema =>
+  schema = async (params: Params, request: Request): Promise<Schema> =>
     this.resource.schema;
 
-  query = (params: Params, request: Request): query.Create => ({
-    returning: this.resource.primaryKeys,
-    source: this.resource.name,
-    schema: this.schema(params, request),
-    joins:  this.joins(params, request),
-    data:   request.payload
-  })
+  query = async (params: Params, request: Request): Promise<query.Create> =>
+    Promise.all([
+      this.schema(params, request),
+      this.joins(params, request)
+    ]).then(([schema, joins]) => ({
+      returning: this.resource.primaryKeys,
+      source: this.resource.name,
+      data: request.payload,
+      schema,
+      joins
+    }))
 
-  joins = (params: Params, request: Request): query.Join[] =>
+  joins = async (params: Params, request: Request): Promise<query.Join[]> =>
     this.resource.relationships.belongsTo.map(parent => ({
       source: parent.name,
       path:   [parent.from],
@@ -63,19 +65,21 @@ export class CreateItem implements Action {
     <Filter<Root, "decorate">>{
       type: Root,
       name: "decorate",
-      filter: next => (doc, params, request) => {
-        next(doc, params, request);
+      filter: next => (doc, params, request) =>
+        Promise.all([
+          next(doc, params, request),
+          this.schema(params, request)
+        ]).then(([doc, schema]) => {
+          doc.forms.push({
+            rel: this.resource.name,
+            href: this.path,
+            name: "create",
+            method: this.method,
+            schema,
+          });
 
-        doc.forms.push({
-          rel: this.resource.name,
-          href: this.path,
-          name: "create",
-          method: this.method,
-          schema: this.schema(params, request)
-        });
-
-        return doc;
-      }
+          return doc;
+        })
     },
 
     /**
@@ -85,19 +89,21 @@ export class CreateItem implements Action {
       type: ReadCollection,
       name: "decorate",
       where: pathEq(["resource", "name"], this.resource.name),
-      filter: next => (doc, params, request) => {
-        next(doc, params, request);
+      filter: next => (doc, params, request) =>
+        Promise.all([
+          next(doc, params, request),
+          this.schema(params, request)
+        ]).then(([doc, schema]) => {
+          doc.forms.push({
+            rel: this.resource.name,
+            href: this.path,
+            name: "create",
+            method: this.method,
+            schema
+          });
 
-        doc.forms.push({
-          rel: this.resource.name,
-          href: this.path,
-          name: "create",
-          method: this.method,
-          schema: this.schema(params, request)
-        });
-
-        return doc;
-      }
+          return doc;
+        })
     },
 
     /**
@@ -108,15 +114,16 @@ export class CreateItem implements Action {
       type: [CreateItem, UpdateItem],
       name: "joins",
       where: pathEq(["resource", "name"], child.name),
-      filter: next => (params, request) => {
-        let joins = this.joins(params, request)
-          .map(evolve({
+      filter: next => (params, request) =>
+        Promise.all([
+          next(params, request),
+          this.joins(params, request)
+        ]).then(([childJoins, ownJoins]) => ([
+          ...childJoins,
+          ...ownJoins.map(evolve({
             path: prepend(child.to)
-          }));
-
-        return next(params, request)
-          .concat(joins as any as query.Join[]);
-      }
+          }))
+        ]))
     })),
 
     /**
@@ -127,21 +134,23 @@ export class CreateItem implements Action {
       type: [CreateItem, UpdateItem],
       name: "schema",
       where: pathEq(["resource", "name"], child.name),
-      filter: next => (params, request) => {
-        let schema = next(params, request);
-        let prop   = schema.properties[child.to];
+      filter: next => (params, request) =>
+        Promise.all([
+          next(params, request),
+          this.schema(params, request)
+        ]).then(([childSchema, ownSchema]) => {
+          let prop = childSchema.properties[child.to];
+          if (!prop.oneOf) {
+            childSchema.properties[child.to] = {
+              oneOf: [
+                prop,
+                ownSchema
+              ]
+            };
+          }
 
-        if (!prop.oneOf) {
-          schema.properties[child.to] = {
-            oneOf: [
-              prop,
-              this.schema(params, request)
-            ]
-          };
-        }
-
-        return schema;
-      }
+          return childSchema;
+        })
     })),
   ];
 }

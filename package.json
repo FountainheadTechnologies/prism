@@ -10,7 +10,6 @@
   "license": "BSD-3-Clause",
   "devDependencies": {
     "@types/bcrypt": "^1.0.0",
-    "@types/bluebird": "^3.0.35",
     "@types/boom": "0.0.32",
     "@types/hapi": "^13.0.37",
     "@types/hapi-auth-jwt2": "^7.0.0",
@@ -33,7 +32,6 @@
   },
   "dependencies": {
     "bcrypt": "^1.0.2",
-    "bluebird": "^3.4.6",
     "boom": "^4.2.0",
     "hapi-auth-jwt2": "^7.2.4",
     "jsonwebtoken": "^7.2.1",

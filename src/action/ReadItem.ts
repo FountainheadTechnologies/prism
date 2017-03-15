@@ -8,7 +8,6 @@ import {Root} from "./Root";
 import {ReadCollection} from "./ReadCollection";
 import {CreateItem} from "./CreateItem";
 
-import * as Promise from "bluebird";
 import * as uriTpl  from "uri-templates";
 import {Request} from "hapi";
 import {is, evolve, pathEq, prepend} from "ramda";
@@ -25,28 +24,34 @@ export class ReadItem implements Action {
     this.path = [this.resource.name, ...keys].join("/");
   }
 
-  handle = (params: Params, request: Request): Promise<Item> =>
-    this.resource.source
-      .read<Item>(this.query(params, request));
+  handle = async (params: Params, request: Request): Promise<Item> => {
+    let query = await this.query(params, request);
+    return this.resource.source.read<Item>(query);
+  }
 
-  query = (params: Params, request: Request): query.Read => ({
-    return: "item",
-    source: this.resource.name,
-    schema: this.schema(params, request),
-    joins:  this.joins(params, request),
-    conditions: this.conditions(params, request)
-  })
+  query = async (params: Params, request: Request): Promise<query.Read> =>
+    Promise.all([
+      this.schema(params, request),
+      this.joins(params, request),
+      this.conditions(params, request)
+    ]).then(([schema, joins, conditions]) => ({
+      return: "item" as "item",
+      source: this.resource.name,
+      schema,
+      joins,
+      conditions
+    }))
 
-  schema = (params: Params, request: Request): Schema =>
+  schema = async (params: Params, request: Request): Promise<Schema> =>
     this.resource.schema;
 
-  conditions = (params: Params, request: Request): query.Condition[] =>
+  conditions = async (params: Params, request: Request): Promise<query.Condition[]> =>
     this.resource.primaryKeys.map(key => ({
       field: key,
       value: params[key]
     }))
 
-  joins = (params: Params, request: Request): query.Join[] =>
+  joins = async (params: Params, request: Request): Promise<query.Join[]> =>
     this.resource.relationships.belongsTo.map(parent => ({
       source: parent.name,
       path:   [this.resource.name, parent.name],
@@ -54,7 +59,7 @@ export class ReadItem implements Action {
       to:     parent.to
     }))
 
-  decorate = (doc: Document, params: Params, request: Request): Document => {
+  decorate = async (doc: Document, params: Params, request: Request): Promise<Document> => {
     this.embedded(doc, params, request)
       .filter(embed => Object.keys(embed.document.properties).length > 0)
       .forEach(embed => {
@@ -85,8 +90,8 @@ export class ReadItem implements Action {
     <Filter<Root, "decorate">>{
       type: Root,
       name: "decorate",
-      filter: next => (doc, params, request) => {
-        next(doc, params, request);
+      filter: next => async (doc, params, request) => {
+        await next(doc, params, request);
 
         doc.links.push({
           rel:  this.resource.name,
@@ -102,12 +107,12 @@ export class ReadItem implements Action {
       type: CreateItem,
       name: "handle",
       where: pathEq(["resource", "name"], this.resource.name),
-      filter: next => (params, request) =>
-        next(params, request)
-          .tap(response => {
-            let href = uriTpl(this.path).fillFromObject(response.plugins.prism.createdItem);
-            response.location(href);
-          })
+      filter: next => async (params, request) => {
+        let response = await next(params, request);
+        let href = uriTpl(this.path).fillFromObject(response.plugins.prism.createdItem);
+        response.location(href);
+        return response;
+      }
     },
 
     /**
@@ -117,8 +122,8 @@ export class ReadItem implements Action {
       type: ReadCollection,
       name: "embedItem",
       where: pathEq(["resource", "name"], this.resource.name),
-      filter: next => (item, params, request) => {
-        let embed = next(item, params, request);
+      filter: next => async (item, params, request) => {
+        let embed = await next(item, params, request);
 
         if (embed.rel === this.resource.name) {
           embed.document.links.push({
@@ -127,7 +132,7 @@ export class ReadItem implements Action {
             params: embed.document.properties
           });
 
-          this.decorate(embed.document, params, request);
+          await this.decorate(embed.document, params, request);
         }
 
         return embed;
@@ -142,15 +147,16 @@ export class ReadItem implements Action {
       type: ReadItem,
       name: "joins",
       where: pathEq(["resource", "name"], child.name),
-      filter: next => (params, request) => {
-        let joins = this.joins(params, request)
-          .map(evolve({
+      filter: next => (params, request) =>
+        Promise.all([
+          next(params, request),
+          this.joins(params, request)
+        ]).then(([childJoins, ownJoins]) => ([
+          ...childJoins,
+          ...ownJoins.map(evolve({
             path: prepend(child.name)
-          }));
-
-        return next(params, request)
-          .concat(joins as any as query.Join[]);
-      }
+          }))
+        ]))
     })),
 
     /**
@@ -161,20 +167,22 @@ export class ReadItem implements Action {
       type:  ReadItem,
       name: "decorate",
       where: pathEq(["resource", "name"], child.name),
-      filter: next => (doc, params, request) => {
-        next(doc, params, request);
+      filter: next => async (doc, params, request) => {
+        await next(doc, params, request);
 
-        doc.embedded
+        let embeds = doc.embedded
           .filter(embed => embed.document.properties && embed.rel === this.resource.name)
-          .forEach(embed => {
+          .map(embed => {
             embed.document.links.push({
               rel:    "self",
               href:   this.path,
               params: embed.document.properties
             });
 
-            this.decorate(embed.document, params, request);
+            return this.decorate(embed.document, params, request);
           });
+
+        await Promise.all(embeds);
 
         return doc;
       }
