@@ -1,6 +1,7 @@
 import {Action, Params, Filter} from "../action";
 import {ReadCollection} from "./ReadCollection";
 import {UpdateItem} from "./UpdateItem";
+import {ReadItem} from "./ReadItem";
 import {Root} from "./Root";
 import {Resource, initialize} from "../resource";
 import {Item} from "../types";
@@ -105,6 +106,37 @@ export class CreateItem implements Action {
           return doc;
         })
     },
+
+    /**
+     * Register a form for this action on parent ReadItem documents, with
+     * foreign keys pre-populated in `schema.default`
+     */
+    this.resource.relationships.belongsTo.map(parent => <Filter<ReadItem, "decorate">>({
+      type: ReadItem,
+      name: "decorate",
+      where: pathEq(["resource", "name"], parent.name),
+      filter: next => (doc, params, request) =>
+        Promise.all([
+          next(doc, params, request),
+          this.schema(params, request)
+        ]).then(([doc, schema]) => {
+          doc.forms.push({
+            rel: this.resource.name,
+            href: this.path,
+            name: "create",
+            method: this.method,
+            schema: {
+              ...schema,
+              default: {
+                ...schema.default,
+                [parent.from]: doc.properties[parent.to]
+              }
+            }
+          });
+
+          return doc;
+        })
+    })),
 
     /**
      * Allow embedded objects to be recursively created on child resources by
