@@ -1,5 +1,6 @@
 import {CreateItem} from "../CreateItem";
 import {Root} from "../Root";
+import {ReadItem} from "../ReadItem";
 import {ReadCollection} from "../ReadCollection";
 import {Registry} from "../../Registry";
 import {Document} from "../../Document";
@@ -73,12 +74,14 @@ describe("filters", () => {
   let root: Root;
   let createUser: CreateItem;
   let readTasks: ReadCollection;
+  let readUser: ReadItem;
 
   beforeEach(() => {
     registry = new Registry();
     root = new Root();
     createUser = new CreateItem(resource.users);
     readTasks = new ReadCollection(resource.tasks);
+    readUser = new ReadItem(resource.users);
 
     registry.registerAction(root);
     registry.registerAction(createTask);
@@ -112,6 +115,28 @@ describe("filters", () => {
       name: "create",
       method: createTask.method,
       schema: resource.tasks.schema
+    }]);
+  });
+
+  it("registers a form on parents ReadItem", async () => {
+    registry.registerAction(readUser);
+    registry.applyFilters();
+
+    let document = new Document({id: 12});
+    await readUser.decorate(document, {}, hapi.request);
+
+    expect(document.forms).toEqual([{
+      rel: resource.tasks.name,
+      href: createTask.path,
+      name: "create",
+      method: createTask.method,
+      schema: {
+        ...resource.tasks.schema,
+        default: {
+          ...resource.tasks.schema.default,
+          owner: 12
+        }
+      }
     }]);
   });
 

@@ -77,6 +77,21 @@ describe('GET /departments/2 (ReadItem)', () => {
     });
   });
 
+  it('contains a Create form for child Users', () => {
+    expect(document._forms.users).toEqual({
+      name: 'create',
+      href: '/users',
+      method: 'POST',
+      schema: jasmine.anything()
+    });
+  });
+
+  it('pre-populates foreign key in Users create form', () => {
+    expect(document._forms.users.schema.default).toEqual({
+      department: 2
+    });
+  });
+
   it('contains Update and Delete forms', () => {
     expect(document._forms.departments).toEqual([{
       name: 'update',
