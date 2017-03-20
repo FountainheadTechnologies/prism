@@ -45,13 +45,14 @@
   },
   "scripts": {
     "prebuild": "npm run clean",
-    "build": "npm run build:tsc && npm run build:copy",
+    "build": "npm run build:tsc && npm run build:copy && npm run build:docs",
     "build:tsc": "tsc",
+    "build:docs": "./node_modules/.bin/typedoc --out docs --name Prism .",
     "build:copy": "node ./scripts/copy.js",
     "clean": "rm -rf build",
     "pretest": "npm run lint",
     "test": "./node_modules/.bin/jest --no-cache",
-    "lint": "./node_modules/.bin/tslint --project tsconfig.json"
+    "lint": "./node_modules/.bin/tslint --type-check --project tsconfig.json"
   },
   "version": "1.0.0",
   "jest": {

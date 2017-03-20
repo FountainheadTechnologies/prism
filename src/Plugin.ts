@@ -164,6 +164,14 @@ export const toRoute = (action: Action): IRouteConfiguration => ({
   path:   dequery(action.path),
   method: action.method,
   config: action.routeConfig,
+  /**
+   * Dispatcher for the compiled Hapi route. If `action.handle` returns an
+   * object, it is marshalled into a new Document instance and passed to
+   * `action.decorate` before being rendered and sent as the response body.
+   *
+   * If Action.handle returns a Hapi response object, then the response is
+   * sent immediately.
+   */
   async handler(request, reply) {
     let params = mergeRequestParameters(request);
 

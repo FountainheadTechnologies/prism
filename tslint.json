@@ -49,6 +49,7 @@
             true,
             "check-space"
         ],
+        "completed-docs": true,
         "indent": [
             true,
             "spaces"
