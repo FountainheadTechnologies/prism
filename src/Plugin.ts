@@ -1,3 +1,13 @@
+/**
+ * Defines the 'Plugin' class and interfaces to implement Prism as a plugin for
+ * Hapi
+ * @module Plugin
+ */
+
+/**
+ * required by typedoc-plugin-external-module-name
+ */
+
 import {Registry} from "./Registry";
 import {Action, Filter, Params} from "./action";
 import {Root} from "./action/Root";
@@ -27,21 +37,56 @@ export interface Options {
   secure: boolean;
 }
 
+/**
+ * Default values to use for `Options` when creating a new Plugin
+ */
 const DEFAULT_OPTIONS: Options = {
   root: "/",
   secure: true
 };
 
+/**
+ * Names of methods on Plugin that should be exposed via Hapi's plugin interface
+ */
 const EXPOSED_API: Array<keyof Plugin> = [
   "registerAction",
   "registerFilter"
 ];
 
+/**
+ * Implements Prism's core, a Hapi plugin which maintains a registry of Actions
+ * and Filters, and exposes the ability to register Actions and Filters via
+ * Hapi's plugin interface.
+ *
+ * It should not be necessary to create a Plugin instance manually, instead use
+ * the `register` method on a Hapi server instance:
+ *
+ * ```
+ * import {Server} from 'hapi';
+ * import {Prism} from 'prism';
+ *
+ * var server = new Server();
+ * server.register({
+ *   register: Prism,
+ *   options: {root: '/api'}
+ * });
+ * ```
+ */
 export class Plugin {
+  /**
+   * Contains configuration options passed to constructor, merged with defaults
+   */
   protected _options: Options;
 
+  /**
+   * A Registry instance that Actions and Filters will be registered against.
+   */
   protected _registry = new Registry();
 
+  /**
+   * @param _server The Hapi server instance that the Plugin is being registered against
+   * @param options Options that were passed to the plugin registration method
+   */
   constructor(protected readonly _server: Server, options: Partial<Options> = {}) {
     this._options = {...DEFAULT_OPTIONS, ...options};
 
@@ -63,6 +108,10 @@ export class Plugin {
     });
   }
 
+  /**
+   * Registers an Action with `_registry`, creates a Hapi route definition and
+   * adds it to the routing table
+   */
   registerAction(action: Action | Action[]): void {
     if (action instanceof Array) {
       return action.forEach(action => this.registerAction(action));
@@ -78,10 +127,19 @@ export class Plugin {
     this._server.log("prism", `Action "${action.constructor.name}" routed to "${route.method}:${route.path}"`);
   }
 
+  /**
+   * Delegates to `_registry.registerFilter`
+   */
   registerFilter(filter: Filter<Action, any> | Filter<Action, any>[]): void {
     this._registry.registerFilter(filter);
   }
 
+  /**
+   * Once this Plugin instance has been initialized, `expose()` should be called
+   * to create an object containing the methods and properties, bound to the
+   * instance, that can be used as the public-facing API that is exposed through
+   * `server.plugins.prism`
+   */
   expose(): Object {
     return map((value: any) => {
       if (typeof value === "function") {
@@ -93,6 +151,15 @@ export class Plugin {
   }
 }
 
+/**
+ * Creates a Hapi route definition based upon an Action instance. The Route
+ * definition also contains a `handler` function which perfoms the dispatch
+ * process.
+ *
+ * @param action The Action to create a route definition for
+ * @return The configured Hapi route definition, complete with `handler`
+ * dispatch method
+ */
 export const toRoute = (action: Action): IRouteConfiguration => ({
   path:   dequery(action.path),
   method: action.method,
@@ -123,9 +190,17 @@ export const toRoute = (action: Action): IRouteConfiguration => ({
   }
 });
 
+/**
+ * Strips URI template placeholders that denote query string(s) for a path in
+ * order to make it compatible with Hapi
+ */
 export const dequery = (path: string): string =>
   path.replace(/{\?.*?}/, "");
 
+/**
+ * Merges query parameters and URL part parameters in order to make it easier
+ * for Actions to parse them
+ */
 export const mergeRequestParameters = (request: Request): Params => {
   let queryParams = map((value: string) => {
     if (value.indexOf(",") < 0) {

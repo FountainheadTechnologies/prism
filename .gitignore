@@ -1,6 +1,7 @@
 build
 coverage
 node_modules
+docs
 example/node_modules
 public-site/node_modules
 public-site/db.json

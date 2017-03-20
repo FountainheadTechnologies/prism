@@ -31,6 +31,6 @@ Promise
 
 	  var dest = pathTo('build', 'package.json');
 
-	  return writeJsonAsync(dest, packageJSON)
+	  return writeJsonAsync(dest, packageJSON, {spaces: 2})
 		  .then(() => console.log(`Configured package.json in '${dest}'`));
   });
