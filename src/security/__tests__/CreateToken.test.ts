@@ -65,7 +65,7 @@ describe("filters", () => {
     let document = new Document();
     await root.decorate(document, {}, request);
 
-    expect(document.forms).toEqual([{
+    expect(document.forms).toContainEqual({
       rel: "token",
       name: "create",
       href: "token",
@@ -73,6 +73,19 @@ describe("filters", () => {
       schema: backend.schema,
       public: true,
       private: false
-    }]);
+    });
+  });
+
+  it("adds a form to itself to the Root action that is only visible to authenticated users", async () => {
+    let document = new Document();
+    await root.decorate(document, {}, request);
+
+    expect(document.forms).toContainEqual({
+      rel: "token",
+      name: "refresh",
+      href: "token",
+      method: "POST",
+      schema: backend.schema
+    });
   });
 });

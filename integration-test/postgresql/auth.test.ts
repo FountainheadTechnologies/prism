@@ -309,6 +309,31 @@ describe('Valid token', () => {
     it('does not contain a `token:create` form', () => {
       expect(document._links.token).toBeUndefined();
     });
+
+    it('contains a `token:refresh` form', () => {
+      expect(document._forms.token).toEqual({
+        name: 'refresh',
+        method: 'POST',
+        href: '/token',
+        schema: {
+          $schema: 'http://json-schema.org/draft-04/schema#',
+          title: 'token',
+          type: 'object',
+          properties: {
+            username: {
+              type: 'string'
+            },
+            password: {
+              type: 'string'
+            }
+          },
+          required: [
+            'username',
+            'password'
+          ]
+        }
+      });
+    });
   });
 
   describe('GET /users/1 (ReadItem)', () => {
