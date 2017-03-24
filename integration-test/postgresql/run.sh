@@ -10,6 +10,7 @@ teardown() {
 	  psql -h "${POSTGRES_HOST:-/var/run/postgresql}" -U "${POSTGRES_USER}" -f teardown.sql
 }
 
+rm -rf node_modules/@warrenseymour/prism
 npm install
 
 setup

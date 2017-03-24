@@ -63,6 +63,27 @@ export class CreateToken implements Action {
 
         return doc;
       }
+    },
+
+    /**
+     * Add a form for refreshing a token to the Root action
+     */
+    <Filter<Root, "decorate">>{
+      type: Root,
+      name: "decorate",
+      filter: next => async (doc, params, request) => {
+        doc = await next(doc, params, request);
+
+        doc.forms.push({
+          rel: "token",
+          name: "refresh",
+          href: this.path,
+          method: this.method,
+          schema: this._backend.schema
+        });
+
+        return doc;
+      }
     }
   ];
 }
