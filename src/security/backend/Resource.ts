@@ -5,6 +5,7 @@ import {ReadItem} from "../../action/ReadItem";
 import {CreateItem} from "../../action/CreateItem";
 import {UpdateItem} from "../../action/UpdateItem";
 import {Filter} from "../../filter";
+import {Source} from "../../source";
 import {Condition} from "../../query";
 import {Schema, validate} from "../../schema";
 
@@ -102,6 +103,8 @@ export class Resource implements Backend {
       conditions
     }).catch(err => false);
   }
+
+  register = this.resource.source;
 
   filters = [
     /**

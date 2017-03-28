@@ -13,4 +13,5 @@ export interface Filter<T, K extends keyof T> {
 
 export interface Container {
   filters?: Array<Filter<any, any> | Array<Filter<any, any>>>;
+  register?: any | any[];
 }

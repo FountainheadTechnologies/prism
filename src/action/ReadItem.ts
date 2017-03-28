@@ -1,5 +1,6 @@
 import {Action, Params} from "../action";
 import {Filter} from "../filter";
+import {Source} from "../source";
 import {Resource, initialize} from "../resource";
 import {Item} from "../types";
 import {Schema} from "../schema";
@@ -83,6 +84,8 @@ export class ReadItem implements Action {
 
   omit = (doc: Document, params: Params, request: Request): string[] =>
     this.resource.relationships.belongsTo.map(parent => parent.name);
+
+  register = this.resource.source;
 
   filters = [
     /**

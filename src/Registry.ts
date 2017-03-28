@@ -1,11 +1,11 @@
 import {Action} from "./action";
 import {Filter, Type, Container} from "./filter";
 
-import {partition, always, wrap} from "ramda";
+import {wrap} from "ramda";
 
 export interface FindOptions<T extends any> {
-  types: Type<T>[],
-  where?: (object: T) => boolean
+  types: Type<T>[];
+  where?: (object: T) => boolean;
 }
 
 export class Registry {
@@ -18,23 +18,33 @@ export class Registry {
     }
 
     this._registeredObjects.push(object);
+
+    let _object = object as Container;
+    if (_object.filters) {
+      _object.filters.forEach(filter => this.registerFilter(filter));
+    }
+
+    if (_object.register) {
+      this.registerObject(_object.register);
+    }
   }
 
   findObjects<T extends any>(types: Array<Type<T>>, where?: (object: T) => boolean): T[] {
     return this._registeredObjects
       .filter(object => {
         for (let type in types) {
-          if (!(object instanceof types[type])) {
-            return false;
+          if (object instanceof types[type]) {
+            return true;
           }
         }
-
-        if (!where) {
-          return true;
+      })
+      .filter(object => {
+        if (where && where(object) === false) {
+          return;
         }
 
-        return where(object);
-      })
+        return true;
+      });
   }
 
   registerFilter(filter: Filter<any, any> | Array<Filter<any, any>>): void {

@@ -1,5 +1,6 @@
 import {Action, Params} from "../action";
 import {Filter} from "../filter";
+import {Source} from "../source";
 import {Resource, initialize} from "../resource";
 import {Collection} from "../types";
 import {Schema} from "../schema";
@@ -174,6 +175,8 @@ export class ReadCollection implements Action {
   }
 
   omit = (doc: Document, params: Params, request: Request): string[] => ["items"];
+
+  register = this.resource.source;
 
   filters = [
     /**

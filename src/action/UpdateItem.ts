@@ -1,5 +1,6 @@
 import {Action, Params} from "../action";
 import {Filter} from "../filter";
+import {Source} from "../source";
 import {ReadItem} from "./ReadItem";
 import {Root} from "./Root";
 import {Resource, initialize} from "../resource";
@@ -66,6 +67,8 @@ export class UpdateItem implements Action {
       from:   parent.from,
       to:     parent.to
     }))
+
+  register = this.resource.source;
 
   filters = [
     /**
