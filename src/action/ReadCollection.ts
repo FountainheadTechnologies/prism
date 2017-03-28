@@ -1,4 +1,6 @@
-import {Action, Params, Filter} from "../action";
+import {Action, Params} from "../action";
+import {Filter} from "../filter";
+import {Source} from "../source";
 import {Resource, initialize} from "../resource";
 import {Collection} from "../types";
 import {Schema} from "../schema";
@@ -174,13 +176,15 @@ export class ReadCollection implements Action {
 
   omit = (doc: Document, params: Params, request: Request): string[] => ["items"];
 
+  register = this.resource.source;
+
   filters = [
     /**
      * Register a link to this action in the root document
      */
     <Filter<Root, "decorate">>{
       type: Root,
-      name: "decorate",
+      method: "decorate",
       filter: next => async (doc, params, request) => {
         await next(doc, params, request);
 
@@ -200,7 +204,7 @@ export class ReadCollection implements Action {
      */
     this.resource.relationships.has.map(child => <Filter<ReadCollection, "joins">>({
       type: ReadCollection,
-      name: "joins",
+      method: "joins",
       where: pathEq(["resource", "name"], child.name),
       filter: next => (params, request) =>
         Promise.all([
@@ -219,7 +223,7 @@ export class ReadCollection implements Action {
      */
     ...this.resource.relationships.belongsTo.map(parent => <Filter<ReadItem, "decorate">>({
       type: ReadItem,
-      name: "decorate",
+      method: "decorate",
       where: pathEq(["resource", "name"], parent.name),
       filter: next => async (doc, params, request) => {
         await next(doc, params, request);

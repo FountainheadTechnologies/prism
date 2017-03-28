@@ -132,10 +132,10 @@ describe("filters", () => {
     createItem = new CreateItem(users);
     updateItem = new UpdateItem(users);
 
-    registry.registerAction(root);
-    registry.registerAction(readItem);
-    registry.registerAction(createItem);
-    registry.registerAction(updateItem);
+    registry.registerObject(root);
+    registry.registerObject(readItem);
+    registry.registerObject(createItem);
+    registry.registerObject(updateItem);
     registry.registerFilter(resource.filters);
     registry.applyFilters();
   });

@@ -1,4 +1,5 @@
-import {Action, Params, Filter} from "../action";
+import {Action, Params} from "../action";
+import {Filter} from "../filter";
 import {Root} from "../action/Root";
 import {Document} from "../Document";
 import {Backend} from "./backend";
@@ -41,13 +42,15 @@ export class CreateToken implements Action {
     auth: false
   };
 
+  register = this._backend;
+
   filters = [
     /**
      * Add a form for obtaining a token to the Root action
      */
     <Filter<Root, "decorate">>{
       type: Root,
-      name: "decorate",
+      method: "decorate",
       filter: next => async (doc, params, request) => {
         doc = await next(doc, params, request);
 
@@ -70,7 +73,7 @@ export class CreateToken implements Action {
      */
     <Filter<Root, "decorate">>{
       type: Root,
-      name: "decorate",
+      method: "decorate",
       filter: next => async (doc, params, request) => {
         doc = await next(doc, params, request);
 

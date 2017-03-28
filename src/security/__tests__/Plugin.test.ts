@@ -45,11 +45,6 @@ describe("#registerBackend()", () => {
     });
   });
 
-  it("registers filters defined on the backend", () => {
-    plugin.registerBackend(backend);
-    expect(server.plugins["prism"].registerFilter).toHaveBeenCalledWith(backend.filters);
-  });
-
   it("registers a CreateToken action using backend and default options", () => {
     plugin.registerBackend(backend);
     let createToken = server.plugins["prism"].registerAction.mock.calls[0][0];

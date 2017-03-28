@@ -281,8 +281,8 @@ describe("filters", () => {
     readUser = new ReadItem(resource.users);
     readProject = new ReadItem(resource.projects);
 
-    registry.registerAction(root);
-    registry.registerAction(readTasks);
+    registry.registerObject(root);
+    registry.registerObject(readTasks);
   });
 
   it("adds a link to itself to the Root action", async () => {
@@ -299,8 +299,8 @@ describe("filters", () => {
   });
 
   it("adds links to itself to parent ReadItem actions", async () => {
-    registry.registerAction(readUser);
-    registry.registerAction(readProject);
+    registry.registerObject(readUser);
+    registry.registerObject(readProject);
     registry.applyFilters();
 
     let user = new Document({
@@ -339,7 +339,7 @@ describe("filters", () => {
   });
 
   it("recursively joins itself as a parent on child queries", async () => {
-    registry.registerAction(readUsers);
+    registry.registerObject(readUsers);
     registry.applyFilters();
 
     let query = await readTasks.joins({}, {} as any);

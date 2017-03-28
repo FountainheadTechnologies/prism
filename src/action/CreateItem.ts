@@ -1,4 +1,6 @@
-import {Action, Params, Filter} from "../action";
+import {Action, Params} from "../action";
+import {Filter} from "../filter";
+import {Source} from "../source";
 import {ReadCollection} from "./ReadCollection";
 import {UpdateItem} from "./UpdateItem";
 import {ReadItem} from "./ReadItem";
@@ -59,13 +61,15 @@ export class CreateItem implements Action {
       to:     parent.to
     }))
 
+  register = this.resource.source;
+
   filters = [
     /**
      * Register a form for this action in the root document
      */
     <Filter<Root, "decorate">>{
       type: Root,
-      name: "decorate",
+      method: "decorate",
       filter: next => (doc, params, request) =>
         Promise.all([
           next(doc, params, request),
@@ -88,7 +92,7 @@ export class CreateItem implements Action {
      */
     <Filter<ReadCollection, "decorate">>{
       type: ReadCollection,
-      name: "decorate",
+      method: "decorate",
       where: pathEq(["resource", "name"], this.resource.name),
       filter: next => (doc, params, request) =>
         Promise.all([
@@ -113,7 +117,7 @@ export class CreateItem implements Action {
      */
     this.resource.relationships.belongsTo.map(parent => <Filter<ReadItem, "decorate">>({
       type: ReadItem,
-      name: "decorate",
+      method: "decorate",
       where: pathEq(["resource", "name"], parent.name),
       filter: next => (doc, params, request) =>
         Promise.all([
@@ -144,7 +148,7 @@ export class CreateItem implements Action {
      */
     this.resource.relationships.has.map(child => <Filter<CreateItem, "joins">>({
       type: [CreateItem, UpdateItem],
-      name: "joins",
+      method: "joins",
       where: pathEq(["resource", "name"], child.name),
       filter: next => (params, request) =>
         Promise.all([
@@ -164,7 +168,7 @@ export class CreateItem implements Action {
      */
     this.resource.relationships.has.map(child => <Filter<CreateItem, "schema">>({
       type: [CreateItem, UpdateItem],
-      name: "schema",
+      method: "schema",
       where: pathEq(["resource", "name"], child.name),
       filter: next => (params, request) =>
         Promise.all([

@@ -83,8 +83,8 @@ describe("filters", () => {
     readTasks = new ReadCollection(resource.tasks);
     readUser = new ReadItem(resource.users);
 
-    registry.registerAction(root);
-    registry.registerAction(createTask);
+    registry.registerObject(root);
+    registry.registerObject(createTask);
   });
 
   it("registers a form on the Root action", async () => {
@@ -103,7 +103,7 @@ describe("filters", () => {
   });
 
   it("registers a form on ReadCollection", async () => {
-    registry.registerAction(readTasks);
+    registry.registerObject(readTasks);
     registry.applyFilters();
 
     let document = new Document({items: []});
@@ -119,7 +119,7 @@ describe("filters", () => {
   });
 
   it("registers a form on parents ReadItem", async () => {
-    registry.registerAction(readUser);
+    registry.registerObject(readUser);
     registry.applyFilters();
 
     let document = new Document({id: 12});
@@ -141,7 +141,7 @@ describe("filters", () => {
   });
 
   it("recursively joins itself as a parent on child queries", async () => {
-    registry.registerAction(createUser);
+    registry.registerObject(createUser);
     registry.applyFilters();
 
     let joins = await createTask.joins({}, hapi.request);
@@ -164,7 +164,7 @@ describe("filters", () => {
   });
 
   it("embeds its schema into Create forms on related children", async () => {
-    registry.registerAction(createUser);
+    registry.registerObject(createUser);
     registry.applyFilters();
 
     let document = new Document();

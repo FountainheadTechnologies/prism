@@ -1,5 +1,5 @@
 import {Schema} from "../schema";
-import {Filter} from "../action";
+import {Filter} from "../filter";
 
 import {Request} from "hapi";
 

@@ -58,8 +58,8 @@ describe("filters", () => {
     root = new Root();
     readTask = new ReadItem(resource.tasks);
 
-    registry.registerAction(root);
-    registry.registerAction(deleteTask);
+    registry.registerObject(root);
+    registry.registerObject(deleteTask);
   });
 
   it("registers a form on the Root action", async () => {
@@ -77,7 +77,7 @@ describe("filters", () => {
   });
 
   it("registers a form on ReadItem", async () => {
-    registry.registerAction(readTask);
+    registry.registerObject(readTask);
     registry.applyFilters();
 
     let document = new Document({

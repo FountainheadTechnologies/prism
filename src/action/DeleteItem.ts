@@ -1,4 +1,6 @@
-import {Action, Params, Filter} from "../action";
+import {Action, Params} from "../action";
+import {Filter} from "../filter";
+import {Source} from "../source";
 import {ReadItem} from "./ReadItem";
 import {Root} from "./Root";
 import {Resource} from "../resource";
@@ -38,13 +40,15 @@ export class DeleteItem implements Action {
       value: params[key]
     }))
 
+  register = this.resource.source;
+
   filters = [
     /**
      * Register a form for this action in the root document
      */
     <Filter<Root, "decorate">>{
       type: Root,
-      name: "decorate",
+      method: "decorate",
       filter: next => async (doc, params, request) => {
         await next(doc, params, request);
 
@@ -64,7 +68,7 @@ export class DeleteItem implements Action {
      */
     <Filter<ReadItem, "decorate">>{
       type: ReadItem,
-      name: "decorate",
+      method: "decorate",
       where: pathEq(["resource", "name"], this.resource.name),
       filter: next => async (doc, params, request) => {
         await next(doc, params, request);

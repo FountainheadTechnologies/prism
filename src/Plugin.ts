@@ -1,5 +1,6 @@
 import {Registry} from "./Registry";
-import {Action, Filter, Params} from "./action";
+import {Filter} from "./filter";
+import {Action, Params} from "./action";
 import {Root} from "./action/Root";
 import {Document} from "./Document";
 
@@ -70,7 +71,7 @@ export class Plugin {
 
     action.path = join(this._options.root, action.path);
 
-    this._registry.registerAction(action);
+    this._registry.registerObject(action);
 
     let route = toRoute(action);
     this._server.route(route);
