@@ -41,7 +41,7 @@ export class Resource implements Backend {
     };
   }
 
-  async issue(payload: any): Promise<boolean | Object> {
+  issue = async (payload: any): Promise<false | Object> => {
     let conditions = [
       ...this._options.scope, {
       field: this._options.identity,
@@ -87,7 +87,7 @@ export class Resource implements Backend {
     };
   }
 
-  validate(decoded: any, request: Request): Promise<boolean | Object> {
+  validate = async (decoded: any, request: Request): Promise<false | Object> => {
     let conditions = [
       ...this._options.scope,
       ...this.resource.primaryKeys.map(key => ({
