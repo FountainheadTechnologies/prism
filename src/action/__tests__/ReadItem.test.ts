@@ -115,8 +115,8 @@ describe("filters", () => {
     readTasks = new ReadCollection(resource.tasks);
     createTask = new CreateItem(resource.tasks);
 
-    registry.registerAction(root);
-    registry.registerAction(readTask);
+    registry.registerObject(root);
+    registry.registerObject(readTask);
   });
 
   it("adds a link to itself to the Root action", async () => {
@@ -133,7 +133,7 @@ describe("filters", () => {
   });
 
   it("sets the `Location` response header on CreateItem", async () => {
-    registry.registerAction(createTask);
+    registry.registerObject(createTask);
     registry.applyFilters();
 
     hapi.request.payload = {
@@ -149,7 +149,7 @@ describe("filters", () => {
   });
 
   it("recursively joins itself as a parent on child queries", async () => {
-    registry.registerAction(readUser);
+    registry.registerObject(readUser);
     registry.applyFilters();
 
     let query = await readTask.joins({}, undefined as any);
@@ -172,7 +172,7 @@ describe("filters", () => {
   });
 
   it("recursively embeds itself as a parent on child queries", async () => {
-    registry.registerAction(readUser);
+    registry.registerObject(readUser);
     registry.applyFilters();
 
     let document = new Document({
@@ -206,9 +206,9 @@ describe("filters", () => {
   });
 
   it("recursively decorates itself on child collection queries", async () => {
-    registry.registerAction(readTasks);
-    registry.registerAction(readUser);
-    registry.registerAction(readProject);
+    registry.registerObject(readTasks);
+    registry.registerObject(readUser);
+    registry.registerObject(readProject);
     registry.applyFilters();
 
     let document = new Document({

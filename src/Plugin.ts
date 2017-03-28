@@ -71,7 +71,7 @@ export class Plugin {
 
     action.path = join(this._options.root, action.path);
 
-    this._registry.registerAction(action);
+    this._registry.registerObject(action);
 
     let route = toRoute(action);
     this._server.route(route);

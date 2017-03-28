@@ -90,7 +90,7 @@ export class ReadItem implements Action {
      */
     <Filter<Root, "decorate">>{
       type: Root,
-      name: "decorate",
+      method: "decorate",
       filter: next => async (doc, params, request) => {
         await next(doc, params, request);
 
@@ -106,7 +106,7 @@ export class ReadItem implements Action {
 
     <Filter<CreateItem, "handle">>{
       type: CreateItem,
-      name: "handle",
+      method: "handle",
       where: pathEq(["resource", "name"], this.resource.name),
       filter: next => async (params, request) => {
         let response = await next(params, request);
@@ -121,7 +121,7 @@ export class ReadItem implements Action {
      */
     <Filter<ReadCollection, "embedItem">>{
       type: ReadCollection,
-      name: "embedItem",
+      method: "embedItem",
       where: pathEq(["resource", "name"], this.resource.name),
       filter: next => async (item, params, request) => {
         let embed = await next(item, params, request);
@@ -146,7 +146,7 @@ export class ReadItem implements Action {
      */
     this.resource.relationships.has.map(child => <Filter<ReadItem, "joins">>({
       type: ReadItem,
-      name: "joins",
+      method: "joins",
       where: pathEq(["resource", "name"], child.name),
       filter: next => (params, request) =>
         Promise.all([
@@ -166,7 +166,7 @@ export class ReadItem implements Action {
      */
     this.resource.relationships.has.map(child => <Filter<ReadItem, "decorate">>({
       type:  ReadItem,
-      name: "decorate",
+      method: "decorate",
       where: pathEq(["resource", "name"], child.name),
       filter: next => async (doc, params, request) => {
         await next(doc, params, request);

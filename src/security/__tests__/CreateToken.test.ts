@@ -56,8 +56,8 @@ describe("filters", () => {
     registry = new Registry();
     root = new Root();
 
-    registry.registerAction(root);
-    registry.registerAction(createToken);
+    registry.registerObject(root);
+    registry.registerObject(createToken);
     registry.applyFilters();
   });
 

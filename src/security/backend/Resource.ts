@@ -109,7 +109,7 @@ export class Resource implements Backend {
      */
     <Filter<ReadItem, "decorate">>{
       type: ReadItem,
-      name: "decorate",
+      method: "decorate",
       where: pathEq(["resource", "name"], this.resource.name),
       filter: next => async (doc, params, request) => {
         await next(doc, params, request);
@@ -126,7 +126,7 @@ export class Resource implements Backend {
      */
     <Filter<CreateItem, "handle">>{
       type: [CreateItem, UpdateItem],
-      name: "handle",
+      method: "handle",
       where: pathEq(["resource", "name"], this.resource.name),
       filter: next => async (params, request) => {
         if (request.payload[this._options.password]) {
@@ -140,7 +140,7 @@ export class Resource implements Backend {
 
     <Filter<Root, "decorate">>{
       type: Root,
-      name: "decorate",
+      method: "decorate",
       filter: (next, self, registry) => async (doc, params, request) => {
         await next(doc, params, request);
 
@@ -148,7 +148,7 @@ export class Resource implements Backend {
           return doc;
         }
 
-        let read = registry.findActions([ReadItem], pathEq(["resource", "name"], this.resource.name))[0];
+        let read = registry.findObjects([ReadItem], pathEq(["resource", "name"], this.resource.name))[0];
         if (!read) {
           return doc;
         }

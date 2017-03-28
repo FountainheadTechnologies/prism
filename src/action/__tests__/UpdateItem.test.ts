@@ -94,8 +94,8 @@ describe("filters", () => {
     root = new Root();
     readTask = new ReadItem(resource.tasks);
 
-    registry.registerAction(root);
-    registry.registerAction(updateTask);
+    registry.registerObject(root);
+    registry.registerObject(updateTask);
   });
 
   it("registers a form on the Root action", async () => {
@@ -117,7 +117,7 @@ describe("filters", () => {
   });
 
   it("registers a form on ReadItem with `default` populated", async () => {
-    registry.registerAction(readTask);
+    registry.registerObject(readTask);
     registry.applyFilters();
 
     let document = new Document({

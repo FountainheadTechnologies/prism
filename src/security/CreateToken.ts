@@ -48,7 +48,7 @@ export class CreateToken implements Action {
      */
     <Filter<Root, "decorate">>{
       type: Root,
-      name: "decorate",
+      method: "decorate",
       filter: next => async (doc, params, request) => {
         doc = await next(doc, params, request);
 
@@ -71,7 +71,7 @@ export class CreateToken implements Action {
      */
     <Filter<Root, "decorate">>{
       type: Root,
-      name: "decorate",
+      method: "decorate",
       filter: next => async (doc, params, request) => {
         doc = await next(doc, params, request);
 

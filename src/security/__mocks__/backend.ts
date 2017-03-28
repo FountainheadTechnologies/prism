@@ -12,7 +12,7 @@ export const backend = {
   },
   filters: [{
     type: "mockFilter" as any,
-    name: "someFunction",
+    method: "someFunction",
     filter: jest.fn()
   }]
 } as Backend;

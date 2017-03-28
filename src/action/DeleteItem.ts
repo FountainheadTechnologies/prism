@@ -45,7 +45,7 @@ export class DeleteItem implements Action {
      */
     <Filter<Root, "decorate">>{
       type: Root,
-      name: "decorate",
+      method: "decorate",
       filter: next => async (doc, params, request) => {
         await next(doc, params, request);
 
@@ -65,7 +65,7 @@ export class DeleteItem implements Action {
      */
     <Filter<ReadItem, "decorate">>{
       type: ReadItem,
-      name: "decorate",
+      method: "decorate",
       where: pathEq(["resource", "name"], this.resource.name),
       filter: next => async (doc, params, request) => {
         await next(doc, params, request);
