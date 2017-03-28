@@ -1,4 +1,5 @@
-import {Action, Params, Filter} from "../action";
+import {Action, Params} from "../action";
+import {Filter} from "../filter";
 import {Resource, initialize} from "../resource";
 import {Item} from "../types";
 import {Schema} from "../schema";

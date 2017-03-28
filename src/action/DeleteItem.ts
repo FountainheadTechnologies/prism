@@ -1,4 +1,5 @@
-import {Action, Params, Filter} from "../action";
+import {Action, Params} from "../action";
+import {Filter} from "../filter";
 import {ReadItem} from "./ReadItem";
 import {Root} from "./Root";
 import {Resource} from "../resource";

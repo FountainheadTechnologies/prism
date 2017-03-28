@@ -1,4 +1,5 @@
-import {Action, Params, Filter} from "../action";
+import {Action, Params} from "../action";
+import {Filter} from "../filter";
 import {ReadCollection} from "./ReadCollection";
 import {UpdateItem} from "./UpdateItem";
 import {ReadItem} from "./ReadItem";

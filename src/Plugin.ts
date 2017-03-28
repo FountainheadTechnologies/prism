@@ -1,5 +1,6 @@
 import {Registry} from "./Registry";
-import {Action, Filter, Params} from "./action";
+import {Filter} from "./filter";
+import {Action, Params} from "./action";
 import {Root} from "./action/Root";
 import {Document} from "./Document";
 

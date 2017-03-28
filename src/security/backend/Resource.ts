@@ -4,7 +4,7 @@ import {Root} from "../../action/Root";
 import {ReadItem} from "../../action/ReadItem";
 import {CreateItem} from "../../action/CreateItem";
 import {UpdateItem} from "../../action/UpdateItem";
-import {Filter} from "../../action";
+import {Filter} from "../../filter";
 import {Condition} from "../../query";
 import {Schema, validate} from "../../schema";
 

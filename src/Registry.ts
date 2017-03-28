@@ -1,4 +1,5 @@
-import {Action, Filter, Type} from "./action";
+import {Action} from "./action";
+import {Filter, Type} from "./filter";
 
 import {partition, always, wrap} from "ramda";
 

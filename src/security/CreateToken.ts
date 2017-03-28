@@ -1,4 +1,5 @@
-import {Action, Params, Filter} from "../action";
+import {Action, Params} from "../action";
+import {Filter} from "../filter";
 import {Root} from "../action/Root";
 import {Document} from "../Document";
 import {Backend} from "./backend";
