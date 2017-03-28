@@ -42,6 +42,8 @@ export class CreateToken implements Action {
     auth: false
   };
 
+  register = this._backend;
+
   filters = [
     /**
      * Add a form for obtaining a token to the Root action

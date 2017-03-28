@@ -11,7 +11,7 @@ export const backend = {
     required: []
   },
   filters: [{
-    type: "mockFilter" as any,
+    type: Function,
     method: "someFunction",
     filter: jest.fn()
   }]

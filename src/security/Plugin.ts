@@ -57,10 +57,6 @@ export class Plugin {
 
     let prism = this._server.plugins["prism"] as Prism;
 
-    if (this._backend.filters) {
-      prism.registerFilter(this._backend.filters);
-    }
-
     let createToken = new CreateToken(this._backend, this._options);
     prism.registerAction(createToken);
   }
