@@ -7,7 +7,7 @@ import { ReadItem } from "./ReadItem";
 import { Root } from "./Root";
 import { Resource, initialize } from "../resource";
 import { Item } from "../types";
-import { Schema, validate, sanitize } from "../schema";
+import { Schema, validate, sanitize, pickAllowedValues } from "../schema";
 import * as query from "../query";
 
 import { Request, Response } from "hapi";
@@ -48,7 +48,7 @@ export class CreateItem implements Action {
     ]).then(([schema, joins]) => ({
       returning: this.resource.primaryKeys,
       source: this.resource.name,
-      data: request.payload,
+      data: pickAllowedValues(schema, request.payload),
       schema,
       joins
     }))

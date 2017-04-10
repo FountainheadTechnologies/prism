@@ -21,6 +21,7 @@ it("is a POST request to `{resourceName}`", () => {
 
 describe("#handle()", () => {
   beforeEach(() => {
+    (resource.tasks.source.update as jest.Mock<any>).mockReset();
     hapi.request.payload = {
       title: "New Test Task",
       owner: 1,
@@ -50,6 +51,32 @@ describe("#handle()", () => {
         to: "id"
       }],
       data: hapi.request.payload
+    });
+  });
+
+  it("omits properties not specified in the schema", async () => {
+    hapi.request.payload["badProperty"] = "badValue";
+    await createTask.handle({}, hapi.request);
+
+    let options = (resource.tasks.source.create as jest.Mock<any>).mock.calls[0][0];
+    expect(options.data).toEqual({
+      title: "New Test Task",
+      owner: 1,
+      project: 1
+    });
+  });
+
+  it("omits properties marked as `readOnly` in the schema", async () => {
+    spyOn(schema, "validate").and.callFake(() => true);
+
+    hapi.request.payload["id"] = "newId";
+    await createTask.handle({}, hapi.request);
+
+    let options = (resource.tasks.source.create as jest.Mock<any>).mock.calls[0][0];
+    expect(options.data).toEqual({
+      title: "New Test Task",
+      owner: 1,
+      project: 1
     });
   });
 

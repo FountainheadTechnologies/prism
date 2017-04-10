@@ -2,7 +2,7 @@ import { Item, Collection } from "./types";
 
 import { validateMultiple } from "tv4";
 import { badData } from "boom";
-import { pick } from "ramda";
+import { keys, pick } from "ramda";
 
 export interface Schema {
   $schema: string;
@@ -42,3 +42,10 @@ export const validate = (data: Item | Collection, schema: Schema): Promise<boole
 
 export const sanitize = <T extends Item | Collection>(data: T, schema: Schema): T =>
   data;
+
+export const pickAllowedValues = (schema: Schema, values: Object) => {
+  let allowed = keys(schema.properties)
+    .filter(key => !schema.properties[key].readOnly);
+
+  return pick(allowed, values);
+};

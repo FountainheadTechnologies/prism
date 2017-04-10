@@ -4,18 +4,11 @@ import { Source } from "../source";
 import { ReadItem } from "./ReadItem";
 import { Root } from "./Root";
 import { Resource, initialize } from "../resource";
-import { Schema, validate } from "../schema";
+import { Schema, validate, pickAllowedValues } from "../schema";
 import * as query from "../query";
 
 import { Request, Response } from "hapi";
-import { pathEq, keys, pick } from "ramda";
-
-const pickAllowedValues = (schema: Schema, values: Object) => {
-  let allowed = keys(schema.properties)
-    .filter(key => !schema.properties[key].readOnly);
-
-  return pick(allowed, values);
-};
+import { pathEq } from "ramda";
 
 export class UpdateItem implements Action {
   path: string;

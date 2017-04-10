@@ -42,6 +42,7 @@ export const users = {
     type: "object",
     properties: {
       id: { type: "integer", readOnly: true },
+      email: { type: "string" },
       username: { type: "string" },
       password: { type: "string" },
       enabled: { type: "boolean" },
