@@ -1,10 +1,10 @@
-import {Plugin} from "../Plugin";
-import {backend} from "../__mocks__/backend";
-import {MockServer} from "../../__mocks__/server";
-import {request} from "../../action/__mocks__/hapi";
+import { Plugin } from "../Plugin";
+import { backend } from "../__mocks__/backend";
+import { MockServer } from "../../__mocks__/server";
+import { request } from "../../action/__mocks__/hapi";
 
-import {Server} from "hapi";
-import {Options as JwtOptions} from "hapi-auth-jwt2";
+import { Server } from "hapi";
+import { Options as JwtOptions } from "hapi-auth-jwt2";
 
 let server: Server;
 let plugin: Plugin;
@@ -110,7 +110,7 @@ describe("#jwtOptions", () => {
   let options: JwtOptions;
   let validateResult: any;
   let decoded = "decodedToken";
-  let next    = jest.fn();
+  let next = jest.fn();
 
   beforeEach(() => {
     plugin.registerBackend(backend);

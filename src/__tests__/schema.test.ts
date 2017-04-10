@@ -1,7 +1,7 @@
 import * as schema from "../schema";
-import {tasks, projects} from "../__mocks__/resource";
+import { tasks, projects } from "../__mocks__/resource";
 
-import {assocPath} from "ramda";
+import { assocPath } from "ramda";
 
 describe(".validate()", () => {
   it("resolves to `true` when data passes schema", () => {

@@ -1,6 +1,6 @@
-import {Plugin, Options} from "./Plugin";
+import { Plugin, Options } from "./Plugin";
 
-import {Server} from "hapi";
+import { Server } from "hapi";
 
 const registerPlugin = (server: Server, options: Partial<Options>, next: Function): void => {
   if (server.connections.length === 0) {

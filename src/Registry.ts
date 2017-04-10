@@ -1,7 +1,7 @@
-import {Action} from "./action";
-import {Filter, Type, Container} from "./filter";
+import { Action } from "./action";
+import { Filter, Type, Container } from "./filter";
 
-import {wrap} from "ramda";
+import { wrap } from "ramda";
 
 export interface FindOptions<T extends any> {
   types: Type<T>[];

@@ -1,14 +1,21 @@
-import {Action, Params} from "../action";
-import {Filter} from "../filter";
-import {Source} from "../source";
-import {ReadItem} from "./ReadItem";
-import {Root} from "./Root";
-import {Resource, initialize} from "../resource";
-import {Schema, validate} from "../schema";
+import { Action, Params } from "../action";
+import { Filter } from "../filter";
+import { Source } from "../source";
+import { ReadItem } from "./ReadItem";
+import { Root } from "./Root";
+import { Resource, initialize } from "../resource";
+import { Schema, validate } from "../schema";
 import * as query from "../query";
 
-import {Request, Response} from "hapi";
-import {pathEq} from "ramda";
+import { Request, Response } from "hapi";
+import { pathEq, keys, pick } from "ramda";
+
+const pickAllowedValues = (schema: Schema, values: Object) => {
+  var allowed = keys(schema.properties)
+    .filter(key => !schema.properties[key].readOnly);
+
+  return pick(allowed, values);
+}
 
 export class UpdateItem implements Action {
   path: string;
@@ -48,7 +55,7 @@ export class UpdateItem implements Action {
     ]).then(([conditions, schema, joins]) => ({
       returning: this.resource.primaryKeys,
       source: this.resource.name,
-      data: request.payload,
+      data: pickAllowedValues(schema, request.payload),
       conditions,
       schema,
       joins
@@ -63,9 +70,9 @@ export class UpdateItem implements Action {
   joins = async (params: Params, request: Request): Promise<query.Join[]> =>
     this.resource.relationships.belongsTo.map(parent => ({
       source: parent.name,
-      path:   [parent.from],
-      from:   parent.from,
-      to:     parent.to
+      path: [parent.from],
+      from: parent.from,
+      to: parent.to
     }))
 
   register = this.resource.source;
@@ -114,7 +121,7 @@ export class UpdateItem implements Action {
             method: this.method,
             schema: {
               ...schema,
-            default: doc.properties
+              default: doc.properties
             }
           });
 

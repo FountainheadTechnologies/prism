@@ -1,8 +1,8 @@
-import {Params} from "./action";
-import {Schema} from "./schema";
+import { Params } from "./action";
+import { Schema } from "./schema";
 
-import {Request} from "hapi";
-import {clone, pick} from "ramda";
+import { Request } from "hapi";
+import { clone, pick } from "ramda";
 import * as uriTpl from "uri-templates";
 
 export type Properties = {
@@ -49,7 +49,7 @@ export class Document {
 
   forms: Form[] = [];
 
-  constructor(public properties: Properties = {}) {}
+  constructor(public properties: Properties = {}) { }
 
   render(params: Params, request: Request) {
     let result = clone(this.properties);

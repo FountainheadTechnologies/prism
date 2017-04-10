@@ -1,4 +1,4 @@
-import {Registry} from "./Registry";
+import { Registry } from "./Registry";
 
 export interface Type<T> {
   new (...args: any[]): T;

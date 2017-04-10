@@ -1,4 +1,4 @@
-import {Server} from "hapi";
+import { Server } from "hapi";
 
 export class MockServer {
   protected _preStartFns: Function[] = [];
@@ -7,8 +7,8 @@ export class MockServer {
   connections = [];
 
   expose = jest.fn();
-  route  = jest.fn();
-  log    = jest.fn();
+  route = jest.fn();
+  log = jest.fn();
 
   ext = jest.fn().mockImplementation((event: string, fn: Function) => {
     if (event === "onPreStart") {
@@ -17,6 +17,6 @@ export class MockServer {
   });
 
   start() {
-    this._preStartFns.forEach(fn => fn(this, () => {}));
+    this._preStartFns.forEach(fn => fn(this, () => { }));
   }
 };

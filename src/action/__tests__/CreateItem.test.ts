@@ -1,9 +1,9 @@
-import {CreateItem} from "../CreateItem";
-import {Root} from "../Root";
-import {ReadItem} from "../ReadItem";
-import {ReadCollection} from "../ReadCollection";
-import {Registry} from "../../Registry";
-import {Document} from "../../Document";
+import { CreateItem } from "../CreateItem";
+import { Root } from "../Root";
+import { ReadItem } from "../ReadItem";
+import { ReadCollection } from "../ReadCollection";
+import { Registry } from "../../Registry";
+import { Document } from "../../Document";
 import * as schema from "../../schema";
 import * as resource from "../../__mocks__/resource";
 import * as hapi from "../__mocks__/hapi";
@@ -53,7 +53,7 @@ describe("#handle()", () => {
     });
   });
 
-  it("returns an empty response with a status of `201 Created`", async() => {
+  it("returns an empty response with a status of `201 Created`", async () => {
     (resource.tasks.source.create as jest.Mock<any>).mockReturnValue(true);
 
     await createTask.handle({}, hapi.request);
@@ -106,7 +106,7 @@ describe("filters", () => {
     registry.registerObject(readTasks);
     registry.applyFilters();
 
-    let document = new Document({items: []});
+    let document = new Document({ items: [] });
     await readTasks.decorate(document, {}, hapi.request);
 
     expect(document.forms).toEqual([{
@@ -122,7 +122,7 @@ describe("filters", () => {
     registry.registerObject(readUser);
     registry.applyFilters();
 
-    let document = new Document({id: 12});
+    let document = new Document({ id: 12 });
     await readUser.decorate(document, {}, hapi.request);
 
     expect(document.forms).toEqual([{

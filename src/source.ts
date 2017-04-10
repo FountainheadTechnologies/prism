@@ -1,5 +1,5 @@
 import * as query from "./query";
-import {Item, Collection} from "./types";
+import { Item, Collection } from "./types";
 
 export interface Source {
   create<R extends Item | Collection>(query: query.Create): Promise<R>;
@@ -11,4 +11,4 @@ export interface Source {
   delete<T extends query.Delete>(query: T): Promise<Boolean>;
 }
 
-export {PostgreSQL} from "./source/PostgreSQL";
+export { PostgreSQL } from "./source/PostgreSQL";

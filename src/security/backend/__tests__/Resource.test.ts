@@ -1,14 +1,14 @@
-import {Resource} from "../Resource";
-import {users} from "../../../__mocks__/resource";
-import {request} from "../../../action/__mocks__/hapi";
-import {Registry} from "../../../Registry";
-import {Root} from "../../../action/Root";
-import {ReadItem} from "../../../action/ReadItem";
-import {CreateItem} from "../../../action/CreateItem";
-import {UpdateItem} from "../../../action/UpdateItem";
-import {Document} from "../../../Document";
+import { Resource } from "../Resource";
+import { users } from "../../../__mocks__/resource";
+import { request } from "../../../action/__mocks__/hapi";
+import { Registry } from "../../../Registry";
+import { Root } from "../../../action/Root";
+import { ReadItem } from "../../../action/ReadItem";
+import { CreateItem } from "../../../action/CreateItem";
+import { UpdateItem } from "../../../action/UpdateItem";
+import { Document } from "../../../Document";
 
-import {merge} from "ramda";
+import { merge } from "ramda";
 
 let resource: Resource;
 
@@ -21,8 +21,8 @@ beforeEach(() => {
 describe("#schema", () => {
   it("defines and requires `identity` and `password` properties", () => {
     expect(resource.schema.properties).toEqual({
-      email: {type: "string"},
-      password: {type: "string"}
+      email: { type: "string" },
+      password: { type: "string" }
     });
 
     expect(resource.schema.required).toEqual(["email", "password"]);
@@ -40,14 +40,14 @@ describe("#issue()", () => {
 
   it("throws a validation error if payload does not pass schema validation", async () => {
     try {
-      await resource.issue({username: "test", password: "password"});
+      await resource.issue({ username: "test", password: "password" });
     } catch (error) {
       expect(error.message).toEqual("Unprocessable Entity");
     }
   });
 
   it("performs a `read` query against the resource using payload", async () => {
-    await resource.issue({email: "user@test.com", password: "password"});
+    await resource.issue({ email: "user@test.com", password: "password" });
 
     expect(users.source.read).toHaveBeenCalledWith({
       source: users.name,
@@ -63,7 +63,7 @@ describe("#issue()", () => {
   describe("when `read` query returns a result", () => {
     describe("when `password` matches hashed password", () => {
       it("resolves to an object containing primary key(s)", async () => {
-        let result = await resource.issue({email: "user@test.com", password: "password"});
+        let result = await resource.issue({ email: "user@test.com", password: "password" });
         expect(result).toEqual({
           users: {
             id: 12
@@ -74,7 +74,7 @@ describe("#issue()", () => {
 
     describe("when `password` does not match hashed password", () => {
       it("resolves to `false`", async () => {
-        let result = await resource.issue({email: "user@test.com", password: "oops"});
+        let result = await resource.issue({ email: "user@test.com", password: "oops" });
         expect(result).toBe(false);
       });
     });
@@ -83,7 +83,7 @@ describe("#issue()", () => {
   describe("when `read` query does not return a result", () => {
     it("resolves to `false`", async () => {
       (users.source.read as jest.Mock<any>).mockReturnValue(Promise.resolve(null));
-      let result = await resource.issue({email: "user1@test.com", password: "password"});
+      let result = await resource.issue({ email: "user1@test.com", password: "password" });
       expect(result).toBe(false);
     });
   });

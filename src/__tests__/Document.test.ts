@@ -1,8 +1,8 @@
-import {Document} from "../Document";
-import {Params} from "../action";
-import {users, tasks}  from "../__mocks__/resource";
+import { Document } from "../Document";
+import { Params } from "../action";
+import { users, tasks } from "../__mocks__/resource";
 
-import {Request} from "hapi";
+import { Request } from "hapi";
 
 let document: Document;
 let params: Params = {};
@@ -78,8 +78,8 @@ describe("#render()", () => {
 
     it("indexes multiple embeds with the same `rel`name as an array", () => {
       let users = [
-        new Document({id: 1}),
-        new Document({id: 2})
+        new Document({ id: 1 }),
+        new Document({ id: 2 })
       ];
 
       Object.assign(document, {
@@ -108,7 +108,7 @@ describe("#render()", () => {
     });
 
     it("indexes single embeds as an array when `alwaysArray` is set", () => {
-      let user = new Document({id: 1});
+      let user = new Document({ id: 1 });
 
       Object.assign(document, {
         properties: {

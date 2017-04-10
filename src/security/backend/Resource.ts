@@ -1,17 +1,17 @@
-import {Backend} from "../backend";
-import {Resource as _Resource} from "../../resource";
-import {Root} from "../../action/Root";
-import {ReadItem} from "../../action/ReadItem";
-import {CreateItem} from "../../action/CreateItem";
-import {UpdateItem} from "../../action/UpdateItem";
-import {Filter} from "../../filter";
-import {Source} from "../../source";
-import {Condition} from "../../query";
-import {Schema, validate} from "../../schema";
+import { Backend } from "../backend";
+import { Resource as _Resource } from "../../resource";
+import { Root } from "../../action/Root";
+import { ReadItem } from "../../action/ReadItem";
+import { CreateItem } from "../../action/CreateItem";
+import { UpdateItem } from "../../action/UpdateItem";
+import { Filter } from "../../filter";
+import { Source } from "../../source";
+import { Condition } from "../../query";
+import { Schema, validate } from "../../schema";
 
-import {pick, pathEq, partialRight} from "ramda";
-import {hash, compare} from "bcrypt";
-import {Request} from "hapi";
+import { pick, pathEq, partialRight } from "ramda";
+import { hash, compare } from "bcrypt";
+import { Request } from "hapi";
 
 /**
  * Security backend that performs authentication using a Prism Resource
@@ -22,16 +22,16 @@ export class Resource implements Backend {
   schema: Schema;
 
   constructor(readonly resource: _Resource, options: Partial<Options> = {}) {
-    this._options = {...DEFAULT_OPTIONS, ...options};
+    this._options = { ...DEFAULT_OPTIONS, ...options };
 
     this.schema = {
       $schema: "http://json-schema.org/draft-04/schema#",
-      title:   "token",
-      type:    "object",
+      title: "token",
+      type: "object",
 
       properties: {
-        [this._options.identity]: {type: "string"},
-        [this._options.password]: {type: "string"}
+        [this._options.identity]: { type: "string" },
+        [this._options.password]: { type: "string" }
       },
 
       required: [
@@ -44,9 +44,9 @@ export class Resource implements Backend {
   issue = async (payload: any): Promise<false | Object> => {
     let conditions = [
       ...this._options.scope, {
-      field: this._options.identity,
-      value: payload[this._options.identity]
-    }];
+        field: this._options.identity,
+        value: payload[this._options.identity]
+      }];
 
     let result;
 
@@ -74,7 +74,7 @@ export class Resource implements Backend {
       return false;
     }
 
-    let given  = payload[this._options.password];
+    let given = payload[this._options.password];
     let actual = (result as any)[this._options.password];
     let match = await this._options.compare(given, actual);
 
@@ -225,10 +225,10 @@ export interface Options {
 const DEFAULT_OPTIONS: Options = {
   identity: "username",
   password: "password",
-  redact:   "**REDACTED**",
+  redact: "**REDACTED**",
 
   compare: compare,
-  hash:    partialRight(hash, [4]) as any,
+  hash: partialRight(hash, [4]) as any,
 
   scope: []
 };

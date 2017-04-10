@@ -1,6 +1,6 @@
-import {tasks} from "../../__mocks__/resource";
-import {db} from "../__mocks__/pgPromise";
-import {PostgreSQL} from "../PostgreSQL";
+import { tasks } from "../../__mocks__/resource";
+import { db } from "../__mocks__/pgPromise";
+import { PostgreSQL } from "../PostgreSQL";
 
 let source: PostgreSQL;
 
@@ -28,7 +28,7 @@ describe("#create()", () => {
       ["test insert task", 1, 1]
     );
 
-    expect(result).toEqual({name: "mockOneOrNoneResult"});
+    expect(result).toEqual({ name: "mockOneOrNoneResult" });
   });
 
   it("generates common table expression using `query.joins`", async () => {
@@ -38,14 +38,14 @@ describe("#create()", () => {
       returning: tasks.primaryKeys,
       joins: [{
         source: "users",
-        path:   ["owner"],
-        from:   "owner",
-        to:     "id"
+        path: ["owner"],
+        from: "owner",
+        to: "id"
       }, {
         source: "projects",
-        path:   ["project"],
-        from:   "project",
-        to:     "id"
+        path: ["project"],
+        from: "project",
+        to: "id"
       }],
       data: {
         title: "test insert task",
@@ -82,7 +82,7 @@ describe("#create()", () => {
     }).catch(error => {
       expect(error.isBoom).toBe(true);
       expect(error.output.payload.errors).toEqual([{
-        message:  "Constraint violation",
+        message: "Constraint violation",
         dataPath: "/owner",
         schemaPath: "/properties/owner/constraint"
       }]);
@@ -106,11 +106,11 @@ describe("#read()", () => {
         []
       );
 
-      expect(result).toEqual({name: "mockOneOrNoneResult"});
+      expect(result).toEqual({ name: "mockOneOrNoneResult" });
     });
   });
 
-  it("generates field names using `query.fields`", async() => {
+  it("generates field names using `query.fields`", async () => {
     await source.read({
       return: "item",
       source: "tasks",
@@ -159,7 +159,7 @@ describe("#read()", () => {
     );
   });
 
-  it("supports custom operators in WHERE terms", async() => {
+  it("supports custom operators in WHERE terms", async () => {
     await source.read({
       return: "collection",
       source: "tasks",
@@ -338,14 +338,14 @@ describe("#read()", () => {
       schema: tasks.schema,
       joins: [{
         source: "users",
-        path:   ["tasks", "users"],
-        from:   "owner",
-        to:     "id"
+        path: ["tasks", "users"],
+        from: "owner",
+        to: "id"
       }, {
         source: "projects",
-        path:   ["tasks", "projects"],
-        from:   "project",
-        to:     "id"
+        path: ["tasks", "projects"],
+        from: "project",
+        to: "id"
       }]
     });
 
@@ -389,14 +389,14 @@ describe("#read()", () => {
       schema: tasks.schema,
       joins: [{
         source: "users",
-        path:   ["tasks", "users"],
-        from:   "owner",
-        to:     "id"
+        path: ["tasks", "users"],
+        from: "owner",
+        to: "id"
       }, {
         source: "projects",
-        path:   ["tasks", "projects"],
-        from:   "project",
-        to:     "id"
+        path: ["tasks", "projects"],
+        from: "project",
+        to: "id"
       }]
     });
 
@@ -516,14 +516,14 @@ describe("#read()", () => {
         schema: tasks.schema,
         joins: [{
           source: "users",
-          path:   ["tasks", "users"],
-          from:   "owner",
-          to:     "id"
+          path: ["tasks", "users"],
+          from: "owner",
+          to: "id"
         }, {
           source: "projects",
-          path:   ["tasks", "projects"],
-          from:   "project",
-          to:     "id"
+          path: ["tasks", "projects"],
+          from: "project",
+          to: "id"
         }]
       });
 
@@ -668,7 +668,7 @@ describe("#update()", () => {
     }).catch(error => {
       expect(error.isBoom).toBe(true);
       expect(error.output.payload.errors).toEqual([{
-        message:  "Constraint violation",
+        message: "Constraint violation",
         dataPath: "/owner",
         schemaPath: "/properties/owner/constraint"
       }]);

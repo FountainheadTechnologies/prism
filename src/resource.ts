@@ -1,6 +1,6 @@
-import {Source} from "./source";
-import {Schema} from "./schema";
-import {defaultsDeep, clone} from "lodash";
+import { Source } from "./source";
+import { Schema } from "./schema";
+import { defaultsDeep, clone } from "lodash";
 
 /**
  * Defines a relationship between two resources
@@ -25,7 +25,7 @@ export interface Relationship {
 
 export interface Resource {
   source: Source;
-  name:   string;
+  name: string;
   schema: Schema;
   primaryKeys: string[];
 
@@ -97,5 +97,5 @@ export const initialize = (resource: Partial<Resource>, options: Partial<Options
     title: resource.name
   };
 
-  return defaultsDeep(clone(resource), {schema}, DEFAULT_RESOURCE) as Resource;
+  return defaultsDeep(clone(resource), { schema }, DEFAULT_RESOURCE) as Resource;
 };

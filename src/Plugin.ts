@@ -1,12 +1,12 @@
-import {Registry} from "./Registry";
-import {Filter} from "./filter";
-import {Action, Params} from "./action";
-import {Root} from "./action/Root";
-import {Document} from "./Document";
+import { Registry } from "./Registry";
+import { Filter } from "./filter";
+import { Action, Params } from "./action";
+import { Root } from "./action/Root";
+import { Document } from "./Document";
 
-import {Server, Request, IRouteConfiguration} from "hapi";
-import {assocPath, splitEvery, fromPairs, partition, wrap, pick, map} from "ramda";
-import {join} from "path";
+import { Server, Request, IRouteConfiguration } from "hapi";
+import { assocPath, splitEvery, fromPairs, partition, wrap, pick, map } from "ramda";
+import { join } from "path";
 
 /**
  * Configuration options that the Prism plugin accepts
@@ -44,7 +44,7 @@ export class Plugin {
   protected _registry = new Registry();
 
   constructor(protected readonly _server: Server, options: Partial<Options> = {}) {
-    this._options = {...DEFAULT_OPTIONS, ...options};
+    this._options = { ...DEFAULT_OPTIONS, ...options };
 
     this._server.ext("onPreStart", (server, next) => {
       let root = new Root();
@@ -95,7 +95,7 @@ export class Plugin {
 }
 
 export const toRoute = (action: Action): IRouteConfiguration => ({
-  path:   dequery(action.path),
+  path: dequery(action.path),
   method: action.method,
   config: action.routeConfig,
   async handler(request, reply) {

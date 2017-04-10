@@ -1,9 +1,9 @@
-import {CreateToken} from "../CreateToken";
-import {backend} from "../__mocks__/backend";
-import {request} from "../../action/__mocks__/hapi";
-import {Registry} from "../../Registry";
-import {Root} from "../../action/Root";
-import {Document} from "../../Document";
+import { CreateToken } from "../CreateToken";
+import { backend } from "../__mocks__/backend";
+import { request } from "../../action/__mocks__/hapi";
+import { Registry } from "../../Registry";
+import { Root } from "../../action/Root";
+import { Document } from "../../Document";
 
 let createToken: CreateToken;
 

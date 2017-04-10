@@ -1,7 +1,7 @@
-import {IDatabase} from "pg-promise";
+import { IDatabase } from "pg-promise";
 
 export const db = {
-  oneOrNone:  jest.fn(() => Promise.resolve({
+  oneOrNone: jest.fn(() => Promise.resolve({
     name: "mockOneOrNoneResult"
   })),
   manyOrNone: jest.fn(() => Promise.resolve([{

@@ -1,6 +1,6 @@
-import {Plugin, Options} from "./security/Plugin";
+import { Plugin, Options } from "./security/Plugin";
 
-import {Server} from "hapi";
+import { Server } from "hapi";
 import * as hapiJwt from "hapi-auth-jwt2";
 
 const registerPlugin = (server: Server, options: Partial<Options>, next: Function): void => {
@@ -19,4 +19,4 @@ export const PrismSecurity = Object.assign(registerPlugin, {
   }
 });
 
-export {Resource as ResourceBackend} from "./security/backend/Resource";
+export { Resource as ResourceBackend } from "./security/backend/Resource";

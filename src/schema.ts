@@ -1,8 +1,8 @@
-import {Item, Collection} from "./types";
+import { Item, Collection } from "./types";
 
-import {validateMultiple} from "tv4";
-import {badData} from "boom";
-import {pick} from "ramda";
+import { validateMultiple } from "tv4";
+import { badData } from "boom";
+import { pick } from "ramda";
 
 export interface Schema {
   $schema: string;

@@ -1,7 +1,7 @@
-import {Action, Params} from "../action";
-import {Document} from "../Document";
+import { Action, Params } from "../action";
+import { Document } from "../Document";
 
-import {Request} from "hapi";
+import { Request } from "hapi";
 
 export class Root implements Action {
   path = "";

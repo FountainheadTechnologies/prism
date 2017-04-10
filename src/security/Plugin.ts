@@ -1,11 +1,11 @@
-import {CreateToken} from "./CreateToken";
-import {Backend} from "./backend";
-import {Plugin as Prism} from "../Plugin";
+import { CreateToken } from "./CreateToken";
+import { Backend } from "./backend";
+import { Plugin as Prism } from "../Plugin";
 
-import {Server} from "hapi";
-import {map, pick} from "ramda";
-import hapiJwt, {Options as JwtOptions} from "hapi-auth-jwt2";
-import {SignOptions} from "jsonwebtoken";
+import { Server } from "hapi";
+import { map, pick } from "ramda";
+import hapiJwt, { Options as JwtOptions } from "hapi-auth-jwt2";
+import { SignOptions } from "jsonwebtoken";
 
 export interface Options {
   /**

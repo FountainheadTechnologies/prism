@@ -1,8 +1,8 @@
-import {Plugin, toRoute} from "../Plugin";
-import {MockServer} from "../__mocks__/server";
+import { Plugin, toRoute } from "../Plugin";
+import { MockServer } from "../__mocks__/server";
 
-import {Server} from "hapi";
-import {T, identity} from "ramda";
+import { Server } from "hapi";
+import { T, identity } from "ramda";
 
 let plugin: Plugin;
 let server: Server;
@@ -27,13 +27,13 @@ beforeEach(() => {
 
 it("registers a root action", () => {
   let onPreStartFn = (server.ext as jest.Mock<any>).mock.calls[0][1];
-  onPreStartFn(server, () => {});
+  onPreStartFn(server, () => { });
 
   expect(server.route).toHaveBeenCalledWith({
     handler: jasmine.any(Function),
-    method:  "GET",
-    path:    "/test",
-    config:  {}
+    method: "GET",
+    path: "/test",
+    config: {}
   });
 });
 
@@ -57,9 +57,9 @@ describe("when `options.secure` is not set to false", () => {
 
     expect(server.route).toHaveBeenCalledWith({
       handler: jasmine.any(Function),
-      method:  "GET",
-      path:    "/test",
-      config:  {
+      method: "GET",
+      path: "/test",
+      config: {
         auth: {
           mode: "optional"
         }
@@ -78,21 +78,21 @@ describe("#registerAction()", () => {
     plugin.registerAction(action);
     expect(server.route).toHaveBeenCalledWith({
       handler: jasmine.any(Function),
-      method:  "POST",
-      path:    "/test/users"
+      method: "POST",
+      path: "/test/users"
     });
   });
 });
 
 describe("#expose()", () => {
   it("exposes public methods, bound to instance", () => {
-    let {registerAction}: any = plugin.expose();
+    let { registerAction }: any = plugin.expose();
 
     registerAction(action);
     expect(server.route).toHaveBeenCalledWith({
       handler: jasmine.any(Function),
-      method:  "POST",
-      path:    "/test/users"
+      method: "POST",
+      path: "/test/users"
     });
   });
 });

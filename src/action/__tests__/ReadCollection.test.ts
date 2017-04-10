@@ -1,8 +1,8 @@
-import {ReadCollection} from "../ReadCollection";
-import {ReadItem} from "../ReadItem";
-import {Root} from "../Root";
-import {Document} from "../../Document";
-import {Registry} from "../../Registry";
+import { ReadCollection } from "../ReadCollection";
+import { ReadItem } from "../ReadItem";
+import { Root } from "../Root";
+import { Document } from "../../Document";
+import { Registry } from "../../Registry";
 import * as resource from "../../__mocks__/resource";
 
 let readTasks: ReadCollection;
@@ -27,14 +27,14 @@ describe("#query()", () => {
       conditions: [],
       joins: [{
         source: "users",
-        path:   ["tasks", "users"],
-        from:   "owner",
-        to:     "id"
+        path: ["tasks", "users"],
+        from: "owner",
+        to: "id"
       }, {
         source: "projects",
-        path:   ["tasks", "projects"],
-        from:   "project",
-        to:     "id"
+        path: ["tasks", "projects"],
+        from: "project",
+        to: "id"
       }],
       order: [{
         field: "id",
@@ -83,7 +83,7 @@ describe("#query()", () => {
     let query = await readTasks.query(params, {} as any);
     expect(query.page).toEqual({
       number: 6,
-      size:   20
+      size: 20
     });
   });
 });
@@ -149,8 +149,8 @@ describe("#decorate()", () => {
       }]
     }];
 
-    tests.forEach(async ({page, expectedLinks}) => {
-      let params = {page};
+    tests.forEach(async ({ page, expectedLinks }) => {
+      let params = { page };
       let document = new Document({
         items: [],
         count: 55
@@ -194,7 +194,7 @@ describe("#decorate()", () => {
       count: 2
     };
 
-    let document = new Document({...properties});
+    let document = new Document({ ...properties });
 
     await readTasks.decorate(document, {}, {} as any);
     expect(document.properties["items"]).toBeUndefined();
@@ -292,7 +292,7 @@ describe("filters", () => {
     await root.decorate(document, {}, {} as any);
 
     expect(document.links).toEqual([{
-      rel:  resource.tasks.name,
+      rel: resource.tasks.name,
       href: readTasks.path,
       name: "collection"
     }]);
@@ -345,19 +345,19 @@ describe("filters", () => {
     let query = await readTasks.joins({}, {} as any);
     expect(query).toEqual([{
       source: "users",
-      path:   ["tasks", "users"],
-      from:   "owner",
-      to:     "id"
+      path: ["tasks", "users"],
+      from: "owner",
+      to: "id"
     }, {
       source: "projects",
-      path:   ["tasks", "projects"],
-      from:   "project",
-      to:     "id"
+      path: ["tasks", "projects"],
+      from: "project",
+      to: "id"
     }, {
       source: "departments",
-      path:   ["tasks", "users", "departments"],
-      from:   "department",
-      to:     "id"
+      path: ["tasks", "users", "departments"],
+      from: "department",
+      to: "id"
     }]);
   });
 });

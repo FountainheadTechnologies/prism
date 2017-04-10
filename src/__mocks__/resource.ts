@@ -1,5 +1,5 @@
-import {Resource} from "../resource";
-import {source} from "./source";
+import { Resource } from "../resource";
+import { source } from "./source";
 
 export const tasks = {
   name: "tasks",
@@ -9,12 +9,12 @@ export const tasks = {
     title: "tasks",
     type: "object",
     properties: {
-      id: {type: "integer"},
-      title: {type: "string"},
-      description: {type: "string"},
-      complete: {type: "boolean"},
-      project: {type: "integer"},
-      owner: {type: "integer"}
+      id: { type: "integer" },
+      title: { type: "string" },
+      description: { type: "string" },
+      complete: { type: "boolean" },
+      project: { type: "integer" },
+      owner: { type: "integer" }
     },
     required: ["title", "project", "owner"]
   },
@@ -23,11 +23,11 @@ export const tasks = {
     belongsTo: [{
       name: "users",
       from: "owner",
-      to:   "id"
+      to: "id"
     }, {
       name: "projects",
       from: "project",
-      to:   "id"
+      to: "id"
     }],
     has: []
   }
@@ -41,11 +41,11 @@ export const users = {
     title: "users",
     type: "object",
     properties: {
-      id: {type: "integer"},
-      username: {type: "string"},
-      password: {type: "string"},
-      enabled: {type: "boolean"},
-      department: {type: "integer"}
+      id: { type: "integer" },
+      username: { type: "string" },
+      password: { type: "string" },
+      enabled: { type: "boolean" },
+      department: { type: "integer" }
     },
     required: ["username", "password", "department"]
   },
@@ -54,12 +54,12 @@ export const users = {
     belongsTo: [{
       name: "departments",
       from: "department",
-      to:   "id"
+      to: "id"
     }],
     has: [{
       name: "tasks",
       from: "id",
-      to:   "owner"
+      to: "owner"
     }]
   }
 } as Resource;
@@ -72,8 +72,8 @@ export const projects = {
     title: "projects",
     type: "object",
     properties: {
-      id: {type: "integer"},
-      name: {type: "string"}
+      id: { type: "integer" },
+      name: { type: "string" }
     },
     required: ["name"]
   },
@@ -83,7 +83,7 @@ export const projects = {
     has: [{
       name: "tasks",
       from: "id",
-      to:   "project"
+      to: "project"
     }]
   }
 } as Resource;
@@ -96,8 +96,8 @@ export const departments = {
     title: "departments",
     type: "object",
     properties: {
-      id: {type: "integer"},
-      name: {type: "string"}
+      id: { type: "integer" },
+      name: { type: "string" }
     },
     required: ["name"]
   },
@@ -107,7 +107,7 @@ export const departments = {
     has: [{
       name: "users",
       from: "id",
-      to:   "department"
+      to: "department"
     }]
   }
 } as Resource;

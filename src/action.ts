@@ -1,6 +1,6 @@
-import {Resource} from "./resource";
-import {Document} from "./Document";
-import {Container} from "./filter";
+import { Resource } from "./resource";
+import { Document } from "./Document";
+import { Container } from "./filter";
 
 import {
   Request,
@@ -34,9 +34,9 @@ export interface Action extends Container {
   decorate?: (doc: Document, params?: Params, request?: Request) => Promise<Document>;
 }
 
-export {Root} from "./action/Root";
-export {ReadItem} from "./action/ReadItem";
-export {ReadCollection} from "./action/ReadCollection";
-export {CreateItem} from "./action/CreateItem";
-export {UpdateItem} from "./action/UpdateItem";
-export {DeleteItem} from "./action/DeleteItem";
+export { Root } from "./action/Root";
+export { ReadItem } from "./action/ReadItem";
+export { ReadCollection } from "./action/ReadCollection";
+export { CreateItem } from "./action/CreateItem";
+export { UpdateItem } from "./action/UpdateItem";
+export { DeleteItem } from "./action/DeleteItem";

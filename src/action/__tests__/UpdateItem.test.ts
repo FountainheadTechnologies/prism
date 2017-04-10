@@ -1,8 +1,8 @@
-import {UpdateItem} from "../UpdateItem";
-import {ReadItem} from "../ReadItem";
-import {Root} from "../Root";
-import {Document} from "../../Document";
-import {Registry} from "../../Registry";
+import { UpdateItem } from "../UpdateItem";
+import { ReadItem } from "../ReadItem";
+import { Root } from "../Root";
+import { Document } from "../../Document";
+import { Registry } from "../../Registry";
 
 import * as schema from "../../schema";
 import * as resource from "../../__mocks__/resource";

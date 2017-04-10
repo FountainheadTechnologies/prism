@@ -1,12 +1,12 @@
-import {Action, Params} from "../action";
-import {Filter} from "../filter";
-import {Root} from "../action/Root";
-import {Document} from "../Document";
-import {Backend} from "./backend";
-import {Options} from "./Plugin";
+import { Action, Params } from "../action";
+import { Filter } from "../filter";
+import { Root } from "../action/Root";
+import { Document } from "../Document";
+import { Backend } from "./backend";
+import { Options } from "./Plugin";
 
-import {Request, Response} from "hapi";
-import {sign} from "jsonwebtoken";
+import { Request, Response } from "hapi";
+import { sign } from "jsonwebtoken";
 
 export class CreateToken implements Action {
   method = "POST";
@@ -31,7 +31,7 @@ export class CreateToken implements Action {
           return reject(err);
         }
 
-        let response = (request as any).generateResponse({token});
+        let response = (request as any).generateResponse({ token });
         response.code(201);
         return resolve(response);
       });

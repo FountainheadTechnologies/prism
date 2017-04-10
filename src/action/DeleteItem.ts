@@ -1,13 +1,13 @@
-import {Action, Params} from "../action";
-import {Filter} from "../filter";
-import {Source} from "../source";
-import {ReadItem} from "./ReadItem";
-import {Root} from "./Root";
-import {Resource} from "../resource";
+import { Action, Params } from "../action";
+import { Filter } from "../filter";
+import { Source } from "../source";
+import { ReadItem } from "./ReadItem";
+import { Root } from "./Root";
+import { Resource } from "../resource";
 import * as query from "../query";
 
-import {Request, Response} from "hapi";
-import {pathEq} from "ramda";
+import { Request, Response } from "hapi";
+import { pathEq } from "ramda";
 
 export class DeleteItem implements Action {
   path: string;

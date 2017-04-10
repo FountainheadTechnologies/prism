@@ -3,17 +3,17 @@ import * as mockResource from "../__mocks__/resource";
 
 describe(".initialize()", () => {
   it("throws if `name` or `source` are missing", () => {
-    let fn = () => resource.initialize({}, {requirePK: false});
+    let fn = () => resource.initialize({}, { requirePK: false });
     expect(fn).toThrowError("`resource.name` and `resource.source` must be specified");
   });
 
   it("throws if `primaryKeys` is missing or empty and `options.requirePK` is `true`", () => {
-    let fn = () => resource.initialize({name: "test", source: mockResource.tasks.source});
+    let fn = () => resource.initialize({ name: "test", source: mockResource.tasks.source });
     expect(fn).toThrowError("`resource.primaryKeys` must specify at least one primary key");
   });
 
   it("does not throw if `primaryKeys` is missing or empty but `options.requirePK` is not `true`", () => {
-    let fn = () => resource.initialize({name: "test", source: mockResource.tasks.source}, {requirePK: false});
+    let fn = () => resource.initialize({ name: "test", source: mockResource.tasks.source }, { requirePK: false });
     expect(fn).not.toThrow();
   });
 
@@ -34,7 +34,7 @@ describe(".initialize()", () => {
       primaryKeys: ["id"],
       schema: {
         properties: {
-          name: {type: "string"}
+          name: { type: "string" }
         },
         required: ["name"]
       }
@@ -51,7 +51,7 @@ describe(".initialize()", () => {
       schema: {
         $schema: "http://json-schema.org/draft-04/schema#",
         properties: {
-          name: {type: "string"}
+          name: { type: "string" }
         },
         required: ["name"],
         title: "tasks",

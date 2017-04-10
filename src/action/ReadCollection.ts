@@ -1,16 +1,16 @@
-import {Action, Params} from "../action";
-import {Filter} from "../filter";
-import {Source} from "../source";
-import {Resource, initialize} from "../resource";
-import {Collection} from "../types";
-import {Schema} from "../schema";
+import { Action, Params } from "../action";
+import { Filter } from "../filter";
+import { Source } from "../source";
+import { Resource, initialize } from "../resource";
+import { Collection } from "../types";
+import { Schema } from "../schema";
 import * as query from "../query";
-import {Document, Link, Embed} from "../Document";
-import {Root} from "./Root";
-import {ReadItem} from "./ReadItem";
+import { Document, Link, Embed } from "../Document";
+import { Root } from "./Root";
+import { ReadItem } from "./ReadItem";
 
-import {Request} from "hapi";
-import {toPairs, pathEq, evolve, prepend} from "ramda";
+import { Request } from "hapi";
+import { toPairs, pathEq, evolve, prepend } from "ramda";
 
 export interface Options {
   pageSize: number;
@@ -27,10 +27,10 @@ export class ReadCollection implements Action {
 
   method = "GET";
 
-  readonly resource = initialize(this._resource, {requirePK: false});
+  readonly resource = initialize(this._resource, { requirePK: false });
 
   constructor(protected _resource: Partial<Resource>, options?: Partial<Options>) {
-    this._options = {...DEFAULT_OPTIONS, ...options};
+    this._options = { ...DEFAULT_OPTIONS, ...options };
     this.path = `${this.resource.name}{?where,page,order}`;
   }
 
@@ -62,14 +62,14 @@ export class ReadCollection implements Action {
   joins = async (params: Params, request: Request): Promise<query.Join[]> =>
     this.resource.relationships.belongsTo.map(parent => ({
       source: parent.name,
-      path:   [this.resource.name, parent.name],
-      from:   parent.from,
-      to:     parent.to
+      path: [this.resource.name, parent.name],
+      from: parent.from,
+      to: parent.to
     }))
 
   conditions = async (params: Params, request: Request): Promise<query.Condition[]> =>
     toPairs<string, string>(params["where"])
-      .map(([field, value]) => ({field, value}));
+      .map(([field, value]) => ({ field, value }));
 
   order = async (params: Params, request: Request): Promise<query.Order[]> => {
     if (!params["order"]) {
@@ -80,12 +80,12 @@ export class ReadCollection implements Action {
     }
 
     return toPairs<string, string>(params["order"])
-      .map(([field, direction]) => ({field, direction}));
+      .map(([field, direction]) => ({ field, direction }));
   }
 
   page = async (params: Params, request: Request): Promise<query.Page> => ({
     number: params.page ? parseInt(params.page, 10) : 1,
-    size:   this._options.pageSize
+    size: this._options.pageSize
   })
 
   decorate = async (doc: Document, params: Params, request: Request): Promise<Document> => {
@@ -131,9 +131,9 @@ export class ReadCollection implements Action {
       return [];
     }
 
-    let pages   = [];
+    let pages = [];
     let current = params.page ? parseInt(params.page, 10) : 1;
-    let last    = Math.ceil(doc.properties["count"] / this._options.pageSize);
+    let last = Math.ceil(doc.properties["count"] / this._options.pageSize);
 
     if (current > 1) {
       pages.push({
@@ -144,13 +144,13 @@ export class ReadCollection implements Action {
           page: 1
         }
       }, {
-        rel: "prev",
-        href: this.path,
-        params: {
-          ...params,
-          page: current - 1
-        }
-      });
+          rel: "prev",
+          href: this.path,
+          params: {
+            ...params,
+            page: current - 1
+          }
+        });
     }
 
     if (current < last) {
@@ -162,13 +162,13 @@ export class ReadCollection implements Action {
           page: current + 1
         }
       }, {
-        rel: "last",
-        href: this.path,
-        params: {
-          ...params,
-          page: last
-        }
-      });
+          rel: "last",
+          href: this.path,
+          params: {
+            ...params,
+            page: last
+          }
+        });
     }
 
     return pages;
@@ -189,7 +189,7 @@ export class ReadCollection implements Action {
         await next(doc, params, request);
 
         doc.links.push({
-          rel:  this.resource.name,
+          rel: this.resource.name,
           href: this.path,
           name: "collection"
         });

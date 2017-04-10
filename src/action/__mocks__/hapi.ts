@@ -1,4 +1,4 @@
-import {Request, Response} from "hapi";
+import { Request, Response } from "hapi";
 
 export const response = {
   code: jest.fn(),

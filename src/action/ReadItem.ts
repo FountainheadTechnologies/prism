@@ -1,18 +1,18 @@
-import {Action, Params} from "../action";
-import {Filter} from "../filter";
-import {Source} from "../source";
-import {Resource, initialize} from "../resource";
-import {Item} from "../types";
-import {Schema} from "../schema";
+import { Action, Params } from "../action";
+import { Filter } from "../filter";
+import { Source } from "../source";
+import { Resource, initialize } from "../resource";
+import { Item } from "../types";
+import { Schema } from "../schema";
 import * as query from "../query";
-import {Document, Embed, Link} from "../Document";
-import {Root} from "./Root";
-import {ReadCollection} from "./ReadCollection";
-import {CreateItem} from "./CreateItem";
+import { Document, Embed, Link } from "../Document";
+import { Root } from "./Root";
+import { ReadCollection } from "./ReadCollection";
+import { CreateItem } from "./CreateItem";
 
-import * as uriTpl  from "uri-templates";
-import {Request} from "hapi";
-import {is, evolve, pathEq, prepend} from "ramda";
+import * as uriTpl from "uri-templates";
+import { Request } from "hapi";
+import { is, evolve, pathEq, prepend } from "ramda";
 
 export class ReadItem implements Action {
   path: string;
@@ -56,9 +56,9 @@ export class ReadItem implements Action {
   joins = async (params: Params, request: Request): Promise<query.Join[]> =>
     this.resource.relationships.belongsTo.map(parent => ({
       source: parent.name,
-      path:   [this.resource.name, parent.name],
-      from:   parent.from,
-      to:     parent.to
+      path: [this.resource.name, parent.name],
+      from: parent.from,
+      to: parent.to
     }))
 
   decorate = async (doc: Document, params: Params, request: Request): Promise<Document> => {
@@ -98,7 +98,7 @@ export class ReadItem implements Action {
         await next(doc, params, request);
 
         doc.links.push({
-          rel:  this.resource.name,
+          rel: this.resource.name,
           href: this.path,
           name: "item"
         });
@@ -131,8 +131,8 @@ export class ReadItem implements Action {
 
         if (embed.rel === this.resource.name) {
           embed.document.links.push({
-            rel:    "self",
-            href:   this.path,
+            rel: "self",
+            href: this.path,
             params: embed.document.properties
           });
 
@@ -168,7 +168,7 @@ export class ReadItem implements Action {
      * a resource has been embedded in child resources as a parent
      */
     this.resource.relationships.has.map(child => <Filter<ReadItem, "decorate">>({
-      type:  ReadItem,
+      type: ReadItem,
       method: "decorate",
       where: pathEq(["resource", "name"], child.name),
       filter: next => async (doc, params, request) => {
@@ -178,8 +178,8 @@ export class ReadItem implements Action {
           .filter(embed => embed.document.properties && embed.rel === this.resource.name)
           .map(embed => {
             embed.document.links.push({
-              rel:    "self",
-              href:   this.path,
+              rel: "self",
+              href: this.path,
               params: embed.document.properties
             });
 

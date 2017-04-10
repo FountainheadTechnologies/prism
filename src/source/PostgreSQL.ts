@@ -1,13 +1,13 @@
-import {Source} from "../source";
-import {Item, Collection} from "../types";
+import { Source } from "../source";
+import { Item, Collection } from "../types";
 import * as query from "../query";
 
-import {IDatabase} from "pg-promise";
-import {badData} from "boom";
+import { IDatabase } from "pg-promise";
+import { badData } from "boom";
 import * as _squel from "squel";
-import {notFound} from "boom";
+import { notFound } from "boom";
 
-import {omit, assocPath, path} from "ramda";
+import { omit, assocPath, path } from "ramda";
 
 export interface Options {
   joinMarker: string;
@@ -23,7 +23,7 @@ export class PostgreSQL implements Source {
   protected _options: Options;
 
   constructor(readonly db: IDatabase<{}>, options?: Partial<Options>) {
-    this._options = {...DEFAULT_OPTIONS, ...options};
+    this._options = { ...DEFAULT_OPTIONS, ...options };
   }
 
   create<T extends query.Create>(query: T): Promise<Item | Collection> {
@@ -83,7 +83,7 @@ export class PostgreSQL implements Source {
 
     return Promise
       .all([items, count])
-      .then(([items, count]) => ({items, count}));
+      .then(([items, count]) => ({ items, count }));
   }
 
   update<T extends query.Update>(query: T): Promise<Item | Collection> {
@@ -172,7 +172,7 @@ export class PostgreSQL implements Source {
       }
 
       if ((condition as query.Raw).$raw) {
-        let {fragment, values} = (condition as query.Raw).$raw;
+        let { fragment, values } = (condition as query.Raw).$raw;
         return [fragment, values];
       }
 
@@ -203,7 +203,7 @@ export class PostgreSQL implements Source {
     if (query.joins) {
       query.joins.forEach(join => {
         let alias = join.path.join(this._options.joinMarker);
-        let self  = join.path.slice(0, -1).join(this._options.joinMarker);
+        let self = join.path.slice(0, -1).join(this._options.joinMarker);
         sql.left_join(join.source, alias, `${alias}.${join.to} = ${self}.${join.from}`);
 
         if (!counting) {
@@ -220,7 +220,7 @@ export class PostgreSQL implements Source {
 
     return query.joins.reduce((result, join) => {
       let path = join.path.slice(1);
-      let key   = join.path.join(this._options.joinMarker);
+      let key = join.path.join(this._options.joinMarker);
 
       if (result[key]) {
         result = assocPath(path, result[key], result);
@@ -276,8 +276,8 @@ const handleConstraintViolation = (error: any): never => {
 
   let err = badData();
   err.output.payload.errors = [{
-    message:    "Constraint violation",
-    dataPath:   `/${key}`,
+    message: "Constraint violation",
+    dataPath: `/${key}`,
     schemaPath: `/properties/${key}/constraint`
   }];
 

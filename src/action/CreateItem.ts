@@ -1,17 +1,17 @@
-import {Action, Params} from "../action";
-import {Filter} from "../filter";
-import {Source} from "../source";
-import {ReadCollection} from "./ReadCollection";
-import {UpdateItem} from "./UpdateItem";
-import {ReadItem} from "./ReadItem";
-import {Root} from "./Root";
-import {Resource, initialize} from "../resource";
-import {Item} from "../types";
-import {Schema, validate, sanitize} from "../schema";
+import { Action, Params } from "../action";
+import { Filter } from "../filter";
+import { Source } from "../source";
+import { ReadCollection } from "./ReadCollection";
+import { UpdateItem } from "./UpdateItem";
+import { ReadItem } from "./ReadItem";
+import { Root } from "./Root";
+import { Resource, initialize } from "../resource";
+import { Item } from "../types";
+import { Schema, validate, sanitize } from "../schema";
 import * as query from "../query";
 
-import {Request, Response} from "hapi";
-import {evolve, prepend, pathEq} from "ramda";
+import { Request, Response } from "hapi";
+import { evolve, prepend, pathEq } from "ramda";
 
 export class CreateItem implements Action {
   path: string;
@@ -33,7 +33,7 @@ export class CreateItem implements Action {
 
     let response = (request as any).generateResponse();
     response.code(201);
-    response.plugins.prism = {createdItem};
+    response.plugins.prism = { createdItem };
 
     return response;
   }
@@ -56,9 +56,9 @@ export class CreateItem implements Action {
   joins = async (params: Params, request: Request): Promise<query.Join[]> =>
     this.resource.relationships.belongsTo.map(parent => ({
       source: parent.name,
-      path:   [parent.from],
-      from:   parent.from,
-      to:     parent.to
+      path: [parent.from],
+      from: parent.from,
+      to: parent.to
     }))
 
   register = this.resource.source;

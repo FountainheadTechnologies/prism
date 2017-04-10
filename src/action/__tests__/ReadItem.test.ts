@@ -1,9 +1,9 @@
-import {ReadItem} from "../ReadItem";
-import {ReadCollection} from "../ReadCollection";
-import {CreateItem} from "../CreateItem";
-import {Root} from "../Root";
-import {Document} from "../../Document";
-import {Registry} from "../../Registry";
+import { ReadItem } from "../ReadItem";
+import { ReadCollection } from "../ReadCollection";
+import { CreateItem } from "../CreateItem";
+import { Root } from "../Root";
+import { Document } from "../../Document";
+import { Registry } from "../../Registry";
 import * as resource from "../../__mocks__/resource";
 import * as hapi from "../__mocks__/hapi";
 
@@ -46,14 +46,14 @@ describe("#query()", () => {
       }],
       joins: [{
         source: "users",
-        path:   ["tasks", "users"],
-        from:   "owner",
-        to:     "id"
+        path: ["tasks", "users"],
+        from: "owner",
+        to: "id"
       }, {
         source: "projects",
-        path:   ["tasks", "projects"],
-        from:   "project",
-        to:     "id"
+        path: ["tasks", "projects"],
+        from: "project",
+        to: "id"
       }]
     });
   });
@@ -126,7 +126,7 @@ describe("filters", () => {
     await root.decorate(document, {}, {} as any);
 
     expect(document.links).toEqual([{
-      rel:  resource.tasks.name,
+      rel: resource.tasks.name,
       href: readTask.path,
       name: "item"
     }]);
@@ -142,7 +142,7 @@ describe("filters", () => {
       project: 1
     };
 
-    (resource.tasks.source.create as jest.Mock<any>).mockReturnValue({id: 12});
+    (resource.tasks.source.create as jest.Mock<any>).mockReturnValue({ id: 12 });
 
     await createTask.handle({}, hapi.request);
     expect(hapi.response.location).toHaveBeenCalledWith("tasks/12");
@@ -155,19 +155,19 @@ describe("filters", () => {
     let query = await readTask.joins({}, undefined as any);
     expect(query).toEqual([{
       source: "users",
-      path:   ["tasks", "users"],
-      from:   "owner",
-      to:     "id"
+      path: ["tasks", "users"],
+      from: "owner",
+      to: "id"
     }, {
       source: "projects",
-      path:   ["tasks", "projects"],
-      from:   "project",
-      to:     "id"
+      path: ["tasks", "projects"],
+      from: "project",
+      to: "id"
     }, {
       source: "departments",
-      path:   ["tasks", "users", "departments"],
-      from:   "department",
-      to:     "id"
+      path: ["tasks", "users", "departments"],
+      from: "department",
+      to: "id"
     }]);
   });
 

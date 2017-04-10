@@ -1,7 +1,7 @@
-import {Schema} from "../schema";
-import {Filter} from "../filter";
+import { Schema } from "../schema";
+import { Filter } from "../filter";
 
-import {Request} from "hapi";
+import { Request } from "hapi";
 
 /**
  * A security backend implements the checking of preconditions when issuing a
