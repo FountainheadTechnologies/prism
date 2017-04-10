@@ -11,11 +11,11 @@ import { Request, Response } from "hapi";
 import { pathEq, keys, pick } from "ramda";
 
 const pickAllowedValues = (schema: Schema, values: Object) => {
-  var allowed = keys(schema.properties)
+  let allowed = keys(schema.properties)
     .filter(key => !schema.properties[key].readOnly);
 
   return pick(allowed, values);
-}
+};
 
 export class UpdateItem implements Action {
   path: string;

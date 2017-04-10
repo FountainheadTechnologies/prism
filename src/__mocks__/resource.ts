@@ -9,7 +9,7 @@ export const tasks = {
     title: "tasks",
     type: "object",
     properties: {
-      id: { type: "integer" },
+      id: { type: "integer", readOnly: true },
       title: { type: "string" },
       description: { type: "string" },
       complete: { type: "boolean" },
@@ -41,7 +41,7 @@ export const users = {
     title: "users",
     type: "object",
     properties: {
-      id: { type: "integer" },
+      id: { type: "integer", readOnly: true },
       username: { type: "string" },
       password: { type: "string" },
       enabled: { type: "boolean" },
@@ -72,7 +72,7 @@ export const projects = {
     title: "projects",
     type: "object",
     properties: {
-      id: { type: "integer" },
+      id: { type: "integer", readOnly: true },
       name: { type: "string" }
     },
     required: ["name"]
@@ -96,7 +96,7 @@ export const departments = {
     title: "departments",
     type: "object",
     properties: {
-      id: { type: "integer" },
+      id: { type: "integer", readOnly: true },
       name: { type: "string" }
     },
     required: ["name"]
