@@ -17,7 +17,7 @@ export class CreateToken implements Action {
   }
 
   handle = async (params: Params, request: Request): Promise<Response> => {
-    let token = await this._backend.issue(request.payload);
+    let token = await this._backend.issue(params, request);
     if (token === false) {
       let response = (request as any).generateResponse();
       response.code(403);

@@ -8,6 +8,7 @@ import { CreateItem } from "../../../action/CreateItem";
 import { UpdateItem } from "../../../action/UpdateItem";
 import { Document } from "../../../Document";
 
+import { Request } from "hapi";
 import { merge } from "ramda";
 
 let resource: Resource;
@@ -40,14 +41,24 @@ describe("#issue()", () => {
 
   it("throws a validation error if payload does not pass schema validation", async () => {
     try {
-      await resource.issue({ username: "test", password: "password" });
+      await resource.issue({}, {
+        payload: {
+          username: "test",
+          password: "password"
+        }
+      } as Request);
     } catch (error) {
       expect(error.message).toEqual("Unprocessable Entity");
     }
   });
 
   it("performs a `read` query against the resource using payload", async () => {
-    await resource.issue({ email: "user@test.com", password: "password" });
+    await resource.issue({}, {
+      payload: {
+        email: "user@test.com",
+        password: "password"
+      }
+    } as Request);
 
     expect(users.source.read).toHaveBeenCalledWith({
       source: users.name,
@@ -63,7 +74,8 @@ describe("#issue()", () => {
   describe("when `read` query returns a result", () => {
     describe("when `password` matches hashed password", () => {
       it("resolves to an object containing primary key(s)", async () => {
-        let result = await resource.issue({ email: "user@test.com", password: "password" });
+        let result = await resource.issue({}, { payload: { email: "user@test.com", password: "password" } } as Request);
+
         expect(result).toEqual({
           users: {
             id: 12
@@ -74,7 +86,12 @@ describe("#issue()", () => {
 
     describe("when `password` does not match hashed password", () => {
       it("resolves to `false`", async () => {
-        let result = await resource.issue({ email: "user@test.com", password: "oops" });
+        let result = await resource.issue({}, {
+          payload: {
+            email: "user@test.com", password: "oops"
+          }
+        } as Request);
+
         expect(result).toBe(false);
       });
     });
@@ -83,7 +100,13 @@ describe("#issue()", () => {
   describe("when `read` query does not return a result", () => {
     it("resolves to `false`", async () => {
       (users.source.read as jest.Mock<any>).mockReturnValue(Promise.resolve(null));
-      let result = await resource.issue({ email: "user1@test.com", password: "password" });
+
+      let result = await resource.issue({}, {
+        payload: {
+          email: "user1@test.com", password: "password"
+        }
+      } as Request);
+
       expect(result).toBe(false);
     });
   });

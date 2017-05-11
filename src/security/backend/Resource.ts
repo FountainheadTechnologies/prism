@@ -1,13 +1,10 @@
 import { Backend } from "../backend";
 import { Resource as _Resource } from "../../resource";
-import { Root } from "../../action/Root";
-import { ReadItem } from "../../action/ReadItem";
-import { CreateItem } from "../../action/CreateItem";
-import { UpdateItem } from "../../action/UpdateItem";
+import { Root, ReadItem, CreateItem, UpdateItem, Params } from "../../action";
 import { Filter } from "../../filter";
 import { Source } from "../../source";
-import { Condition } from "../../query";
 import { Schema, validate } from "../../schema";
+import * as query from "../../query";
 
 import { pick, pathEq, partialRight } from "ramda";
 import { hash, compare } from "bcrypt";
@@ -41,23 +38,13 @@ export class Resource implements Backend {
     };
   }
 
-  issue = async (payload: any): Promise<false | Object> => {
-    let conditions = [
-      ...this._options.scope, {
-        field: this._options.identity,
-        value: payload[this._options.identity]
-      }];
-
+  issue = async (params: Params, request: Request): Promise<false | Object> => {
+    let query = await this.issueQuery(params, request);
     let result;
 
     try {
-      await validate(payload, this.schema);
-      result = await this.resource.source.read({
-        source: this.resource.name,
-        schema: this.schema,
-        return: "item",
-        conditions
-      });
+      await validate(request.payload, this.schema);
+      result = await this.resource.source.read(query);
     } catch (error) {
       if (error.isBoom && error.output && error.output.statusCode === 404) {
         return false;
@@ -74,7 +61,7 @@ export class Resource implements Backend {
       return false;
     }
 
-    let given = payload[this._options.password];
+    let given = request.payload[this._options.password];
     let actual = (result as any)[this._options.password];
     let match = await this._options.compare(given, actual);
 
@@ -87,21 +74,36 @@ export class Resource implements Backend {
     };
   }
 
-  validate = async (decoded: any, request: Request): Promise<false | Object> => {
-    let conditions = [
+  issueQuery = async (params: Params, request: Request): Promise<query.Read> => ({
+    source: this.resource.name,
+    schema: this.schema,
+    return: "item",
+    conditions: [
+      ...this._options.scope, {
+        field: this._options.identity,
+        value: request.payload[this._options.identity]
+      }
+    ]
+  })
+
+  validateQuery = async (decoded: any, request: Request): Promise<query.Read> => ({
+    source: this.resource.name,
+    schema: this.schema,
+    return: "item",
+    conditions: [
       ...this._options.scope,
       ...this.resource.primaryKeys.map(key => ({
         field: key,
         value: decoded[this.resource.name][key]
       }))
-    ];
+    ]
+  })
 
-    return this.resource.source.read({
-      source: this.resource.name,
-      schema: this.schema,
-      return: "item",
-      conditions
-    }).catch(err => false);
+  validate = async (decoded: any, request: Request): Promise<false | Object> => {
+    let query = await this.validateQuery(decoded, request);
+
+    return this.resource.source.read(query)
+      .catch(err => false);
   }
 
   register = this.resource.source;
@@ -219,7 +221,7 @@ export interface Options {
    * Additional `Condition` clauses to apply when performing queries during token
    * issuing and verification
    */
-  scope: Condition[];
+  scope: query.Condition[];
 }
 
 const DEFAULT_OPTIONS: Options = {

@@ -1,3 +1,4 @@
+import { Params } from "../action";
 import { Schema } from "../schema";
 import { Filter } from "../filter";
 
@@ -17,7 +18,7 @@ export interface Backend {
    * issued (ie, preconditions have not been met), or an Object containing the
    * data to be included in the token payload
    */
-  issue(payload: Object): Promise<boolean | Object>;
+  issue(params: Params, request: Request): Promise<boolean | Object>;
 
   /**
    * Validate a token that was presented in a Request
