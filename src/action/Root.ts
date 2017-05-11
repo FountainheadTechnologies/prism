@@ -10,7 +10,7 @@ export class Root implements Action {
 
   routeConfig = {};
 
-  handle = async () => ({});
+  handle = async (params: Params, request: Request) => ({});
 
   decorate = async (doc: Document, params: Params, request: Request): Promise<Document> =>
     doc;
