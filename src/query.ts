@@ -30,6 +30,7 @@ export interface Join {
   path: string[];
   from: string;
   to: string;
+  nest?: boolean;
 }
 
 export interface Order {

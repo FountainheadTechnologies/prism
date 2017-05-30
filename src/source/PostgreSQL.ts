@@ -206,7 +206,7 @@ export class PostgreSQL implements Source {
         let self = join.path.slice(0, -1).join(this._options.joinMarker);
         sql.left_join(join.source, alias, `${alias}.${join.to} = ${self}.${join.from}`);
 
-        if (!counting) {
+        if (!counting && join.nest !== false) {
           sql.field(`row_to_json(${alias}.*) AS ${alias}`);
         }
       });

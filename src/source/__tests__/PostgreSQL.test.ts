@@ -370,6 +370,31 @@ describe("#read()", () => {
     });
   });
 
+  it("suppresses nested behavior when `join.nest` is `false`", async () => {
+    await source.read({
+      return: "item",
+      source: "tasks",
+      schema: tasks.schema,
+      joins: [{
+        source: "users",
+        path: ["tasks", "users"],
+        from: "owner",
+        to: "id",
+        nest: false
+      }, {
+        source: "projects",
+        path: ["tasks", "projects"],
+        from: "project",
+        to: "id"
+      }]
+    });
+
+    expect(db.oneOrNone).toHaveBeenCalledWith(
+      "SELECT tasks.*, row_to_json(tasksΔprojects.*) AS tasksΔprojects FROM tasks LEFT JOIN users AS tasksΔusers ON (tasksΔusers.id = tasks.owner) LEFT JOIN projects AS tasksΔprojects ON (tasksΔprojects.id = tasks.project)",
+      []
+    );
+  });
+
   it("omits mising JOIN properties", async () => {
     (db.oneOrNone as jest.Mock<any>).mockReturnValue(Promise.resolve({
       id: 1,
