@@ -87,7 +87,7 @@ describe("filters", () => {
     await readTask.decorate(document, {}, hapi.request);
 
     expect(document.forms).toEqual([{
-      rel: resource.tasks.name,
+      rel: "self",
       href: deleteTask.path,
       name: "delete",
       params: {

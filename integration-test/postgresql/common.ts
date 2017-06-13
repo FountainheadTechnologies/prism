@@ -93,7 +93,7 @@ describe('GET /departments/2 (ReadItem)', () => {
   });
 
   it('contains Update and Delete forms', () => {
-    expect(document._forms.departments).toEqual([{
+    expect(document._forms.self).toEqual([{
       name: 'update',
       href: '/departments/2',
       method: 'PATCH',
@@ -106,7 +106,7 @@ describe('GET /departments/2 (ReadItem)', () => {
   });
 
   it('populates `schema.default` and empties `required` in Update form', () => {
-    var form = document._forms.departments.find(form => form.name === 'update');
+    var form = document._forms.self.find(form => form.name === 'update');
 
     expect(form.schema).toEqual({
       ...schemas.departments,

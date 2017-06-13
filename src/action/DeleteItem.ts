@@ -74,7 +74,7 @@ export class DeleteItem implements Action {
         await next(doc, params, request);
 
         doc.forms.push({
-          rel: this.resource.name,
+          rel: "self",
           href: this.path,
           name: "delete",
           params: doc.properties,

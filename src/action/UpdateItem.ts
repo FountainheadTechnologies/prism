@@ -107,7 +107,7 @@ export class UpdateItem implements Action {
           this.schema(params, request)
         ]).then(([doc, schema]) => {
           doc.forms.push({
-            rel: this.resource.name,
+            rel: "self",
             href: this.path,
             name: "update",
             params: doc.properties,
