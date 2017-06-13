@@ -1,12 +1,11 @@
 {
-  "name": "prism-dev",
-  "description": "A framework for building expressive, powerful HTTP APIs",
+  "name": "@optics/prism-dev",
+  "description": "A JavaScript Framework for building database-driven Hypermedia HTTP APIs",
   "repository": {
     "type": "git",
-    "url": "https://github.com/radify/prism.git"
+    "url": "https://github.com/optics-team/prism.git"
   },
-  "private": false,
-  "author": "Radify",
+  "author": "Warren Seymour <warren@fountainhead.tech>",
   "license": "BSD-3-Clause",
   "devDependencies": {
     "@types/bcrypt": "^1.0.0",

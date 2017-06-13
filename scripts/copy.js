@@ -25,8 +25,7 @@ Promise
 	.then(() => readJsonAsync(pathTo('package.json')))
   .then(packageJSON => {
 	  Object.assign(packageJSON, {
-		  name: '@optics/prism',
-		  private: false
+		  name: '@optics/prism'
 	  });
 
 	  var dest = pathTo('build', 'package.json');
