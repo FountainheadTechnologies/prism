@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "@types/node-fetch": "^1.6.7",
-    "@warrenseymour/prism": "file:../../build",
+    "@optics/prism": "file:../../build",
     "collimator": "^5.1.1",
     "hapi": "^16.1.0",
     "jest": "^19.0.2",

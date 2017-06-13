@@ -25,12 +25,12 @@ Promise
 	.then(() => readJsonAsync(pathTo('package.json')))
   .then(packageJSON => {
 	  Object.assign(packageJSON, {
-		  name: '@warrenseymour/prism',
+		  name: '@optics/prism',
 		  private: false
 	  });
 
 	  var dest = pathTo('build', 'package.json');
 
-	  return writeJsonAsync(dest, packageJSON)
+	  return writeJsonAsync(dest, packageJSON, {spaces: 2})
 		  .then(() => console.log(`Configured package.json in '${dest}'`));
   });

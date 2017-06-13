@@ -1,9 +1,9 @@
 import {Server} from 'hapi';
 import * as _pgPromise from 'pg-promise';
 import * as collimator from 'collimator';
-import {Prism} from '@warrenseymour/prism';
-import {PostgreSQL} from '@warrenseymour/prism/source';
-import * as action from '@warrenseymour/prism/action';
+import {Prism} from '@optics/prism';
+import {PostgreSQL} from '@optics/prism/source';
+import * as action from '@optics/prism/action';
 
 const pgPromise = _pgPromise();
 

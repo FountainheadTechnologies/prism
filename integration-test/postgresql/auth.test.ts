@@ -3,10 +3,12 @@ import * as _pgPromise from 'pg-promise';
 import * as collimator from 'collimator';
 import {whereEq} from 'ramda';
 import {Response} from 'node-fetch';
-import {Prism} from '@warrenseymour/prism';
-import {PrismSecurity, ResourceBackend} from '@warrenseymour/prism/security';
-import {PostgreSQL} from '@warrenseymour/prism/source';
-import * as action from '@warrenseymour/prism/action';
+
+import {Prism} from '@optics/prism';
+import {PrismSecurity, ResourceBackend} from '@optics/prism/security';
+import {PostgreSQL} from '@optics/prism/source';
+import * as action from '@optics/prism/action';
+
 import {fetch, getProperties} from './common/util';
 
 const pgPromise = _pgPromise();
