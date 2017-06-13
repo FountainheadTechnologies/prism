@@ -5,7 +5,7 @@
     "type": "git",
     "url": "https://github.com/radify/prism.git"
   },
-  "private": true,
+  "private": false,
   "author": "Radify",
   "license": "BSD-3-Clause",
   "devDependencies": {
