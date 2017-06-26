@@ -34,6 +34,7 @@ const DEFAULT_OPTIONS: Options = {
 };
 
 const EXPOSED_API: Array<keyof Plugin> = [
+  "registry",
   "registerAction",
   "registerFilter"
 ];
@@ -41,7 +42,7 @@ const EXPOSED_API: Array<keyof Plugin> = [
 export class Plugin {
   protected _options: Options;
 
-  protected _registry = new Registry();
+  public registry = new Registry();
 
   constructor(protected readonly _server: Server, options: Partial<Options> = {}) {
     this._options = { ...DEFAULT_OPTIONS, ...options };
@@ -58,7 +59,7 @@ export class Plugin {
       }
 
       this.registerAction(root);
-      this._registry.applyFilters();
+      this.registry.applyFilters();
 
       return next();
     });
@@ -71,7 +72,7 @@ export class Plugin {
 
     action.path = join(this._options.root, action.path);
 
-    this._registry.registerObject(action);
+    this.registry.registerObject(action);
 
     let route = toRoute(action);
     this._server.route(route);
@@ -80,7 +81,7 @@ export class Plugin {
   }
 
   registerFilter(filter: Filter<Action, any> | Filter<Action, any>[]): void {
-    this._registry.registerFilter(filter);
+    this.registry.registerFilter(filter);
   }
 
   expose(): Object {

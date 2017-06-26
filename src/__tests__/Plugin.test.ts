@@ -1,4 +1,5 @@
 import { Plugin, toRoute } from "../Plugin";
+import { Registry } from "../Registry";
 import { MockServer } from "../__mocks__/server";
 
 import { Server } from "hapi";
@@ -86,7 +87,7 @@ describe("#registerAction()", () => {
 
 describe("#expose()", () => {
   it("exposes public methods, bound to instance", () => {
-    let { registerAction }: any = plugin.expose();
+    let { registerAction, registry }: any = plugin.expose();
 
     registerAction(action);
     expect(server.route).toHaveBeenCalledWith({
@@ -94,6 +95,8 @@ describe("#expose()", () => {
       method: "POST",
       path: "/test/users"
     });
+
+    expect(registry).toBeInstanceOf(Registry);
   });
 });
 
