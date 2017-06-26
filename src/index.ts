@@ -2,9 +2,9 @@ import { Plugin, Options } from "./Plugin";
 
 import { Server } from "hapi";
 
-declare module 'hapi' {
+declare module "hapi" {
   interface PluginsStates {
-    prism: Plugin
+    prism: Plugin;
   }
 }
 

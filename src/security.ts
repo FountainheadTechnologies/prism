@@ -3,9 +3,9 @@ import { Plugin, Options } from "./security/Plugin";
 import { Server } from "hapi";
 import * as hapiJwt from "hapi-auth-jwt2";
 
-declare module 'hapi' {
+declare module "hapi" {
   interface PluginsStates {
-    'prism-security': Plugin
+    "prism-security": Plugin;
   }
 }
 
