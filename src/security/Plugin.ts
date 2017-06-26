@@ -72,12 +72,6 @@ export class Plugin implements ExposedAPI {
     prism.registerAction(createToken);
   }
 
-  expose(): ExposedAPI {
-    return {
-      registerBackend: this.registerBackend.bind(this)
-    };
-  }
-
   jwtOptions = (): JwtOptions => ({
     key: this._options.key,
 

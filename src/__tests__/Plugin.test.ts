@@ -85,21 +85,6 @@ describe("#registerAction()", () => {
   });
 });
 
-describe("#expose()", () => {
-  it("exposes public methods, bound to instance", () => {
-    let { registerAction, registry }: any = plugin.expose();
-
-    registerAction(action);
-    expect(server.route).toHaveBeenCalledWith({
-      handler: jasmine.any(Function),
-      method: "POST",
-      path: "/test/users"
-    });
-
-    expect(registry).toBeInstanceOf(Registry);
-  });
-});
-
 describe("toRoute()", () => {
   let route: any;
 

@@ -1,10 +1,10 @@
-import { Plugin, Options } from "./Plugin";
+import { Plugin, Options, ExposedAPI } from "./Plugin";
 
 import { Server } from "hapi";
 
 declare module "hapi" {
   interface PluginsStates {
-    prism: Plugin;
+    prism: ExposedAPI;
   }
 }
 
@@ -14,7 +14,9 @@ const registerPlugin = (server: Server, options: Partial<Options>, next: Functio
   }
 
   let instance = new Plugin(server, options);
-  server.expose(instance.expose());
+  server.expose('registry', instance.registry);
+  server.expose('registerAction', instance.registerAction.bind(instance));
+  server.expose('registerFilter', instance.registerFilter.bind(instance));
 
   next();
 };

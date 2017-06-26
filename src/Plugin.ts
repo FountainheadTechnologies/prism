@@ -83,14 +83,6 @@ export class Plugin implements ExposedAPI {
   registerFilter(filter: Filter<Action, any> | Filter<Action, any>[]): void {
     this.registry.registerFilter(filter);
   }
-
-  expose(): ExposedAPI {
-    return {
-      registry: this.registry,
-      registerAction: this.registerAction.bind(this),
-      registerFilter: this.registerFilter.bind(this)
-    };
-  }
 }
 
 export const toRoute = (action: Action): IRouteConfiguration => ({

@@ -100,12 +100,6 @@ describe("#registerBackend()", () => {
   });
 });
 
-describe("#expose()", () => {
-  it("exposes public methods", () => {
-    expect(plugin.expose().registerBackend).toEqual(jasmine.any(Function));
-  });
-});
-
 describe("#jwtOptions", () => {
   let options: JwtOptions;
   let validateResult: any;
