@@ -28,18 +28,18 @@ export interface Options {
   secure: boolean;
 }
 
+export interface ExposedAPI {
+  registry: Registry;
+  registerAction(action: Action | Action[]): void;
+  registerFilter(filter: Filter<Action, any> | Filter<Action, any>[]): void;
+}
+
 const DEFAULT_OPTIONS: Options = {
   root: "/",
   secure: true
 };
 
-const EXPOSED_API: Array<keyof Plugin> = [
-  "registry",
-  "registerAction",
-  "registerFilter"
-];
-
-export class Plugin {
+export class Plugin implements ExposedAPI {
   protected _options: Options;
 
   public registry = new Registry();
@@ -84,14 +84,12 @@ export class Plugin {
     this.registry.registerFilter(filter);
   }
 
-  expose(): Object {
-    return map((value: any) => {
-      if (typeof value === "function") {
-        return value.bind(this);
-      }
-
-      return value;
-    }, pick(EXPOSED_API, this) as any);
+  expose(): ExposedAPI {
+    return {
+      registry: this.registry,
+      registerAction: this.registerAction.bind(this),
+      registerFilter: this.registerFilter.bind(this)
+    };
   }
 }
 

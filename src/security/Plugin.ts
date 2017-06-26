@@ -20,7 +20,18 @@ export interface Options {
   sign: SignOptions;
 }
 
-export class Plugin {
+export interface ExposedAPI {
+  registerBackend(backend: Backend): void;
+}
+
+const DEFAULT_OPTIONS = {
+  key: "thisApplicationIsNotSecure",
+  sign: {
+    expiresIn: "1d"
+  }
+};
+
+export class Plugin implements ExposedAPI {
   protected _options: Options;
 
   protected _backend: Backend;
@@ -61,14 +72,10 @@ export class Plugin {
     prism.registerAction(createToken);
   }
 
-  expose(): any {
-    return map((value: any) => {
-      if (typeof value === "function") {
-        return value.bind(this);
-      }
-
-      return value;
-    }, pick(EXPOSED_API, this) as any);
+  expose(): ExposedAPI {
+    return {
+      registerBackend: this.registerBackend.bind(this)
+    };
   }
 
   jwtOptions = (): JwtOptions => ({
@@ -86,14 +93,3 @@ export class Plugin {
     }
   })
 }
-
-const DEFAULT_OPTIONS = {
-  key: "thisApplicationIsNotSecure",
-  sign: {
-    expiresIn: "1d"
-  }
-};
-
-const EXPOSED_API: Array<keyof Plugin> = [
-  "registerBackend"
-];
