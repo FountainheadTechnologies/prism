@@ -37,12 +37,12 @@ beforeAll(async () => {
   var source = new PostgreSQL(db);
 
   metadata.tables.forEach(table => {
-    var resource = {...table, source};
-    server.plugins['prism'].registerAction(new action.ReadItem(resource));
-    server.plugins['prism'].registerAction(new action.ReadCollection(resource));
-    server.plugins['prism'].registerAction(new action.CreateItem(resource));
-    server.plugins['prism'].registerAction(new action.UpdateItem(resource));
-    server.plugins['prism'].registerAction(new action.DeleteItem(resource));
+    var resource = { ...table, source };
+    server.plugins.prism.registerAction(new action.ReadItem(resource));
+    server.plugins.prism.registerAction(new action.ReadCollection(resource));
+    server.plugins.prism.registerAction(new action.CreateItem(resource));
+    server.plugins.prism.registerAction(new action.UpdateItem(resource));
+    server.plugins.prism.registerAction(new action.DeleteItem(resource));
 
     if (table.name === 'users') {
       server.plugins['prism-security'].registerBackend(new ResourceBackend(resource, {

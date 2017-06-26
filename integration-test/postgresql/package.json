@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/hapi": "^16.1.5",
     "@types/node-fetch": "^1.6.7",
     "@optics/prism": "file:../../build",
     "collimator": "^5.1.1",

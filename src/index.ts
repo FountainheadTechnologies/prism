@@ -2,6 +2,12 @@ import { Plugin, Options } from "./Plugin";
 
 import { Server } from "hapi";
 
+declare module 'hapi' {
+  interface PluginsStates {
+    prism: Plugin
+  }
+}
+
 const registerPlugin = (server: Server, options: Partial<Options>, next: Function): void => {
   if (server.connections.length === 0) {
     throw new Error("Tried to load Prism before connections have been configured");
