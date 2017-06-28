@@ -29,7 +29,7 @@ export class CreateItem implements Action {
     await validate(request.payload, schema);
 
     let query = await this.query(params, request);
-    let createdItem = await this.resource.source.create(query);
+    let createdItem = await this.createItem(query, params, request);
 
     let response = (request as any).generateResponse();
     response.code(201);
@@ -60,6 +60,9 @@ export class CreateItem implements Action {
       from: parent.from,
       to: parent.to
     }))
+
+  createItem = async (query: query.Create, params: Params, request: Request): Promise<{}> =>
+    this.resource.source.create(query)
 
   register = this.resource.source;
 

@@ -28,7 +28,7 @@ export class ReadItem implements Action {
 
   handle = async (params: Params, request: Request): Promise<Item> => {
     let query = await this.query(params, request);
-    return this.resource.source.read<Item>(query);
+    return this.readItem(query, params, request);
   }
 
   query = async (params: Params, request: Request): Promise<query.Read> =>
@@ -60,6 +60,9 @@ export class ReadItem implements Action {
       from: parent.from,
       to: parent.to
     }))
+
+  readItem = async (query: query.Read, params: Params, request: Request): Promise<Item> =>
+    this.resource.source.read<Item>(query);
 
   decorate = async (doc: Document, params: Params, request: Request): Promise<Document> => {
     this.embedded(doc, params, request)

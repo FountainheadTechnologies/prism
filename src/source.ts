@@ -8,7 +8,7 @@ export interface Source {
 
   update<R extends Item | Collection>(query: query.Update): Promise<R>;
 
-  delete<T extends query.Delete>(query: T): Promise<Boolean>;
+  delete<T extends query.Delete>(query: T): Promise<boolean>;
 }
 
 export { PostgreSQL } from "./source/PostgreSQL";

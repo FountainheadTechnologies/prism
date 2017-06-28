@@ -27,7 +27,7 @@ export class UpdateItem implements Action {
     await validate(request.payload, schema);
 
     let query = await this.query(params, request);
-    await this.resource.source.update(query);
+    await this.updateItem(query, params, request);
 
     let response = (request as any).generateResponse();
     response.code(204);
@@ -67,6 +67,9 @@ export class UpdateItem implements Action {
       from: parent.from,
       to: parent.to
     }))
+
+  updateItem = async (query: query.Update, params: Params, request: Request): Promise<{}> =>
+    this.resource.source.update(query)
 
   register = this.resource.source;
 

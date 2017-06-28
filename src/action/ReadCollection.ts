@@ -36,7 +36,7 @@ export class ReadCollection implements Action {
 
   handle = async (params: Params, request: Request): Promise<Collection> => {
     let query = await this.query(params, request);
-    return this.resource.source.read<Collection>(query);
+    return this.readCollection(query, params, request);
   }
 
   query = async (params: Params, request: Request): Promise<query.Read> =>
@@ -87,6 +87,9 @@ export class ReadCollection implements Action {
     number: params.page ? parseInt(params.page, 10) : 1,
     size: this._options.pageSize
   })
+
+  readCollection = async (query: query.Read, params: Params, request: Request): Promise<Collection> =>
+    this.resource.source.read<Collection>(query);
 
   decorate = async (doc: Document, params: Params, request: Request): Promise<Document> => {
     let embedded = await this.embedded(doc, params, request);

@@ -21,7 +21,7 @@ export class DeleteItem implements Action {
 
   handle = async (params: Params, request: Request): Promise<Response> => {
     let query = await this.query(params, request);
-    await this.resource.source.delete(query);
+    await this.deleteItem(query, params, request);
 
     let response = (request as any).generateResponse();
     response.code(204);
@@ -39,6 +39,9 @@ export class DeleteItem implements Action {
       field: key,
       value: params[key]
     }))
+
+  deleteItem = async (query: query.Delete, params: Params, request: Request): Promise<boolean> =>
+    this.resource.source.delete(query);
 
   register = this.resource.source;
 
