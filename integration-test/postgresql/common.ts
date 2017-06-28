@@ -468,7 +468,8 @@ describe('POST /tasks (CreateItem - embedded Project)', () => {
         title: 'Test Task w/ new Project',
         owner: 1,
         project: {
-          name: 'Test Project'
+          name: 'Test Project',
+          tags: ['tag1', 'tag2']
         }
       })
     });
@@ -509,7 +510,8 @@ describe('POST /tasks (CreateItem - embedded Project)', () => {
 
     expect(properties).toEqual({
       id: 4,
-      name: 'Test Project'
+      name: 'Test Project',
+      tags: ['tag1', 'tag2']
     });
   });
 });
@@ -571,7 +573,8 @@ describe('POST /tasks (CreateItem - Embedded Project, User and Department)', () 
 
     expect(properties).toEqual({
       id: 5,
-      name: 'Test Project Two'
+      name: 'Test Project Two',
+      tags: null
     });
   });
 
@@ -851,7 +854,8 @@ describe('PATCH /tasks/2 (UpdateItem - Embedded Project)', () => {
       body: JSON.stringify({
         title: 'Set to new Project',
         project: {
-          name: 'Test Project Three'
+          name: 'Test Project Three',
+          tags: ['tag1']
         }
       })
     });
@@ -889,6 +893,7 @@ describe('PATCH /tasks/2 (UpdateItem - Embedded Project)', () => {
     expect(properties).toEqual({
       id: 6,
       name: 'Test Project Three',
+      tags: ['tag1']
     });
   });
 });

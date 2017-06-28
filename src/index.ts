@@ -14,9 +14,9 @@ const registerPlugin = (server: Server, options: Partial<Options>, next: Functio
   }
 
   let instance = new Plugin(server, options);
-  server.expose('registry', instance.registry);
-  server.expose('registerAction', instance.registerAction.bind(instance));
-  server.expose('registerFilter', instance.registerFilter.bind(instance));
+  server.expose("registry", instance.registry);
+  server.expose("registerAction", instance.registerAction.bind(instance));
+  server.expose("registerFilter", instance.registerFilter.bind(instance));
 
   next();
 };

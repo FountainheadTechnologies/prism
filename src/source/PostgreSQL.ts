@@ -7,13 +7,16 @@ import { badData } from "boom";
 import * as _squel from "squel";
 import { notFound } from "boom";
 
-import { omit, assocPath, path } from "ramda";
+import { omit, assocPath, path, identity, map } from "ramda";
 
 export interface Options {
   joinMarker: string;
 }
 
-const squel = _squel.useFlavour("postgres");
+const squel = (_squel as any).useFlavour("postgres");
+
+// Allow Arrays to be passed straight through and let pgPromise to handle type conversion
+(squel as any).registerValueHandler(Array, identity);
 
 const DEFAULT_OPTIONS: Options = {
   joinMarker: "Δ"
@@ -32,7 +35,7 @@ export class PostgreSQL implements Source {
       .returning(query.returning.join(","));
 
     this._withJoins(sql, query);
-    sql.setFields(query.data);
+    this._setValues(sql, query.data);
 
     let statement = sql.toParam();
 
@@ -93,10 +96,9 @@ export class PostgreSQL implements Source {
 
     this._addConditions(sql, query);
     this._withJoins(sql, query);
+    this._setValues(sql, query.data);
 
-    let statement = sql
-      .setFields(query.data)
-      .toParam();
+    let statement = sql.toParam();
 
     return this.db.oneOrNone(statement.text, statement.values)
       .catch(handleConstraintViolation) as any;
@@ -248,8 +250,9 @@ export class PostgreSQL implements Source {
 
         let insert = squel.insert()
           .into(join.source)
-          .setFields(nested)
           .returning(join.to);
+
+        this._setValues(insert, nested);
 
         sql.with(alias, insert);
 
@@ -259,6 +262,12 @@ export class PostgreSQL implements Source {
 
         query.data = assocPath(join.path, select, query.data);
       });
+  }
+
+  protected _setValues(sql: SqlUpdate | SqlInsert, data: any) {
+    // @hack: Squel flattens top-level array values, so wrap them in an additional array
+    let fields = map<any, string>(value => value instanceof Array ? [value] : value, data);
+    sql.setFields(fields);
   }
 }
 

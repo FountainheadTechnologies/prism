@@ -31,6 +31,23 @@ describe("#create()", () => {
     expect(result).toEqual({ name: "mockOneOrNoneResult" });
   });
 
+  it("passes array-based values straight through to DB driver", async () => {
+    let result = await source.create({
+      source: "tasks",
+      schema: tasks.schema,
+      returning: tasks.primaryKeys,
+      data: {
+        title: "test insert task",
+        tags: ["tag1", "tag2", "tag3"]
+      }
+    });
+
+    expect(db.oneOrNone).toHaveBeenCalledWith(
+      "INSERT INTO tasks (title, tags) VALUES ($1, ($2)) RETURNING id",
+      ["test insert task", ["tag1", "tag2", "tag3"]]
+    );
+  });
+
   it("generates common table expression using `query.joins`", async () => {
     await source.create({
       source: "tasks",

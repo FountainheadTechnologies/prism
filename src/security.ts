@@ -11,7 +11,7 @@ declare module "hapi" {
 
 const registerPlugin = (server: Server, options: Partial<Options>, next: Function): void => {
   let instance = new Plugin(server, options);
-  server.expose('registerBackend', instance.registerBackend.bind(instance));
+  server.expose("registerBackend", instance.registerBackend.bind(instance));
 
   server.register(hapiJwt)
     .then(() => server.auth.strategy("prism-security", "jwt", true, instance.jwtOptions()))

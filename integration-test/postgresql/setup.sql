@@ -15,6 +15,7 @@ CREATE TABLE tasks (
 CREATE TABLE projects (
 	id serial,
 	name character varying(255) NOT NULL,
+	tags character varying(255)[],
 	PRIMARY KEY (id)
 );
 
