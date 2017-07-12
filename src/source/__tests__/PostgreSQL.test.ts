@@ -643,7 +643,7 @@ describe("#read()", () => {
       });
 
       expect(db.manyOrNone).toHaveBeenCalledWith(
-        "SELECT tasks.* FROM tasks ORDER BY tasks.project DESC, tasks.title ASC",
+        "SELECT tasks.* FROM tasks ORDER BY project DESC, title ASC",
         []
       );
     });

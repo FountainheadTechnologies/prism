@@ -196,7 +196,7 @@ export class PostgreSQL implements Source {
   protected _addOrder(sql: SqlSelect, query: query.Read): void {
     if (query.order) {
       query.order.forEach(order => {
-        sql.order(`${query.source}.${order.field}`, order.direction.toLowerCase() === "asc");
+        sql.order(order.field, order.direction.toLowerCase() === "asc");
       });
     }
   }
