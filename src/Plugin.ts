@@ -6,7 +6,7 @@ import { Document } from "./Document";
 
 import { Server, Request, IRouteConfiguration } from "hapi";
 import { assocPath, splitEvery, fromPairs, partition, wrap, pick, map } from "ramda";
-import { join } from "path";
+import { posix } from "path";
 
 /**
  * Configuration options that the Prism plugin accepts
@@ -70,7 +70,7 @@ export class Plugin implements ExposedAPI {
       return action.forEach(action => this.registerAction(action));
     }
 
-    action.path = join(this._options.root, action.path);
+    action.path = posix.join(this._options.root, action.path);
 
     this.registry.registerObject(action);
 
