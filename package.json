@@ -51,7 +51,7 @@
     "test": "./node_modules/.bin/jest --no-cache",
     "lint": "./node_modules/.bin/tslint --project tsconfig.json"
   },
-  "version": "1.4.0",
+  "version": "1.4.1",
   "jest": {
     "notify": true,
     "transform": {
