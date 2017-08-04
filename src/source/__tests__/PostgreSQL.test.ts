@@ -301,7 +301,7 @@ describe("#read()", () => {
     });
 
     expect(db.manyOrNone).toHaveBeenCalledWith(
-      "SELECT tasks.* FROM tasks WHERE (CONCAT(tasks.title, tasks.description) LIKE ($1))",
+      "SELECT tasks.* FROM tasks WHERE (CONCAT(tasks.title, tasks.description) LIKE $1)",
       ["%test%"]
     );
   });
@@ -328,8 +328,35 @@ describe("#read()", () => {
     });
 
     expect(db.manyOrNone).toHaveBeenCalledWith(
-      "SELECT tasks.* FROM tasks WHERE (CONCAT(tasks.title, tasks.description) LIKE ($1) OR tasks.project = $2) AND (tasks.owner = $3)",
+      "SELECT tasks.* FROM tasks WHERE (CONCAT(tasks.title, tasks.description) LIKE $1 OR tasks.project = $2) AND (tasks.owner = $3)",
       ["%test%", 1, 2]
+    );
+  });
+
+  it("correctly combines $raw terms with multiple values", async () => {
+    await source.read({
+      return: "collection",
+      source: "tasks",
+      schema: tasks.schema,
+      conditions: [{
+        $or: [{
+          $raw: {
+            fragment: "tasks.title = ? OR tasks.description = ?",
+            values: ["someTitle", "someDescription"]
+          }
+        }, {
+          field: "project",
+          value: 1
+        }]
+      }, {
+        field: "owner",
+        value: 2
+      }]
+    });
+
+    expect(db.manyOrNone).toHaveBeenCalledWith(
+      "SELECT tasks.* FROM tasks WHERE (tasks.title = $1 OR tasks.description = $2 OR tasks.project = $3) AND (tasks.owner = $4)",
+      ["someTitle", "someDescription", 1, 2]
     );
   });
 

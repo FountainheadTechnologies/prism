@@ -147,8 +147,13 @@ export class PostgreSQL implements Source {
   protected _addConditions(sql: SqlSelect | SqlUpdate | SqlDelete, query: query.Read | query.Update | query.Delete): void {
     const applyExpression = (target: any, method: "where" | "and" | "or", expression: Expression | [string, any]) => {
       if (expression instanceof Array) {
-        target[method](expression[0], expression[1]);
-        return;
+        const [fragment, values] = expression;
+
+        if (values instanceof Array) {
+          return target[method](fragment, ...values);
+        }
+
+        return target[method](fragment, values);
       }
 
       target[method](expression);
