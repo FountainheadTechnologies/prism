@@ -31,7 +31,7 @@ export interface Options {
 export interface ExposedAPI {
   registry: Registry;
   registerAction(action: Action | Action[]): void;
-  registerFilter(filter: Filter<Action, any> | Filter<Action, any>[]): void;
+  registerFilter(filter: Filter<any, any> | Filter<any, any>[]): void;
 }
 
 const DEFAULT_OPTIONS: Options = {
