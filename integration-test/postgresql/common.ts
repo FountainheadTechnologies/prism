@@ -212,6 +212,11 @@ describe('GET /tasks (ReadCollection)', () => {
   it('limits number of embedded documents to `pageSize`', () => {
     expect(document._embedded.tasks.length).toBe(20);
   });
+
+  it('omits item embeds that do not exist', async () => {
+    expect(document._embedded.tasks[0]._embedded.users).toBeUndefined();
+    expect(document._embedded.tasks[1]._embedded.users).not.toBeUndefined();
+  });
 });
 
 describe('GET /tasks?page=3 (ReadCollection - 3rd Page)', () => {
@@ -265,14 +270,14 @@ describe('GET /tasks?where=owner,1 (ReadCollection - Conditions)', () => {
 
   it('merges current conditions with pagination links', () => {
     expect(document._links).toEqual({
-      self: {href: '/tasks?where=owner,1'},
-      next: {href: '/tasks?where=owner,1&page=2'},
-      last: {href: '/tasks?where=owner,1&page=3'}
+      self: { href: '/tasks?where=owner,1' },
+      next: { href: '/tasks?where=owner,1&page=2' },
+      last: { href: '/tasks?where=owner,1&page=3' }
     });
   });
 
   it('applies conditions to query', () => {
-    expect(document.count).toBe(46);
+    expect(document.count).toBe(45);
   });
 });
 
@@ -295,7 +300,7 @@ describe('GET /tasks?where=owner,1&page=2 (ReadCollection - Conditions - 2nd Pag
   });
 
   it('offsets embedded documents', () => {
-    expect(document._embedded.tasks[0].id).toBe(45);
+    expect(document._embedded.tasks[0].id).toBe(47);
   });
 });
 
@@ -405,12 +410,7 @@ describe('POST /tasks (CreateItem - Invalid Data)', () => {
       dataPath: '',
       schemaPath: '/required/0',
       message: 'Missing required property: title',
-      params: {key: 'title'}
-    }, {
-      dataPath: '',
-      schemaPath: '/required/2',
-      message: 'Missing required property: owner',
-      params: {key: 'owner'}
+      params: { key: 'title' }
     }]);
   });
 
@@ -634,10 +634,10 @@ describe('POST /tasks (CreateItem - Invalid embedded Project)', () => {
       schemaPath: '/properties/project/oneOf',
       subErrors: [{
         dataPath: '/project',
-        message: 'Invalid type: object (expected integer)',
+        message: 'Invalid type: object (expected number)',
         schemaPath: '/properties/project/oneOf/0/type',
         params: {
-          expected: 'integer',
+          expected: 'number',
           type: 'object'
         }
       }, {
@@ -927,10 +927,10 @@ describe('PATCH /tasks/2 (UpdateItem - Invalid embedded Project)', () => {
       params: {},
       subErrors: [{
         dataPath: '/project',
-        message: 'Invalid type: object (expected integer)',
+        message: 'Invalid type: object (expected number)',
         schemaPath: '/properties/project/oneOf/0/type',
         params: {
-          expected: 'integer',
+          expected: 'number',
           type: 'object'
         }
       }, {

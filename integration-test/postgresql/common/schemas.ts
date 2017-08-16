@@ -3,8 +3,8 @@ export const departments = {
   title: 'departments',
   type: 'object',
   properties: {
-    id: {type: 'integer', readOnly: true},
-    name: {type: 'string'}
+    id: { type: 'number', readOnly: true },
+    name: { type: 'string' }
   },
   required: ['name']
 };
@@ -14,13 +14,13 @@ export const users = {
   title: 'users',
   type: 'object',
   properties: {
-    id: {type: 'integer', readOnly: true},
-    username: {type: 'string'},
-    password: {type: 'string'},
-    enabled: {type: 'boolean'},
+    id: { type: 'number', readOnly: true },
+    username: { type: 'string' },
+    password: { type: 'string' },
+    enabled: { type: 'boolean' },
     department: {
       oneOf: [{
-        type: 'integer',
+        type: 'number',
       }, departments]
     }
   },
@@ -32,8 +32,9 @@ export const projects = {
   title: 'projects',
   type: 'object',
   properties: {
-    id: {type: 'integer', readOnly: true},
-    name: {type: 'string'}
+    id: { type: 'number', readOnly: true },
+    name: { type: 'string' },
+    tags: {}
   },
   required: ['name']
 };
@@ -43,20 +44,20 @@ export const tasks = {
   title: 'tasks',
   type: 'object',
   properties: {
-    id: {type: 'integer', readOnly: true},
-    title: {type: 'string'},
-    description: {type: 'string'},
-    complete: {type: 'boolean'},
+    id: { type: 'number', readOnly: true },
+    title: { type: 'string' },
+    description: { type: 'string' },
+    complete: { type: 'boolean' },
     project: {
       oneOf: [{
-        type: 'integer',
+        type: 'number',
       }, projects]
     },
     owner: {
       oneOf: [{
-        type: 'integer',
+        type: 'number',
       }, users]
     }
   },
-  required: ['title', 'project', 'owner']
+  required: ['title', 'project']
 };

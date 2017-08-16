@@ -114,12 +114,17 @@ export class ReadCollection implements Action {
     let document = new Document(item);
 
     this.resource.relationships.belongsTo.forEach(parent => {
+      const embedded = document.properties[parent.name];
+      delete document.properties[parent.name];
+
+      if (!embedded) {
+        return;
+      }
+
       document.embedded.push({
         rel: parent.name,
-        document: new Document(document.properties[parent.name])
+        document: new Document(embedded)
       });
-
-      delete document.properties[parent.name];
     });
 
     return {

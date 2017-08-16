@@ -8,7 +8,7 @@ CREATE TABLE tasks (
 	description character varying(255),
 	complete boolean NOT NULL DEFAULT false,
 	project integer NOT NULL,
-	owner integer NOT NULL,
+	owner integer,
 	PRIMARY KEY (id)
 );
 
@@ -58,7 +58,7 @@ INSERT INTO projects (name) VALUES
 	('Killer Analyzer');
 
 INSERT INTO tasks (title, description, project, owner, complete) VALUES
-	('index virtual pixel', 'You can''t generate the driver without hacking the virtual AGP card!', 1, 1, false),
+	('index virtual pixel', 'You can''t generate the driver without hacking the virtual AGP card!', 1, null, false),
 	('calculate bluetooth array', 'I''ll parse the digital USB bandwidth, that should pixel the FTP transmitter!', 2, 2, true),
 	('back up virtual microchip', null, 1, 1, true),
 	('program virtual transmitter', null, 2, 1, true),

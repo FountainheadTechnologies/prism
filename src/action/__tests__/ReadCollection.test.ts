@@ -168,11 +168,7 @@ describe("#decorate()", () => {
         id: "task1",
         owner: "user1",
         project: "project1",
-        users: {
-          id: "user1",
-          name: "Test User 1",
-          department: "department1"
-        },
+        users: null,
         projects: {
           id: "project1",
           name: "Test Project 1"
@@ -205,12 +201,6 @@ describe("#decorate()", () => {
       project: "project1"
     });
 
-    let task1user = new Document({
-      id: "user1",
-      name: "Test User 1",
-      department: "department1"
-    });
-
     let task1project = new Document({
       id: "project1",
       name: "Test Project 1"
@@ -218,9 +208,6 @@ describe("#decorate()", () => {
 
     Object.assign(task1, {
       embedded: [{
-        rel: "users",
-        document: task1user
-      }, {
         rel: "projects",
         document: task1project
       }]
