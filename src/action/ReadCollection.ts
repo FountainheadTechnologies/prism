@@ -147,6 +147,7 @@ export class ReadCollection implements Action {
       pages.push({
         rel: "first",
         href: this.path,
+        public: true,
         params: {
           ...params,
           page: 1
@@ -154,6 +155,7 @@ export class ReadCollection implements Action {
       }, {
           rel: "prev",
           href: this.path,
+          public: true,
           params: {
             ...params,
             page: current - 1
@@ -165,6 +167,7 @@ export class ReadCollection implements Action {
       pages.push({
         rel: "next",
         href: this.path,
+        public: true,
         params: {
           ...params,
           page: current + 1
@@ -172,6 +175,7 @@ export class ReadCollection implements Action {
       }, {
           rel: "last",
           href: this.path,
+          public: true,
           params: {
             ...params,
             page: last
