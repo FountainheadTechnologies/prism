@@ -50,7 +50,7 @@
     "test": "jest --no-cache",
     "lint": "tslint --project tsconfig.json"
   },
-  "version": "1.5.0",
+  "version": "2.0.1",
   "jest": {
     "notify": true,
     "transform": {
