@@ -68,8 +68,8 @@ export class ReadCollection implements Action {
     }))
 
   conditions = async (params: Params, request: Request): Promise<query.Condition[]> =>
-    toPairs<string, string>(params["where"])
-      .map(([field, value]) => ({ field, value }));
+    toPairs<string, string>(params.where || {})
+      .map(([field, value]) => ({ field, value }))
 
   order = async (params: Params, request: Request): Promise<query.Order[]> => {
     if (!params["order"]) {
@@ -79,7 +79,7 @@ export class ReadCollection implements Action {
       }));
     }
 
-    return toPairs<string, string>(params["order"])
+    return toPairs<string, string>(params.order || {})
       .map(([field, direction]) => ({ field, direction }));
   }
 

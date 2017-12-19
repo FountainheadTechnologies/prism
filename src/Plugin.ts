@@ -4,7 +4,7 @@ import { Action, Params } from "./action";
 import { Root } from "./action/Root";
 import { Document } from "./Document";
 
-import { Server, Request, IRouteConfiguration } from "hapi";
+import { Server, Request, RouteConfiguration, HTTP_METHODS_PARTIAL } from "hapi";
 import { assocPath, splitEvery, fromPairs, partition, wrap, pick, map } from "ramda";
 import { posix } from "path";
 
@@ -32,6 +32,7 @@ export interface ExposedAPI {
   registry: Registry;
   registerAction(action: Action | Action[]): void;
   registerFilter(filter: Filter<any, any> | Filter<any, any>[]): void;
+  createdItem?: any;
 }
 
 const DEFAULT_OPTIONS: Options = {
@@ -85,11 +86,11 @@ export class Plugin implements ExposedAPI {
   }
 }
 
-export const toRoute = (action: Action): IRouteConfiguration => ({
+export const toRoute = (action: Action): RouteConfiguration => ({
   path: dequery(action.path),
-  method: action.method,
+  method: action.method as HTTP_METHODS_PARTIAL,
   config: action.routeConfig,
-  async handler(request, reply) {
+  handler: (request, reply) => {
     let params = mergeRequestParameters(request);
 
     let dispatch = Promise.resolve(action.handle(params, request))

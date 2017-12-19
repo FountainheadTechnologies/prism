@@ -89,18 +89,20 @@ describe("#query()", () => {
 });
 
 describe("#decorate()", () => {
-  it("adds pagination links", () => {
+  it("adds pagination links", async () => {
     let tests = [{
       page: "1",
       expectedLinks: [{
         rel: "next",
         href: "tasks{?where,page,order}",
+        public: true,
         params: {
           page: 2
         }
       }, {
         rel: "last",
         href: "tasks{?where,page,order}",
+        public: true,
         params: {
           page: 3
         }
@@ -110,24 +112,28 @@ describe("#decorate()", () => {
       expectedLinks: [{
         rel: "first",
         href: "tasks{?where,page,order}",
+        public: true,
         params: {
           page: 1
         }
       }, {
         rel: "prev",
         href: "tasks{?where,page,order}",
+        public: true,
         params: {
           page: 1
         }
       }, {
         rel: "next",
         href: "tasks{?where,page,order}",
+        public: true,
         params: {
           page: 3
         }
       }, {
         rel: "last",
         href: "tasks{?where,page,order}",
+        public: true,
         params: {
           page: 3
         }
@@ -137,19 +143,21 @@ describe("#decorate()", () => {
       expectedLinks: [{
         rel: "first",
         href: "tasks{?where,page,order}",
+        public: true,
         params: {
           page: 1
         }
       }, {
         rel: "prev",
         href: "tasks{?where,page,order}",
+        public: true,
         params: {
           page: 2
         }
       }]
     }];
 
-    tests.forEach(async ({ page, expectedLinks }) => {
+    await Promise.all(tests.map(async ({ page, expectedLinks }) => {
       let params = { page };
       let document = new Document({
         items: [],

@@ -5,6 +5,7 @@ import * as query from "../query";
 import { IDatabase } from "pg-promise";
 import { badData } from "boom";
 import * as _squel from "squel";
+import { Select, Update, Delete, Expression } from "squel";
 import { notFound } from "boom";
 
 import { omit, assocPath, path, identity, map } from "ramda";
@@ -13,7 +14,7 @@ export interface Options {
   joinMarker: string;
 }
 
-const squel = (_squel as any).useFlavour("postgres");
+const squel = _squel.useFlavour("postgres");
 
 // Allow Arrays to be passed straight through and let pgPromise to handle type conversion
 (squel as any).registerValueHandler(Array, identity);
@@ -25,11 +26,11 @@ const DEFAULT_OPTIONS: Options = {
 export class PostgreSQL implements Source {
   protected _options: Options;
 
-  constructor(readonly db: IDatabase<{}>, options?: Partial<Options>) {
+  constructor(readonly db: IDatabase<any>, options?: Partial<Options>) {
     this._options = { ...DEFAULT_OPTIONS, ...options };
   }
 
-  create<T extends query.Create>(query: T): Promise<Item | Collection> {
+  create<T extends query.Create, R extends Item | Collection>(query: T): Promise<R> {
     let sql = squel.insert()
       .into(query.source)
       .returning(query.returning.join(","));
@@ -43,7 +44,7 @@ export class PostgreSQL implements Source {
       .catch(handleConstraintViolation) as any;
   }
 
-  async read<T extends query.Read>(query: T): Promise<Item | Collection> {
+  async read<T extends query.Read, R extends Item | Collection>(query: T): Promise<R> {
     let itemQuery = squel.select()
       .from(query.source);
 
@@ -61,7 +62,7 @@ export class PostgreSQL implements Source {
         throw notFound();
       }
 
-      return this._mergeJoins(result, query);
+      return this._mergeJoins(result, query) as R;
     }
 
     this._addPages(itemQuery, query);
@@ -86,10 +87,10 @@ export class PostgreSQL implements Source {
 
     return Promise
       .all([items, count])
-      .then(([items, count]) => ({ items, count }));
+      .then(([items, count]) => ({ items, count })) as Promise<R>;
   }
 
-  update<T extends query.Update>(query: T): Promise<Item | Collection> {
+  update<T extends query.Update, R extends Item | Collection>(query: T): Promise<R> {
     let sql = squel.update()
       .table(query.source)
       .returning(query.returning.join(","));
@@ -121,14 +122,14 @@ export class PostgreSQL implements Source {
       }) as any;
   }
 
-  protected _addPages(sql: SqlSelect, query: query.Read): void {
+  protected _addPages(sql: Select, query: query.Read): void {
     if (query.page) {
       sql.limit(query.page.size);
       sql.offset(query.page.size * (query.page.number - 1));
     }
   }
 
-  protected _addFields(sql: SqlSelect, query: query.Read): void {
+  protected _addFields(sql: Select, query: query.Read): void {
     if (query.fields) {
       let fields = query.fields.map(field => {
         if ((field as query.Raw).$raw) {
@@ -144,7 +145,7 @@ export class PostgreSQL implements Source {
     }
   }
 
-  protected _addConditions(sql: SqlSelect | SqlUpdate | SqlDelete, query: query.Read | query.Update | query.Delete): void {
+  protected _addConditions(sql: Select | Update | Delete, query: query.Read | query.Update | query.Delete): void {
     const applyExpression = (target: any, method: "where" | "and" | "or", expression: Expression | [string, any]) => {
       if (expression instanceof Array) {
         const [fragment, values] = expression;
@@ -159,8 +160,8 @@ export class PostgreSQL implements Source {
       target[method](expression);
     };
 
-    const buildExpression = (condition: query.Condition): Expression | [string, any] => {
-      let expr = (squel as any).expr() as Expression;
+    const buildExpression = (condition: query.Condition): _squel.Expression | [string, any] => {
+      let expr = squel.expr();
 
       if ((condition as query.ConditionAnd).$and) {
         (condition as query.ConditionAnd).$and.forEach(condition => {
@@ -198,7 +199,7 @@ export class PostgreSQL implements Source {
     }
   };
 
-  protected _addOrder(sql: SqlSelect, query: query.Read): void {
+  protected _addOrder(sql: _squel.Select, query: query.Read): void {
     if (query.order) {
       query.order.forEach(order => {
         sql.order(order.field, order.direction.toLowerCase() === "asc");
@@ -206,7 +207,7 @@ export class PostgreSQL implements Source {
     }
   }
 
-  protected _addJoins(sql: SqlSelect, query: query.Read, counting?: boolean) {
+  protected _addJoins(sql: _squel.Select, query: query.Read, counting?: boolean) {
     if (query.joins) {
       query.joins.forEach(join => {
         let alias = join.path.join(this._options.joinMarker);
@@ -237,7 +238,7 @@ export class PostgreSQL implements Source {
     }, result);
   }
 
-  protected _withJoins(sql: SqlUpdate | SqlInsert, query: query.Create | query.Update) {
+  protected _withJoins(sql: _squel.Update | _squel.Insert, query: query.Create | query.Update) {
     if (!query.joins) {
       return;
     }
@@ -259,7 +260,7 @@ export class PostgreSQL implements Source {
 
         this._setValues(insert, nested);
 
-        sql.with(alias, insert);
+        (sql as any).with(alias, insert);
 
         let select = squel.select()
           .from(alias)
@@ -269,7 +270,7 @@ export class PostgreSQL implements Source {
       });
   }
 
-  protected _setValues(sql: SqlUpdate | SqlInsert, data: any) {
+  protected _setValues(sql: _squel.Update | _squel.Insert, data: any) {
     // @hack: Squel flattens top-level array values, so wrap them in an additional array
     let fields = map<any, string>(value => value instanceof Array ? [value] : value, data);
     sql.setFields(fields);

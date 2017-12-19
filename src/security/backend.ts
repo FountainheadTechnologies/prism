@@ -18,7 +18,7 @@ export interface Backend {
    * issued (ie, preconditions have not been met), or an Object containing the
    * data to be included in the token payload
    */
-  issue(params: Params, request: Request): Promise<boolean | Object>;
+  issue(params: Params, request: Request): Promise<false | Object>;
 
   /**
    * Validate a token that was presented in a Request
@@ -29,7 +29,7 @@ export interface Backend {
    * an Object that should be memoized for the duration of the request/response
    * cycle, such as the authenticated user's details
    */
-  validate(decoded: Object, request: Request): Promise<boolean | Object>;
+  validate(decoded: Object, request: Request): Promise<false | Object>;
 
   /**
    * The JSON Schema document that will be used to validate request payloads
