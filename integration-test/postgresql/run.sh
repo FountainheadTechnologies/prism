@@ -10,8 +10,8 @@ teardown() {
 	  psql -h "${POSTGRES_HOST:-/var/run/postgresql}" -U "${POSTGRES_USER}" -f teardown.sql
 }
 
-rm -rf node_modules/@optics/prism
-npm install
+rm -rf node_modules
+npm install --no-package-lock
 
 setup
 $(npm bin)/jest ./no-auth.test.ts

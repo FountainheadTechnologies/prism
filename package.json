@@ -10,13 +10,12 @@
   "devDependencies": {
     "@types/bcrypt": "^1.0.0",
     "@types/boom": "0.0.32",
-    "@types/hapi": "^13.0.37",
+    "@types/hapi": "^16.1.11",
     "@types/hapi-auth-jwt2": "^7.0.0",
     "@types/jest": "^16.0.1",
     "@types/jsonwebtoken": "^7.2.0",
     "@types/lodash": "^4.14.53",
-    "@types/ramda": "0.0.2",
-    "@types/squel": "github:warrenseymour/squel.d.ts#4147639",
+    "@types/ramda": "^0.25.8",
     "@types/tv4": "^1.2.28",
     "@types/uri-templates": "^0.1.28",
     "fs-extra-promise": "^0.4.1",
@@ -24,7 +23,7 @@
     "merge-stream": "^1.0.1",
     "ts-jest": "^17.0.3",
     "tslint": "^4.4.2",
-    "typescript": "^2.1.4"
+    "typescript": "^2.6.2"
   },
   "jshintConfig": {
     "esnext": true
@@ -35,9 +34,9 @@
     "hapi-auth-jwt2": "^7.2.4",
     "jsonwebtoken": "^7.2.1",
     "lodash": "^4.17.4",
-    "pg-promise": "^5.4.7",
+    "pg-promise": "^7.3.2",
     "ramda": "^0.22.1",
-    "squel": "^5.5.0",
+    "squel": "^5.12.0",
     "tv4": "^1.2.7",
     "uri-templates": "^0.2.0"
   },
@@ -48,8 +47,8 @@
     "build:copy": "node ./scripts/copy.js",
     "clean": "rm -rf build",
     "pretest": "npm run lint",
-    "test": "./node_modules/.bin/jest --no-cache",
-    "lint": "./node_modules/.bin/tslint --project tsconfig.json"
+    "test": "jest --no-cache",
+    "lint": "tslint --project tsconfig.json"
   },
   "version": "1.5.0",
   "jest": {

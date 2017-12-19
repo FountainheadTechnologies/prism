@@ -93,7 +93,7 @@ export const initialize = (resource: Partial<Resource>, options: Partial<Options
   }
 
   let schema: Schema = {
-    ...DEFAULT_RESOURCE.schema,
+    ...DEFAULT_RESOURCE.schema as Schema,
     title: resource.name
   };
 

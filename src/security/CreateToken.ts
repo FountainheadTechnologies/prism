@@ -19,14 +19,14 @@ export class CreateToken implements Action {
   handle = async (params: Params, request: Request): Promise<Response> => {
     let token = await this._backend.issue(params, request);
     if (token === false) {
-      let response = (request as any).generateResponse();
+      let response = request.generateResponse();
       response.code(403);
 
       return response;
     }
 
     return new Promise<Response>((resolve, reject) => {
-      sign(token, this._options.key, this._options.sign, (err, token) => {
+      sign(token as Object, this._options.key, this._options.sign, (err, token) => {
         if (err) {
           return reject(err);
         }
@@ -39,7 +39,7 @@ export class CreateToken implements Action {
   }
 
   routeConfig = {
-    auth: false
+    auth: false as false // typescript pls
   };
 
   register = this._backend;

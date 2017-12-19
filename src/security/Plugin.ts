@@ -2,9 +2,9 @@ import { CreateToken } from "./CreateToken";
 import { Backend } from "./backend";
 import { Plugin as Prism } from "../Plugin";
 
+import * as hapiJwt from "hapi-auth-jwt2";
 import { Server } from "hapi";
 import { map, pick } from "ramda";
-import hapiJwt, { Options as JwtOptions } from "hapi-auth-jwt2";
 import { SignOptions } from "jsonwebtoken";
 
 export interface Options {
@@ -72,7 +72,7 @@ export class Plugin implements ExposedAPI {
     prism.registerAction(createToken);
   }
 
-  jwtOptions = (): JwtOptions => ({
+  jwtOptions = (): hapiJwt.Options => ({
     key: this._options.key,
 
     validateFunc: (decoded, request, next) => {

@@ -5,7 +5,6 @@ sudo: false
 cache:
   directories:
     - node_modules
-    - integration-test/postgresql/node_modules
 
 env:
   - POSTGRES_USER=postgres
@@ -16,6 +15,9 @@ node_js:
 services:
   - postgresql
 
+before_install:
+  npm install -g npm
+
 install:
   - npm install
 
@@ -23,5 +25,4 @@ script:
   - npm run test
   - npm run build
   - cd integration-test/postgresql
-  - npm install
   - ./run.sh

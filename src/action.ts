@@ -5,7 +5,7 @@ import { Container } from "./filter";
 import {
   Request,
   Response,
-  IRouteAdditionalConfigurationOptions
+  RouteAdditionalConfigurationOptions
 } from "hapi";
 
 export interface Params {
@@ -25,7 +25,7 @@ export interface Params {
 export interface Action extends Container {
   readonly method: string;
 
-  routeConfig?: IRouteAdditionalConfigurationOptions;
+  routeConfig?: RouteAdditionalConfigurationOptions;
 
   path: string;
 
