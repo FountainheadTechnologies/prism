@@ -360,6 +360,30 @@ describe("#read()", () => {
     );
   });
 
+  it("converts dot-notation paths into join marker separated paths", async () => {
+    await source.read({
+      return: "collection",
+      source: "tasks",
+      schema: tasks.schema,
+      joins: [{
+        source: "users",
+        path: ["tasks", "users"],
+        from: "owner",
+        to: "id"
+      }],
+      conditions: [{
+        field: ".users.name",
+        operator: "LIKE",
+        value: "%test%"
+      }]
+    });
+
+    expect(db.manyOrNone).toHaveBeenCalledWith(
+      "SELECT tasks.*, row_to_json(tasksΔusers.*) AS tasksΔusers FROM tasks LEFT JOIN users AS tasksΔusers ON (tasksΔusers.id = tasks.owner) WHERE (tasksΔusers.name LIKE $1)",
+      ["%test%"]
+    );
+  });
+
   it("generates JOIN clauses using `query.joins`", async () => {
     (db.oneOrNone as jest.Mock<any>).mockReturnValue(Promise.resolve({
       id: 1,

@@ -186,8 +186,11 @@ export class PostgreSQL implements Source {
 
       condition = condition as query.ConditionTerm;
       let operator = condition.operator || "=";
+      let fieldParts = condition.field.split(".");
+      let fieldPath = fieldParts.slice(0, -1).join(this._options.joinMarker) + "." + fieldParts.slice(-1);
+
       return [
-        `${query.source}.${condition.field} ${operator} ?`,
+        `${query.source}${fieldPath} ${operator} ?`,
         condition.value
       ];
     };

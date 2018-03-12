@@ -281,6 +281,27 @@ describe('GET /tasks?where=owner,1 (ReadCollection - Conditions)', () => {
   });
 });
 
+describe('GET /tasks?where=.users.username,Freddy_Feil48 (ReadCollection - Nested conditions)', () => {
+  var document;
+
+  beforeAll(async () => {
+    var response = await fetch('http://localhost:8080/tasks?where=.users.username,Freddy_Feil48');
+    document = await response.json();
+  });
+
+  it('merges current conditions with pagination links', () => {
+    expect(document._links).toEqual({
+      self: { href: '/tasks?where=.users.username,Freddy_Feil48' },
+      next: { href: '/tasks?where=.users.username,Freddy_Feil48&page=2' },
+      last: { href: '/tasks?where=.users.username,Freddy_Feil48&page=3' }
+    });
+  });
+
+  it('applies conditions to query', () => {
+    expect(document.count).toBe(45);
+  });
+});
+
 describe('GET /tasks?where=owner,1&page=2 (ReadCollection - Conditions - 2nd Page)', () => {
   var document;
 
