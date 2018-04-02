@@ -5,7 +5,7 @@ import * as query from "../query";
 import { IDatabase } from "pg-promise";
 import { badData } from "boom";
 import * as _squel from "squel";
-import { Select, Update, Delete, Expression } from "squel";
+import { Select, Update, Delete, Expression, Insert } from "squel";
 import { notFound } from "boom";
 
 import { omit, assocPath, path, identity, map } from "ramda";
@@ -31,33 +31,29 @@ export class PostgreSQL implements Source {
   }
 
   create<T extends query.Create, R extends Item | Collection>(query: T): Promise<R> {
-    let sql = squel.insert()
-      .into(query.source)
-      .returning(query.returning.join(","));
+    const { text, values } = this.createQuery(query).toParam();
 
-    this._withJoins(sql, query);
-    this._setValues(sql, query.data);
-
-    let statement = sql.toParam();
-
-    return this.db.oneOrNone(statement.text, statement.values)
+    return this.db.oneOrNone(text, values)
       .catch(handleConstraintViolation) as any;
   }
 
-  async read<T extends query.Read, R extends Item | Collection>(query: T): Promise<R> {
-    let itemQuery = squel.select()
-      .from(query.source);
+  createQuery<T extends query.Create>(query: T): Insert {
+    const result = squel.insert()
+      .into(query.source)
+      .returning(query.returning.join(","));
 
-    this._addFields(itemQuery, query);
-    this._addConditions(itemQuery, query);
-    this._addOrder(itemQuery, query);
-    this._addJoins(itemQuery, query);
-    this._addPages(itemQuery, query);
+    this._withJoins(result, query);
+    this._setValues(result, query.data);
+
+    return result;
+  }
+
+  async read<T extends query.Read, R extends Item | Collection>(query: T): Promise<R> {
+    const readQuery = this.readQuery(query).toParam();
 
     if (query.return === "item") {
-      let statement = itemQuery.toParam();
+      const result = await this.db.oneOrNone(readQuery.text, readQuery.values);
 
-      let result = await this.db.oneOrNone(statement.text, statement.values);
       if (result === null) {
         throw notFound();
       }
@@ -65,24 +61,14 @@ export class PostgreSQL implements Source {
       return this._mergeJoins(result, query) as R;
     }
 
-    this._addPages(itemQuery, query);
-    let itemStatement = itemQuery.toParam();
+    const countQuery = this.countQuery(query).toParam();
 
-    let countQuery = squel.select()
-      .from(query.source)
-      .field(`COUNT(*)`);
-
-    this._addConditions(countQuery, query);
-    this._addJoins(countQuery, query, true);
-
-    let countStatement = countQuery.toParam();
-
-    let items = this.db.manyOrNone(itemStatement.text, itemStatement.values)
+    const items = this.db.manyOrNone(readQuery.text, readQuery.values)
       .then(results => results.map(
         result => this._mergeJoins(result, query)
       ));
 
-    let count = this.db.one(countStatement.text, countStatement.values)
+    const count = this.db.one(countQuery.text, countQuery.values)
       .then(result => parseInt(result.count, 10));
 
     return Promise
@@ -90,29 +76,56 @@ export class PostgreSQL implements Source {
       .then(([items, count]) => ({ items, count })) as Promise<R>;
   }
 
+  readQuery<T extends query.Read>(query: T): Select {
+    const result = squel.select()
+      .from(query.source);
+
+    this._addFields(result, query);
+    this._addConditions(result, query);
+    this._addOrder(result, query);
+    this._addJoins(result, query);
+
+    if (query.return === "collection") {
+      this._addPages(result, query);
+    }
+
+    return result;
+  }
+
+  countQuery<T extends query.Read>(query: T): Select {
+    const result = squel.select()
+      .from(query.source)
+      .field(`COUNT(*)`);
+
+    this._addConditions(result, query);
+    this._addJoins(result, query, true);
+
+    return result;
+  }
+
   update<T extends query.Update, R extends Item | Collection>(query: T): Promise<R> {
-    let sql = squel.update()
-      .table(query.source)
-      .returning(query.returning.join(","));
+    const { text, values } = this.updateQuery(query).toParam();
 
-    this._addConditions(sql, query);
-    this._withJoins(sql, query);
-    this._setValues(sql, query.data);
-
-    let statement = sql.toParam();
-
-    return this.db.oneOrNone(statement.text, statement.values)
+    return this.db.oneOrNone(text, values)
       .catch(handleConstraintViolation) as any;
   }
 
+  updateQuery<T extends query.Update>(query: T): Update {
+    const result = squel.update()
+      .table(query.source)
+      .returning(query.returning.join(","));
+
+    this._addConditions(result, query);
+    this._withJoins(result, query);
+    this._setValues(result, query.data);
+
+    return result;
+  }
+
   delete<T extends query.Delete>(query: T): Promise<boolean> {
-    let sql = squel.delete()
-      .from(query.source);
+    const { text, values } = this.deleteQuery(query).toParam();
 
-    this._addConditions(sql, query);
-
-    let statement = sql.toParam();
-    return this.db.result(statement.text, statement.values)
+    return this.db.result(text, values)
       .then(result => {
         if (result.rowCount === 0) {
           throw notFound();
@@ -120,6 +133,15 @@ export class PostgreSQL implements Source {
 
         return true;
       }) as any;
+  }
+
+  deleteQuery<T extends query.Delete>(query: T): Delete {
+    const result = squel.delete()
+      .from(query.source);
+
+    this._addConditions(result, query);
+
+    return result;
   }
 
   protected _addPages(sql: Select, query: query.Read): void {
@@ -200,7 +222,7 @@ export class PostgreSQL implements Source {
         applyExpression(sql, "where", buildExpression(condition));
       });
     }
-  };
+  }
 
   protected _addOrder(sql: _squel.Select, query: query.Read): void {
     if (query.order) {
