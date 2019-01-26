@@ -365,7 +365,7 @@ describe('Valid token', () => {
       });
 
       var {password} = await db.one('SELECT password FROM users WHERE id=9');
-      expect(password.substring(0, 7)).toEqual('$2a$04$');
+      expect(password.substring(0, 7)).toEqual('$2b$04$');
     });
   });
 
@@ -379,7 +379,7 @@ describe('Valid token', () => {
       });
 
       var {password} = await db.one('SELECT password FROM users WHERE id=1');
-      expect(password.substring(0, 7)).toEqual('$2a$04$');
+      expect(password.substring(0, 7)).toEqual('$2b$04$');
     });
   });
 });
