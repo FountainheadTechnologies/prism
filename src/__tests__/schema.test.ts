@@ -27,6 +27,7 @@ describe(".validate()", () => {
         expect(error.output.payload).toEqual({
           statusCode: 422,
           error: "Unprocessable Entity",
+          message: "Schema validation failed",
           errors: [{
             message: "Missing required property: project",
             params: {
@@ -61,6 +62,7 @@ describe(".validate()", () => {
         expect(error.output.payload).toEqual({
           statusCode: 422,
           error: "Unprocessable Entity",
+          message: "Schema validation failed",
           errors: [{
             message: "Missing required property: owner",
             params: {

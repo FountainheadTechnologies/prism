@@ -516,7 +516,8 @@ describe("#read()", () => {
         expect(err.isBoom).toBe(true);
         expect(err.output.payload).toEqual({
           statusCode: 404,
-          error: "Not Found"
+          error: "Not Found",
+          message: "Not Found"
         });
 
         done();

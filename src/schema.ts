@@ -34,7 +34,7 @@ export const validate = (data: Item | Collection, schema: Schema): Promise<boole
       return result;
     };
 
-    let error = badData();
+    let error = badData("Schema validation failed");
     error.output.payload.errors = test.errors.map(sanitize);
 
     return reject(error);

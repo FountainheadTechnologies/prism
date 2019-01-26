@@ -48,7 +48,7 @@ describe("#issue()", () => {
         }
       } as Request);
     } catch (error) {
-      expect(error.message).toEqual("Unprocessable Entity");
+      expect(error.message).toEqual("Schema validation failed");
     }
   });
 

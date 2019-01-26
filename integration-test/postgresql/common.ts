@@ -1,6 +1,6 @@
-import {Response} from 'node-fetch';
+import { Response } from 'node-fetch';
 import * as schemas from './common/schemas';
-import {fetch, getProperties} from './common/util';
+import { fetch, getProperties } from './common/util';
 
 describe('GET / (Root)', () => {
   var document;
@@ -10,7 +10,7 @@ describe('GET / (Root)', () => {
     document = await response.json();
   });
 
-	it('contains a `self` link', () => {
+  it('contains a `self` link', () => {
     expect(document._links.self).toEqual({
       href: '/'
     });
@@ -134,7 +134,8 @@ describe('GET /departments/100 (ReadItem with invalid ID)', () => {
     expect(response.status).toBe(404);
     expect(body).toEqual({
       statusCode: 404,
-      error: 'Not Found'
+      error: 'Not Found',
+      message: 'Not Found'
     })
   });
 });
@@ -172,9 +173,9 @@ describe('GET /tasks (ReadCollection)', () => {
 
   it('contains links to self, next and last page', () => {
     expect(document._links).toEqual({
-      self: {href: '/tasks'},
-      next: {href: '/tasks?page=2'},
-      last: {href: '/tasks?page=5'}
+      self: { href: '/tasks' },
+      next: { href: '/tasks?page=2' },
+      last: { href: '/tasks?page=5' }
     });
   });
 
@@ -229,11 +230,11 @@ describe('GET /tasks?page=3 (ReadCollection - 3rd Page)', () => {
 
   it('contains links to self, first, previous, next, and last page', () => {
     expect(document._links).toEqual({
-      self: {href: '/tasks?page=3'},
-      first: {href: '/tasks?page=1'},
-      prev: {href: '/tasks?page=2'},
-      next: {href: '/tasks?page=4'},
-      last: {href: '/tasks?page=5'}
+      self: { href: '/tasks?page=3' },
+      first: { href: '/tasks?page=1' },
+      prev: { href: '/tasks?page=2' },
+      next: { href: '/tasks?page=4' },
+      last: { href: '/tasks?page=5' }
     });
   });
 
@@ -253,9 +254,9 @@ describe('GET /tasks?page=5 (ReadCollection - 5th page)', () => {
 
   it('contains links to self, first, and previous page', () => {
     expect(document._links).toEqual({
-      self: {href: '/tasks?page=5'},
-      first: {href: '/tasks?page=1'},
-      prev: {href: '/tasks?page=4'}
+      self: { href: '/tasks?page=5' },
+      first: { href: '/tasks?page=1' },
+      prev: { href: '/tasks?page=4' }
     });
   });
 });
@@ -312,11 +313,11 @@ describe('GET /tasks?where=owner,1&page=2 (ReadCollection - Conditions - 2nd Pag
 
   it('merges current conditions with pagination links', () => {
     expect(document._links).toEqual({
-      self: {href: '/tasks?where=owner,1&page=2'},
-      first: {href: '/tasks?where=owner,1&page=1'},
-      prev: {href: '/tasks?where=owner,1&page=1'},
-      next: {href: '/tasks?where=owner,1&page=3'},
-      last: {href: '/tasks?where=owner,1&page=3'}
+      self: { href: '/tasks?where=owner,1&page=2' },
+      first: { href: '/tasks?where=owner,1&page=1' },
+      prev: { href: '/tasks?where=owner,1&page=1' },
+      next: { href: '/tasks?where=owner,1&page=3' },
+      last: { href: '/tasks?where=owner,1&page=3' }
     });
   });
 
@@ -335,9 +336,9 @@ describe('GET /tasks?order=id,desc (ReadCollection - Order)', () => {
 
   it('merges order with pagination links', () => {
     expect(document._links).toEqual({
-      self: {href: '/tasks?order=id,desc'},
-      next: {href: '/tasks?page=2&order=id,desc'},
-      last: {href: '/tasks?page=5&order=id,desc'}
+      self: { href: '/tasks?order=id,desc' },
+      next: { href: '/tasks?page=2&order=id,desc' },
+      last: { href: '/tasks?page=5&order=id,desc' }
     });
   });
 
@@ -356,11 +357,11 @@ describe('GET /tasks?order=id,desc&page=2 (ReadCollection - Order - 2nd Page)', 
 
   it('merges order with pagination links', () => {
     expect(document._links).toEqual({
-      self: {href: '/tasks?page=2&order=id,desc'},
-      first: {href: '/tasks?page=1&order=id,desc'},
-      prev: {href: '/tasks?page=1&order=id,desc'},
-      next: {href: '/tasks?page=3&order=id,desc'},
-      last: {href: '/tasks?page=5&order=id,desc'}
+      self: { href: '/tasks?page=2&order=id,desc' },
+      first: { href: '/tasks?page=1&order=id,desc' },
+      prev: { href: '/tasks?page=1&order=id,desc' },
+      next: { href: '/tasks?page=3&order=id,desc' },
+      last: { href: '/tasks?page=5&order=id,desc' }
     });
   });
 });
@@ -437,7 +438,7 @@ describe('POST /tasks (CreateItem - Invalid Data)', () => {
 
   it('does not create the Task', async () => {
     var response = await fetch('http://localhost:8080/tasks');
-    var {count} = await response.json();
+    var { count } = await response.json();
 
     expect(count).toBe(101);
   });
@@ -473,7 +474,7 @@ describe('POST /tasks (CreateItem - Constraint violation)', () => {
 
   it('does not create the Task', async () => {
     var response = await fetch('http://localhost:8080/tasks');
-    var {count} = await response.json();
+    var { count } = await response.json();
 
     expect(count).toBe(101);
   });
@@ -674,14 +675,14 @@ describe('POST /tasks (CreateItem - Invalid embedded Project)', () => {
 
   it('does not create the Task', async () => {
     var response = await fetch('http://localhost:8080/tasks');
-    var {count} = await response.json();
+    var { count } = await response.json();
 
     expect(count).toBe(103);
   });
 
   it('does not create the Project', async () => {
     var response = await fetch('http://localhost:8080/projects');
-    var {count} = await response.json();
+    var { count } = await response.json();
 
     expect(count).toBe(5);
   });
@@ -721,14 +722,14 @@ describe('POST /tasks (CreateItem - Embedded User constraint violation)', () => 
 
   it('does not create the Task', async () => {
     var response = await fetch('http://localhost:8080/tasks');
-    var {count} = await response.json();
+    var { count } = await response.json();
 
     expect(count).toBe(103);
   });
 
   it('does not create the User', async () => {
     var response = await fetch('http://localhost:8080/users');
-    var {count} = await response.json();
+    var { count } = await response.json();
 
     expect(count).toBe(7);
   });
@@ -772,7 +773,7 @@ describe('PATCH /tasks/2 (UpdateItem - Valid data)', () => {
 
   it('does not modify other tasks', async () => {
     var response = await fetch('http://localhost:8080/tasks?where=title,Modified Task 2');
-    var {count} = await response.json();
+    var { count } = await response.json();
     expect(count).toBe(1);
   });
 });
@@ -1006,7 +1007,7 @@ describe('DELETE /tasks/2 (DeleteItem)', () => {
 
   it('does not delete any other Tasks', async () => {
     var response = await fetch('http://localhost:8080/tasks');
-    var {count} = await response.json();
+    var { count } = await response.json();
 
     expect(count).toBe(102);
   });
@@ -1028,13 +1029,14 @@ describe('DELETE /tasks/200 (DeleteItem with invalid ID)', () => {
 
     expect(body).toEqual({
       statusCode: 404,
-      error: 'Not Found'
+      error: 'Not Found',
+      message: 'Not Found'
     })
   });
 
   it('does not delete any Tasks', async () => {
     var response = await fetch('http://localhost:8080/tasks');
-    var {count} = await response.json();
+    var { count } = await response.json();
 
     expect(count).toBe(102);
   });
