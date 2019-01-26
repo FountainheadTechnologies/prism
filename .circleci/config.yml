@@ -1,0 +1,53 @@
+version: 2
+
+jobs:
+  build:
+    docker:
+      - image: circleci/node:carbon
+    steps:
+      - checkout
+      - run: npm install
+      - run: npm run test
+      - run: npm run build
+
+  integration_test:
+    docker:
+      - image: circleci/node:carbon
+      - image: circleci/postgres:9.6-alpine-ram
+    steps:
+      - run: sudo apt install postgresql-client
+      - checkout
+      - run: npm install
+      - run: npm run build
+      - run:
+          command: ./run.sh
+          working_directory: integration-test/postgresql
+          environment:
+            POSTGRES_HOST: localhost
+            POSTGRES_USER: postgres
+
+  publish:
+    docker:
+      - image: circleci/node:carbon
+    steps:
+      - checkout
+      - run: npm install
+      - run: npm run build
+      - run: $(npm bin)/semantic-release
+
+workflows:
+  version: 2
+  build_and_publish:
+    jobs:
+      - build
+
+      - integration_test:
+          requires:
+            - build
+
+      - publish:
+          requires:
+            - integration_test
+          filters:
+            branches:
+              only: master
