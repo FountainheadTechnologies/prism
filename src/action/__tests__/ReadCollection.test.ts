@@ -167,7 +167,7 @@ describe("#decorate()", () => {
       await readTasks.decorate(document, params, {} as any);
 
       expect(document.links).toEqual(expectedLinks);
-    });
+    }));
   });
 
   it("embeds each document in `items` and omits `items`", async () => {

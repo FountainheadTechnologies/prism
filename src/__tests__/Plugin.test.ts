@@ -53,7 +53,7 @@ describe("when `options.secure` is not set to false", () => {
   });
 
   it("mutates the the root action to contain `optional` auth mode", () => {
-    server.plugins["prism-security"] = "mockSecurityPlugin";
+    server.plugins["prism-security"] = "mockSecurityPlugin" as any;
     server.start();
 
     expect(server.route).toHaveBeenCalledWith({

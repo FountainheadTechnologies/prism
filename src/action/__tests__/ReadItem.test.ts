@@ -136,11 +136,13 @@ describe("filters", () => {
     registry.registerObject(createTask);
     registry.applyFilters();
 
-    hapi.request.payload = {
-      title: "New Test Task",
-      owner: 1,
-      project: 1
-    };
+    Object.assign(hapi.request, {
+      payload: {
+        title: "New Test Task",
+        owner: 1,
+        project: 1
+      }
+    });
 
     (resource.tasks.source.create as jest.Mock<any>).mockReturnValue({ id: 12 });
 

@@ -22,9 +22,11 @@ it("is a PATCH request to resource name and primary keys, joined by `/`", () => 
 describe("#handle()", () => {
   beforeEach(() => {
     (resource.tasks.source.update as jest.Mock<any>).mockReset();
-    hapi.request.payload = {
-      title: "Updated Test Task"
-    };
+    Object.assign(hapi.request, {
+      payload: {
+        title: "Updated Test Task"
+      }
+    });
   });
 
   it("validates request payload against resource schema with `required` empty", async () => {
@@ -66,7 +68,7 @@ describe("#handle()", () => {
   });
 
   it("omits properties not specified in the schema", async () => {
-    hapi.request.payload["badProperty"] = "badValue";
+    (hapi.request.payload as any).badProperty = "badValue";
     await updateTask.handle({ id: "task1" }, hapi.request);
 
     let options = (resource.tasks.source.update as jest.Mock<any>).mock.calls[0][0];
@@ -78,7 +80,7 @@ describe("#handle()", () => {
   it("omits properties marked as `readOnly` in the schema", async () => {
     spyOn(schema, "validate").and.callFake(() => true);
 
-    hapi.request.payload["id"] = "changedId";
+    (hapi.request.payload as any).id = "changedId";
     await updateTask.handle({ id: "task1" }, hapi.request);
 
     let options = (resource.tasks.source.update as jest.Mock<any>).mock.calls[0][0];

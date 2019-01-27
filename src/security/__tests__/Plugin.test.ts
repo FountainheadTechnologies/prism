@@ -5,17 +5,24 @@ import { request } from "../../action/__mocks__/hapi";
 
 import { Server } from "hapi";
 import { Options as JwtOptions } from "hapi-auth-jwt2";
-import { validate } from "../../schema";
+
+import { PluginAPI } from '../../Plugin';
+
+declare module "hapi" {
+  interface PluginProperties {
+    prism: PluginAPI;
+  }
+}
 
 let server: Server;
 let plugin: Plugin;
 
 beforeEach(() => {
   server = new MockServer() as any as Server;
-  server.plugins["prism"] = {
+  server.plugins.prism = {
     registerFilter: jest.fn(),
     registerAction: jest.fn()
-  };
+  } as any;
 
   plugin = new Plugin(server, {
     key: "testPrivateKey"
@@ -48,7 +55,7 @@ describe("#registerBackend()", () => {
 
   it("registers a CreateToken action using backend and default options", () => {
     plugin.registerBackend(backend);
-    let createToken = server.plugins["prism"].registerAction.mock.calls[0][0];
+    let createToken = (server.plugins.prism.registerAction as jest.Mock<any>).mock.calls[0][0];
 
     expect(createToken._backend).toBe(backend);
     expect(createToken._options).toEqual({
@@ -68,7 +75,7 @@ describe("#registerBackend()", () => {
     });
     plugin.registerBackend(backend);
 
-    let createToken = server.plugins["prism"].registerAction.mock.calls[0][0];
+    let createToken = (server.plugins.prism.registerAction as jest.Mock<any>).mock.calls[0][0];
 
     expect(createToken._backend).toBe(backend);
     expect(createToken._options).toEqual({
@@ -88,7 +95,7 @@ describe("#registerBackend()", () => {
     });
     plugin.registerBackend(backend);
 
-    let createToken = server.plugins["prism"].registerAction.mock.calls[0][0];
+    let createToken = (server.plugins.prism.registerAction as jest.Mock<any>).mock.calls[0][0];
 
     expect(createToken._backend).toBe(backend);
     expect(createToken._options).toEqual({
@@ -121,7 +128,7 @@ describe("#jwtOptions", () => {
 
   describe(".validate()", () => {
     it("calls `backend.validate`", () => {
-      options.validate(decoded, request);
+      options.validate(decoded, request, undefined as any);
       expect(backend.validate).toHaveBeenCalledWith(decoded, request);
     });
 
@@ -129,7 +136,7 @@ describe("#jwtOptions", () => {
       it("resolves `isValid` as `false`", async () => {
         validateResult = false;
 
-        const result = await options.validate(decoded, request);
+        const result = await options.validate(decoded, request, undefined as any);
         expect(result).toEqual({
           isValid: false
         });
@@ -139,10 +146,10 @@ describe("#jwtOptions", () => {
     it("resolves `isValid` as `true`, and `credentials` to validation result", async () => {
       validateResult = "validationResult";
 
-      const result = await options.validate(decoded, request);
+      const result = await options.validate(decoded, request, undefined as any);
 
       expect(result).toEqual({
-        isValid: true
+        isValid: true,
         credentials: validateResult
       });
     });
