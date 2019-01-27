@@ -57,7 +57,7 @@ export class ReadCollection implements Action {
     } as query.Read))
 
   schema = async (params: Params, request: Request): Promise<Schema> =>
-    this.resource.schema;
+    this.resource.schema
 
   joins = async (params: Params, request: Request): Promise<query.Join[]> =>
     this.resource.relationships.belongsTo.map(parent => ({
@@ -89,7 +89,7 @@ export class ReadCollection implements Action {
   })
 
   readCollection = async (query: query.Read, params: Params, request: Request): Promise<Collection> =>
-    this.resource.source.read<Collection>(query);
+    this.resource.source.read<Collection>(query)
 
   decorate = async (doc: Document, params: Params, request: Request): Promise<Document> => {
     let embedded = await this.embedded(doc, params, request);

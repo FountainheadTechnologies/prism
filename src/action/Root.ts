@@ -13,5 +13,5 @@ export class Root implements Action {
   handle = async (params: Params, request: Request) => ({});
 
   decorate = async (doc: Document, params: Params, request: Request): Promise<Document> =>
-    doc;
+    doc
 }

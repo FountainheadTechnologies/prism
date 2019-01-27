@@ -37,7 +37,7 @@ export class CreateItem implements Action {
   }
 
   schema = async (params: Params, request: Request): Promise<Schema> =>
-    this.resource.schema;
+    this.resource.schema
 
   query = async (params: Params, request: Request): Promise<query.Create> =>
     Promise.all([

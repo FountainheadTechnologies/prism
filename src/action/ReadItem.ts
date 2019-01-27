@@ -44,7 +44,7 @@ export class ReadItem implements Action {
     }))
 
   schema = async (params: Params, request: Request): Promise<Schema> =>
-    this.resource.schema;
+    this.resource.schema
 
   conditions = async (params: Params, request: Request): Promise<query.Condition[]> =>
     this.resource.primaryKeys.map(key => ({
@@ -61,7 +61,7 @@ export class ReadItem implements Action {
     }))
 
   readItem = async (query: query.Read, params: Params, request: Request): Promise<Item> =>
-    this.resource.source.read<Item>(query);
+    this.resource.source.read<Item>(query)
 
   decorate = async (doc: Document, params: Params, request: Request): Promise<Document> => {
     this.embedded(doc, params, request)
@@ -85,7 +85,7 @@ export class ReadItem implements Action {
   links = (doc: Document, params: Params, request: Request): Link[] => [];
 
   omit = (doc: Document, params: Params, request: Request): string[] =>
-    this.resource.relationships.belongsTo.map(parent => parent.name);
+    this.resource.relationships.belongsTo.map(parent => parent.name)
 
   register = this.resource.source;
 

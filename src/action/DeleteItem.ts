@@ -40,7 +40,7 @@ export class DeleteItem implements Action {
     }))
 
   deleteItem = async (query: query.Delete, params: Params, request: Request): Promise<boolean> =>
-    this.resource.source.delete(query);
+    this.resource.source.delete(query)
 
   register = this.resource.source;
 

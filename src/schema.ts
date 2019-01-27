@@ -24,7 +24,7 @@ type ValidationError =
 
 export interface ValidationFailurePayload extends Payload {
   errors: ValidationError[];
-};
+}
 
 export const validate = (data: Item | Collection, schema: Schema): Promise<boolean> =>
   new Promise((resolve, reject) => {
