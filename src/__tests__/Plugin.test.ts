@@ -34,7 +34,7 @@ it("registers a root action", () => {
     handler: jasmine.any(Function),
     method: "GET",
     path: "/test",
-    config: {}
+    options: {}
   });
 });
 
@@ -60,7 +60,7 @@ describe("when `options.secure` is not set to false", () => {
       handler: jasmine.any(Function),
       method: "GET",
       path: "/test",
-      config: {
+      options: {
         auth: {
           mode: "optional"
         }
@@ -125,22 +125,15 @@ describe("toRoute()", () => {
       }, request);
     });
 
-    it("creates a document with result of `action.handle()` and renders it", () => {
-      let dispatch = Promise.resolve();
-
-      route.handler(request, (_dispatch: any) => {
-        dispatch = _dispatch;
-      });
-
-      return dispatch.then(response => {
-        expect(response).toEqual({
-          _links: {
-            self: {
-              href: "/users"
-            }
-          },
-          id: 1337
-        });
+    it("creates a document with result of `action.handle()` and renders it", async () => {
+      const response = await route.handler(request);
+      expect(response).toEqual({
+        _links: {
+          self: {
+            href: "/users"
+          }
+        },
+        id: 1337
       });
     });
   });

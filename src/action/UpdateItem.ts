@@ -1,13 +1,12 @@
 import { Action, Params } from "../action";
 import { Filter } from "../filter";
-import { Source } from "../source";
 import { ReadItem } from "./ReadItem";
 import { Root } from "./Root";
 import { Resource, initialize } from "../resource";
 import { Schema, validate, pickAllowedValues } from "../schema";
 import * as query from "../query";
 
-import { Request, Response } from "hapi";
+import { Request, ResponseObject } from "hapi";
 import { pathEq } from "ramda";
 
 export class UpdateItem implements Action {
@@ -22,9 +21,9 @@ export class UpdateItem implements Action {
     this.path = [this.resource.name, ...keys].join("/");
   }
 
-  handle = async (params: Params, request: Request): Promise<Response> => {
+  handle = async (params: Params, request: Request): Promise<ResponseObject> => {
     let schema = await this.schema(params, request);
-    await validate(request.payload, schema);
+    await validate(request.payload as object, schema);
 
     let query = await this.query(params, request);
     await this.updateItem(query, params, request);

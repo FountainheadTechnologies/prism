@@ -1,16 +1,14 @@
 import { Action, Params } from "../action";
 import { Filter } from "../filter";
-import { Source } from "../source";
 import { ReadCollection } from "./ReadCollection";
 import { UpdateItem } from "./UpdateItem";
 import { ReadItem } from "./ReadItem";
 import { Root } from "./Root";
 import { Resource, initialize } from "../resource";
-import { Item } from "../types";
-import { Schema, validate, sanitize, pickAllowedValues } from "../schema";
+import { Schema, validate, pickAllowedValues } from "../schema";
 import * as query from "../query";
 
-import { Request, Response } from "hapi";
+import { Request, ResponseObject } from "hapi";
 import { evolve, prepend, pathEq } from "ramda";
 
 export class CreateItem implements Action {
@@ -24,14 +22,14 @@ export class CreateItem implements Action {
     this.path = this.resource.name;
   }
 
-  handle = async (params: Params, request: Request): Promise<Response> => {
+  handle = async (params: Params, request: Request): Promise<ResponseObject> => {
     let schema = await this.schema(params, request);
-    await validate(request.payload, schema);
+    await validate(request.payload as object, schema);
 
     let query = await this.query(params, request);
     let createdItem = await this.createItem(query, params, request);
 
-    let response = (request as any).generateResponse();
+    let response = request.generateResponse(null);
     response.code(201);
     response.plugins.prism = { createdItem };
 
@@ -53,7 +51,7 @@ export class CreateItem implements Action {
       joins
     }))
 
-  joins = async (params: Params, request: Request): Promise<query.Join[]> =>
+  joins = async (params: Params, request: Request) =>
     this.resource.relationships.belongsTo.map(parent => ({
       source: parent.name,
       path: [parent.from],

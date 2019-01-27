@@ -2,7 +2,6 @@ import { Backend } from "../backend";
 import { Resource as _Resource } from "../../resource";
 import { Root, ReadItem, CreateItem, UpdateItem, Params } from "../../action";
 import { Filter } from "../../filter";
-import { Source } from "../../source";
 import { Schema, validate } from "../../schema";
 import * as query from "../../query";
 
@@ -43,7 +42,7 @@ export class Resource implements Backend {
     let result;
 
     try {
-      await validate(request.payload, this.schema);
+      await validate(request.payload as object, this.schema);
       result = await this.resource.source.read(query);
     } catch (error) {
       if (error.isBoom && error.output && error.output.statusCode === 404) {
@@ -61,7 +60,7 @@ export class Resource implements Backend {
       return false;
     }
 
-    let given = request.payload[this._options.password];
+    let given = (request.payload as any)[this._options.password];
     let actual = (result as any)[this._options.password];
     let match = await this._options.compare(given, actual);
 
@@ -81,7 +80,7 @@ export class Resource implements Backend {
     conditions: [
       ...this._options.scope, {
         field: this._options.identity,
-        value: request.payload[this._options.identity]
+        value: (request.payload as any)[this._options.identity]
       }
     ]
   })
@@ -134,9 +133,9 @@ export class Resource implements Backend {
       method: "handle",
       where: pathEq(["resource", "name"], this.resource.name),
       filter: next => async (params, request) => {
-        if (request.payload[this._options.password]) {
-          let hash = await this._options.hash(request.payload[this._options.password]);
-          request.payload[this._options.password] = hash;
+        if ((request.payload as any)[this._options.password]) {
+          let hash = await this._options.hash((request.payload as any)[this._options.password]);
+          (request.payload as any)[this._options.password] = hash;
         }
 
         return next(params, request);

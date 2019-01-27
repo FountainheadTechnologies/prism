@@ -1,28 +1,25 @@
-import { Plugin, Options, ExposedAPI } from "./security/Plugin";
+import { Plugin, Options, PluginAPI } from "./security/Plugin";
 
-import { Server } from "hapi";
+import { Plugin as HapiPlugin } from "hapi";
 import * as hapiJwt from "hapi-auth-jwt2";
 
 declare module "hapi" {
-  interface PluginsStates {
-    "prism-security": ExposedAPI;
+  interface PluginProperties {
+    "prism-security": PluginAPI;
   }
 }
 
-const registerPlugin = (server: Server, options: Partial<Options>, next: Function): void => {
-  let instance = new Plugin(server, options);
-  server.expose("registerBackend", instance.registerBackend.bind(instance));
+export const PrismSecurity: HapiPlugin<Partial<Options>> = {
+  name: "prism-security",
+  version: require("./package.json").version,
+  register: async (server, options) => {
+    let instance = new Plugin(server, options);
+    server.expose("registerBackend", instance.registerBackend.bind(instance));
 
-  server.register(hapiJwt)
-    .then(() => server.auth.strategy("prism-security", "jwt", true, instance.jwtOptions()))
-    .then(() => next());
-};
-
-export const PrismSecurity = Object.assign(registerPlugin, {
-  attributes: {
-    name: "prism-security",
-    version: require("./package.json").version
+    await server.register(hapiJwt);
+    server.auth.strategy("prism-security", "jwt", instance.jwtOptions());
+    server.auth.default("prism-security");
   }
-});
+};
 
 export { Resource as ResourceBackend } from "./security/backend/Resource";

@@ -1,12 +1,11 @@
 import { Action, Params } from "../action";
 import { Filter } from "../filter";
-import { Source } from "../source";
 import { ReadItem } from "./ReadItem";
 import { Root } from "./Root";
 import { Resource } from "../resource";
 import * as query from "../query";
 
-import { Request, Response } from "hapi";
+import { Request, ResponseObject } from "hapi";
 import { pathEq } from "ramda";
 
 export class DeleteItem implements Action {
@@ -19,11 +18,11 @@ export class DeleteItem implements Action {
     this.path = [this.resource.name, ...keys].join("/");
   }
 
-  handle = async (params: Params, request: Request): Promise<Response> => {
+  handle = async (params: Params, request: Request): Promise<ResponseObject> => {
     let query = await this.query(params, request);
     await this.deleteItem(query, params, request);
 
-    let response = (request as any).generateResponse();
+    let response = request.generateResponse(null);
     response.code(204);
 
     return response;

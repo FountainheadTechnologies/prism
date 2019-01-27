@@ -1,12 +1,7 @@
-import { Resource } from "./resource";
 import { Document } from "./Document";
 import { Container } from "./filter";
 
-import {
-  Request,
-  Response,
-  RouteAdditionalConfigurationOptions
-} from "hapi";
+import { Request, ServerRoute, ResponseObject } from "hapi";
 
 export interface Params {
   where?: {
@@ -23,15 +18,15 @@ export interface Params {
 }
 
 export interface Action extends Container {
-  readonly method: string;
+  readonly method: ServerRoute["method"];
 
-  routeConfig?: RouteAdditionalConfigurationOptions;
+  routeOptions?: ServerRoute["options"];
 
   path: string;
 
-  handle: (params: Params, request?: Request) => Promise<Response | {}>;
+  handle: (params: Params, request: Request) => Promise<ResponseObject | {}>;
 
-  decorate?: (doc: Document, params?: Params, request?: Request) => Promise<Document>;
+  decorate?: (doc: Document, params: Params, request: Request) => Promise<Document>;
 }
 
 export { Root } from "./action/Root";

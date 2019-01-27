@@ -4,7 +4,6 @@ import { Plugin as Prism } from "../Plugin";
 
 import * as hapiJwt from "hapi-auth-jwt2";
 import { Server } from "hapi";
-import { map, pick } from "ramda";
 import { SignOptions } from "jsonwebtoken";
 
 export interface Options {
@@ -20,7 +19,7 @@ export interface Options {
   sign: SignOptions;
 }
 
-export interface ExposedAPI {
+export interface PluginAPI {
   registerBackend(backend: Backend): void;
 }
 
@@ -31,7 +30,7 @@ const DEFAULT_OPTIONS = {
   }
 };
 
-export class Plugin implements ExposedAPI {
+export class Plugin implements PluginAPI {
   protected _options: Options;
 
   protected _backend: Backend;
@@ -50,12 +49,10 @@ export class Plugin implements ExposedAPI {
       }
     };
 
-    _server.ext("onPreStart", (server, next) => {
+    _server.ext("onPreStart", () => {
       if (!this._backend) {
         throw Error("No Backend registered");
       }
-
-      return next();
     });
   }
 
@@ -75,15 +72,11 @@ export class Plugin implements ExposedAPI {
   jwtOptions = (): hapiJwt.Options => ({
     key: this._options.key,
 
-    validateFunc: (decoded, request, next) => {
-      return this._backend.validate(decoded, request)
-        .then(result => {
-          if (result === false) {
-            return next(null, false);
-          }
-
-          return next(null, true, result);
-        });
-    }
+    validate: (decoded, request) =>
+      this._backend.validate(decoded, request)
+        .then(result => result === false ?
+          { isValid: false } :
+          { isValid: true, credentials: result }
+        )
   })
 }

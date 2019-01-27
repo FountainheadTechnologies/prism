@@ -9,6 +9,7 @@ import { Select, Update, Delete, Expression, Insert } from "squel";
 import { notFound } from "boom";
 
 import { omit, assocPath, path, identity, map } from "ramda";
+import { ValidationFailurePayload } from "../schema";
 
 export interface Options {
   joinMarker: string;
@@ -315,7 +316,7 @@ const handleConstraintViolation = (error: any): never => {
   }
 
   let err = badData();
-  err.output.payload.errors = [{
+  (err.output.payload as ValidationFailurePayload).errors = [{
     message: "Constraint violation",
     dataPath: `/${key}`,
     schemaPath: `/properties/${key}/constraint`

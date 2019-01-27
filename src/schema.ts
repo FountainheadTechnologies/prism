@@ -1,7 +1,7 @@
 import { Item, Collection } from "./types";
 
 import { validateMultiple } from "tv4";
-import { badData } from "boom";
+import { badData, Payload } from "boom";
 import { keys, pick } from "ramda";
 
 export interface Schema {
@@ -15,6 +15,17 @@ export interface Schema {
   default?: any;
 }
 
+type ValidationError =
+  Pick<tv4.ValidationError, "message" | "dataPath" | "schemaPath"> &
+  Partial<{
+    subErrors: ValidationError[];
+    params: {}
+  }>;
+
+export interface ValidationFailurePayload extends Payload {
+  errors: ValidationError[];
+};
+
 export const validate = (data: Item | Collection, schema: Schema): Promise<boolean> =>
   new Promise((resolve, reject) => {
     let test = validateMultiple(data, schema);
@@ -22,20 +33,18 @@ export const validate = (data: Item | Collection, schema: Schema): Promise<boole
       return resolve(true);
     }
 
-    const sanitize = (error: tv4.ValidationError): Object => {
-      let result = pick(["message", "params", "dataPath", "schemaPath"], error);
+    const sanitize = (error: tv4.ValidationError): ValidationError => {
+      let result = pick(["message", "params", "dataPath", "schemaPath"], error) as ValidationError;
 
       if (error.subErrors) {
-        Object.assign(result, {
-          subErrors: error.subErrors.map(sanitize)
-        });
+        result.subErrors = error.subErrors.map(sanitize);
       }
 
       return result;
     };
 
     let error = badData("Schema validation failed");
-    error.output.payload.errors = test.errors.map(sanitize);
+    (error.output.payload as ValidationFailurePayload).errors = test.errors.map(sanitize);
 
     return reject(error);
   });

@@ -1,8 +1,8 @@
-import {Server} from 'hapi';
+import { Server } from 'hapi';
 import * as _pgPromise from 'pg-promise';
 import * as collimator from 'collimator';
-import {Prism} from '@optics/prism';
-import {PostgreSQL} from '@optics/prism/source';
+import { Prism } from '@optics/prism';
+import { PostgreSQL } from '@optics/prism/source';
 import * as action from '@optics/prism/action';
 
 const pgPromise = _pgPromise();
@@ -16,11 +16,10 @@ var db = pgPromise({
 });
 
 beforeAll(async () => {
-	server = new Server();
-	server.connection({port: 8080});
+  server = new Server({ port: 8080 });
 
   await server.register({
-    register: Prism,
+    plugin: Prism,
     options: {
       secure: false
     }
@@ -30,7 +29,7 @@ beforeAll(async () => {
   var source = new PostgreSQL(db);
 
   metadata.tables.forEach(table => {
-    var resource = {...table, source};
+    var resource = { ...table, source };
     server.plugins['prism'].registerAction(new action.ReadItem(resource));
     server.plugins['prism'].registerAction(new action.ReadCollection(resource));
     server.plugins['prism'].registerAction(new action.CreateItem(resource));

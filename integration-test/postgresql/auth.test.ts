@@ -1,15 +1,14 @@
-import {Server} from 'hapi';
+import { Server } from 'hapi';
 import * as _pgPromise from 'pg-promise';
 import * as collimator from 'collimator';
-import {whereEq} from 'ramda';
-import {Response} from 'node-fetch';
+import { Response } from 'node-fetch';
 
-import {Prism} from '@optics/prism';
-import {PrismSecurity, ResourceBackend} from '@optics/prism/security';
-import {PostgreSQL} from '@optics/prism/source';
+import { Prism } from '@optics/prism';
+import { PrismSecurity, ResourceBackend } from '@optics/prism/security';
+import { PostgreSQL } from '@optics/prism/source';
 import * as action from '@optics/prism/action';
 
-import {fetch, getProperties} from './common/util';
+import { fetch, getProperties } from './common/util';
 
 const pgPromise = _pgPromise();
 
@@ -22,16 +21,16 @@ var db = pgPromise({
 });
 
 beforeAll(async () => {
-	server = new Server();
-	server.connection({port: 8080});
+  server = new Server({ port: 8080 });
 
-  await server.register(Prism);
-  await server.register({
-    register: PrismSecurity,
+  await server.register([{
+    plugin: Prism
+  }, {
+    plugin: PrismSecurity,
     options: {
       key: 'superSecretIntegrationTestPrivateKey'
     }
-  })
+  }]);
 
   var metadata = await collimator.inspect(db);
   var source = new PostgreSQL(db);
@@ -130,7 +129,7 @@ describe('No token', () => {
     tests: [{
       name: 'does not create the Task',
       fn: async () => {
-        var {count} = await db.one('SELECT COUNT(*) FROM tasks');
+        var { count } = await db.one('SELECT COUNT(*) FROM tasks');
         expect(count).toBe('100');
       }
     }]
@@ -166,7 +165,7 @@ describe('No token', () => {
     tests: [{
       name: 'does not delete the Task',
       fn: async () => {
-        var {count} = await db.one('SELECT COUNT(*) from tasks');
+        var { count } = await db.one('SELECT COUNT(*) from tasks');
         expect(count).toBe('100');
       }
     }]
@@ -220,7 +219,7 @@ describe('No token', () => {
       describe(test.name, () => {
         var response: Response;
 
-        beforeAll(async() => {
+        beforeAll(async () => {
           response = await fetch('http://localhost:8080/token', {
             method: 'POST',
             body: JSON.stringify({
@@ -247,7 +246,7 @@ describe('No token', () => {
         token: string
       };
 
-      beforeAll(async() => {
+      beforeAll(async () => {
         response = await fetch('http://localhost:8080/token', {
           method: 'POST',
           body: JSON.stringify({
@@ -364,7 +363,7 @@ describe('Valid token', () => {
         })
       });
 
-      var {password} = await db.one('SELECT password FROM users WHERE id=9');
+      var { password } = await db.one('SELECT password FROM users WHERE id=9');
       expect(password.substring(0, 7)).toEqual('$2b$04$');
     });
   });
@@ -378,7 +377,7 @@ describe('Valid token', () => {
         })
       });
 
-      var {password} = await db.one('SELECT password FROM users WHERE id=1');
+      var { password } = await db.one('SELECT password FROM users WHERE id=1');
       expect(password.substring(0, 7)).toEqual('$2b$04$');
     });
   });

@@ -86,7 +86,7 @@ const isVisible = (request: Request, item: Link | Form): boolean => {
 };
 
 const renderLink = (link: Link): RenderedLink => {
-  let _link: RenderedLink = pick(["href", "name"], link);
+  let _link = pick(["href", "name"], link) as RenderedLink;
   let isTemplated = link.href.indexOf("{") > -1;
 
   if (!isTemplated) {

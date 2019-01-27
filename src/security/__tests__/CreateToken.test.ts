@@ -17,7 +17,7 @@ beforeEach(() => {
 it("is a POST request to `token` that does not require auth", () => {
   expect(createToken.method).toBe("POST");
   expect(createToken.path).toBe("token");
-  expect(createToken.routeConfig).toEqual({
+  expect(createToken.routeOptions).toEqual({
     auth: false
   });
 });

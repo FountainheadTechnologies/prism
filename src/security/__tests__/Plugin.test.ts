@@ -5,6 +5,7 @@ import { request } from "../../action/__mocks__/hapi";
 
 import { Server } from "hapi";
 import { Options as JwtOptions } from "hapi-auth-jwt2";
+import { validate } from "../../schema";
 
 let server: Server;
 let plugin: Plugin;
@@ -104,7 +105,6 @@ describe("#jwtOptions", () => {
   let options: JwtOptions;
   let validateResult: any;
   let decoded = "decodedToken";
-  let next = jest.fn();
 
   beforeEach(() => {
     plugin.registerBackend(backend);
@@ -115,30 +115,36 @@ describe("#jwtOptions", () => {
   it("creates a JWT options object", () => {
     expect(options).toEqual({
       key: "testPrivateKey",
-      validateFunc: jasmine.any(Function)
+      validate: jasmine.any(Function)
     });
   });
 
-  describe(".validateFunc()", () => {
+  describe(".validate()", () => {
     it("calls `backend.validate`", () => {
-      options.validateFunc(decoded, request, next);
+      options.validate(decoded, request);
       expect(backend.validate).toHaveBeenCalledWith(decoded, request);
     });
 
     describe("when `backend.validate` resolves to `false`", () => {
-      it("calls `next` with `null, false`", async () => {
+      it("resolves `isValid` as `false`", async () => {
         validateResult = false;
 
-        await options.validateFunc(decoded, request, next);
-        expect(next).toHaveBeenCalledWith(null, false);
+        const result = await options.validate(decoded, request);
+        expect(result).toEqual({
+          isValid: false
+        });
       });
     });
 
-    it("calls `next` with `null, true, result`", async () => {
+    it("resolves `isValid` as `true`, and `credentials` to validation result", async () => {
       validateResult = "validationResult";
 
-      await options.validateFunc(decoded, request, next);
-      expect(next).toHaveBeenCalledWith(null, true, "validationResult");
+      const result = await options.validate(decoded, request);
+
+      expect(result).toEqual({
+        isValid: true
+        credentials: validateResult
+      });
     });
   });
 });

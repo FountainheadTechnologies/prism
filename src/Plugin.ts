@@ -4,8 +4,8 @@ import { Action, Params } from "./action";
 import { Root } from "./action/Root";
 import { Document } from "./Document";
 
-import { Server, Request, RouteConfiguration, HTTP_METHODS_PARTIAL } from "hapi";
-import { assocPath, splitEvery, fromPairs, partition, wrap, pick, map } from "ramda";
+import { Server, Request, ServerRoute } from "hapi";
+import { assocPath, splitEvery, fromPairs, map } from "ramda";
 import { posix } from "path";
 
 /**
@@ -28,11 +28,15 @@ export interface Options {
   secure: boolean;
 }
 
-export interface ExposedAPI {
+export interface PluginAPI {
   registry: Registry;
   registerAction(action: Action | Action[]): void;
   registerFilter(filter: Filter<any, any> | Filter<any, any>[]): void;
   createdItem?: any;
+}
+
+export interface ResponseAPI {
+  createdItem: any;
 }
 
 const DEFAULT_OPTIONS: Options = {
@@ -40,7 +44,7 @@ const DEFAULT_OPTIONS: Options = {
   secure: true
 };
 
-export class Plugin implements ExposedAPI {
+export class Plugin implements PluginAPI {
   protected _options: Options;
 
   public registry = new Registry();
@@ -48,7 +52,7 @@ export class Plugin implements ExposedAPI {
   constructor(protected readonly _server: Server, options: Partial<Options> = {}) {
     this._options = { ...DEFAULT_OPTIONS, ...options };
 
-    this._server.ext("onPreStart", (server, next) => {
+    this._server.ext("onPreStart", () => {
       let root = new Root();
 
       if (this._options.secure) {
@@ -56,13 +60,11 @@ export class Plugin implements ExposedAPI {
           throw Error("Secure mode enabled but `prism-security` plugin has not been registered.");
         }
 
-        root.routeConfig = assocPath(["auth", "mode"], "optional", root.routeConfig);
+        root.routeOptions = assocPath(["auth", "mode"], "optional", root.routeOptions);
       }
 
       this.registerAction(root);
       this.registry.applyFilters();
-
-      return next();
     });
   }
 
@@ -86,33 +88,28 @@ export class Plugin implements ExposedAPI {
   }
 }
 
-export const toRoute = (action: Action): RouteConfiguration => ({
+export const toRoute = (action: Action): ServerRoute => ({
   path: dequery(action.path),
-  method: action.method as HTTP_METHODS_PARTIAL,
-  config: action.routeConfig,
-  handler: (request, reply) => {
+  method: action.method,
+  options: action.routeOptions,
+  handler: async request => {
     let params = mergeRequestParameters(request);
+    let result = await action.handle(params, request);
+    if (!action.decorate) {
+      return result;
+    }
 
-    let dispatch = Promise.resolve(action.handle(params, request))
-      .then(async result => {
-        if (!action.decorate) {
-          return result;
-        }
+    let document = new Document(result);
+    await action.decorate(document, params, request);
 
-        let document = new Document(result);
-        await action.decorate(document, params, request);
+    document.links.push({
+      rel: "self",
+      href: action.path,
+      public: true,
+      params
+    });
 
-        document.links.push({
-          rel: "self",
-          href: action.path,
-          public: true,
-          params
-        });
-
-        return document.render(params, request);
-      });
-
-    reply(dispatch);
+    return document.render(params, request);
   }
 });
 

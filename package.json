@@ -10,9 +10,9 @@
   "devDependencies": {
     "@commitlint/config-conventional": "^7.3.1",
     "@types/bcrypt": "^1.0.0",
-    "@types/boom": "0.0.32",
-    "@types/hapi": "^16.1.11",
-    "@types/hapi-auth-jwt2": "^7.0.0",
+    "@types/boom": "7.2.1",
+    "@types/hapi": "18.0.0",
+    "@types/hapi-auth-jwt2": "8.0.2",
     "@types/jest": "^16.0.1",
     "@types/jsonwebtoken": "^7.2.0",
     "@types/lodash": "^4.14.53",
@@ -27,7 +27,7 @@
     "semantic-release": "^15.13.3",
     "ts-jest": "^17.0.3",
     "tslint": "^4.4.2",
-    "typescript": "^2.6.2"
+    "typescript": "3.2.4"
   },
   "jshintConfig": {
     "esnext": true
@@ -35,7 +35,7 @@
   "dependencies": {
     "bcrypt": "3.0.3",
     "boom": "7.3.0",
-    "hapi-auth-jwt2": "^7.2.4",
+    "hapi-auth-jwt2": "8.3.0",
     "jsonwebtoken": "^7.2.1",
     "lodash": "^4.17.4",
     "pg-promise": "^7.3.2",

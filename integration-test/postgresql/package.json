@@ -10,15 +10,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/hapi": "^16.1.5",
-    "@types/node-fetch": "^1.6.7",
     "@optics/prism": "file:../../build",
+    "@types/hapi": "18.0.0",
+    "@types/node-fetch": "^1.6.7",
     "collimator": "^5.1.1",
-    "hapi": "^16.1.0",
+    "hapi": "18.0.0",
     "jest": "^19.0.2",
     "node-fetch": "^1.6.3",
     "ts-jest": "^19.0.0",
-    "typescript": "^2.2.1"
+    "typescript": "3.2.4"
   },
   "jest": {
     "notify": true,

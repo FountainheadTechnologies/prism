@@ -1,11 +1,10 @@
 import { Action, Params } from "../action";
 import { Filter } from "../filter";
 import { Root } from "../action/Root";
-import { Document } from "../Document";
 import { Backend } from "./backend";
 import { Options } from "./Plugin";
 
-import { Request, Response } from "hapi";
+import { Request, ResponseObject } from "hapi";
 import { sign } from "jsonwebtoken";
 
 export class CreateToken implements Action {
@@ -16,29 +15,29 @@ export class CreateToken implements Action {
   constructor(protected _backend: Backend, protected _options: Options) {
   }
 
-  handle = async (params: Params, request: Request): Promise<Response> => {
+  handle = async (params: Params, request: Request): Promise<ResponseObject> => {
     let token = await this._backend.issue(params, request);
     if (token === false) {
-      let response = request.generateResponse();
+      let response = request.generateResponse(null);
       response.code(403);
 
       return response;
     }
 
-    return new Promise<Response>((resolve, reject) => {
+    return new Promise<ResponseObject>((resolve, reject) => {
       sign(token as Object, this._options.key, this._options.sign, (err, token) => {
         if (err) {
           return reject(err);
         }
 
-        let response = (request as any).generateResponse({ token });
+        let response = request.generateResponse({ token });
         response.code(201);
         return resolve(response);
       });
     });
   }
 
-  routeConfig = {
+  routeOptions = {
     auth: false as false // typescript pls
   };
 

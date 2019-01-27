@@ -1,6 +1,5 @@
 import { Action, Params } from "../action";
 import { Filter } from "../filter";
-import { Source } from "../source";
 import { Resource, initialize } from "../resource";
 import { Item } from "../types";
 import { Schema } from "../schema";
@@ -12,7 +11,7 @@ import { CreateItem } from "./CreateItem";
 
 import * as uriTpl from "uri-templates";
 import { Request } from "hapi";
-import { is, evolve, pathEq, prepend } from "ramda";
+import { evolve, pathEq, prepend } from "ramda";
 
 export class ReadItem implements Action {
   path: string;
@@ -116,7 +115,7 @@ export class ReadItem implements Action {
       where: pathEq(["resource", "name"], this.resource.name),
       filter: next => async (params, request) => {
         let response = await next(params, request);
-        let href = uriTpl(this.path).fillFromObject(response.plugins.prism.createdItem);
+        let href = uriTpl(this.path).fillFromObject(response.plugins.prism!.createdItem);
         response.location(href);
         return response;
       }

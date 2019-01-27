@@ -8,7 +8,7 @@ export class Root implements Action {
 
   method = "GET";
 
-  routeConfig = {};
+  routeOptions = {};
 
   handle = async (params: Params, request: Request) => ({});
 
