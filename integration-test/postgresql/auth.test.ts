@@ -270,7 +270,7 @@ describe('No token', () => {
 
       it('contains `users`, `iat` and `exp` properties in token payload', async () => {
         var parts = body.token.split('.');
-        var payload = JSON.parse(atob(parts[1]));
+        var payload = JSON.parse(new Buffer(parts[1], 'base64').toString());
         expect(payload).toEqual({
           users: {
             id: 2

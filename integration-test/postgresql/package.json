@@ -15,21 +15,13 @@
     "@types/node-fetch": "^1.6.7",
     "collimator": "^5.1.1",
     "hapi": "18.0.0",
-    "jest": "^19.0.2",
+    "jest": "23.6.0",
     "node-fetch": "^1.6.3",
-    "ts-jest": "^19.0.0",
+    "ts-jest": "23.10.5",
     "typescript": "3.2.4"
   },
   "jest": {
-    "notify": true,
-    "transform": {
-      ".ts": "<rootDir>/node_modules/ts-jest/preprocessor.js"
-    },
-    "testRegex": "\\.test\\.ts$",
-    "moduleFileExtensions": [
-      "ts",
-      "js",
-      "json"
-    ]
+    "preset": "ts-jest",
+    "testEnvironment": "node"
   }
 }
