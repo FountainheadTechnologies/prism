@@ -33,7 +33,9 @@ jobs:
       - checkout
       - run: npm install
       - run: npm run build
-      - run: $(npm bin)/semantic-release
+      - run:
+          command: ../node_modules/.bin/semantic-release
+          working_directory: build
 
 workflows:
   version: 2
