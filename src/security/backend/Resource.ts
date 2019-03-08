@@ -21,7 +21,7 @@ export class Resource implements Backend {
     this._options = { ...DEFAULT_OPTIONS, ...options };
 
     this.schema = {
-      $schema: "http://json-schema.org/draft-04/schema#",
+      $schema: "http://json-schema.org/draft-07/schema#",
       title: "token",
       type: "object",
 

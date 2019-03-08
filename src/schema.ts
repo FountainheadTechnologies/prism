@@ -1,8 +1,9 @@
 import { Item, Collection } from "./types";
 
-import { validateMultiple } from "tv4";
+import * as Ajv from "ajv";
 import { badData, Payload } from "boom";
-import { keys, pick } from "ramda";
+import { always, keys, pick } from "ramda";
+import { ErrorObject } from "ajv";
 
 export interface Schema {
   $schema: string;
@@ -15,42 +16,38 @@ export interface Schema {
   default?: any;
 }
 
-type ValidationError =
-  Pick<tv4.ValidationError, "message" | "dataPath" | "schemaPath"> &
-  Partial<{
-    subErrors: ValidationError[];
-    params: {}
-  }>;
-
 export interface ValidationFailurePayload extends Payload {
-  errors: ValidationError[];
+  errors: Ajv.ErrorObject[];
 }
 
-export const validate = (data: Item | Collection, schema: Schema): Promise<boolean> =>
-  new Promise((resolve, reject) => {
-    let test = validateMultiple(data, schema);
-    if (test.valid) {
-      return resolve(true);
+export const ajv = new Ajv({
+  jsonPointers: true,
+  allErrors: true
+});
+
+export const validate = (data: Item | Collection, schema: Schema): Promise<boolean> => {
+  let valid = ajv.validate(schema, data);
+
+  if (typeof valid === "boolean") {
+    if (valid === true) {
+      return Promise.resolve(true);
     }
 
-    const sanitize = (error: tv4.ValidationError): ValidationError => {
-      let result = pick(["message", "params", "dataPath", "schemaPath"], error) as ValidationError;
+    return rejectAsBoomError(ajv.errors!);
+  }
 
-      if (error.subErrors) {
-        result.subErrors = error.subErrors.map(sanitize);
-      }
+  return (valid as Promise<any>)
+    .then(always(true))
+    .catch(error => rejectAsBoomError(error.errors));
+};
 
-      return result;
-    };
+const rejectAsBoomError = (errors: ErrorObject[]) => {
+  let error = badData("Schema validation failed");
+  (error.output.payload as ValidationFailurePayload).errors =
+    errors.map<Ajv.ErrorObject>(pick(["message", "params", "dataPath", "schemaPath"]));
 
-    let error = badData("Schema validation failed");
-    (error.output.payload as ValidationFailurePayload).errors = test.errors.map(sanitize);
-
-    return reject(error);
-  });
-
-export const sanitize = <T extends Item | Collection>(data: T, schema: Schema): T =>
-  data;
+  return Promise.reject(error);
+};
 
 export const pickAllowedValues = (schema: Schema, values: Object) => {
   let allowed = keys(schema.properties)
