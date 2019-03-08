@@ -430,9 +430,9 @@ describe('POST /tasks (CreateItem - Invalid Data)', () => {
 
     expect(body.errors).toEqual([{
       dataPath: '',
-      schemaPath: '/required/0',
-      message: 'Missing required property: title',
-      params: { key: 'title' }
+      schemaPath: '#/required',
+      message: "should have required property 'title'",
+      params: { missingProperty: 'title' }
     }]);
   });
 
@@ -467,8 +467,12 @@ describe('POST /tasks (CreateItem - Constraint violation)', () => {
 
     expect(body.errors).toEqual([{
       dataPath: '/project',
-      schemaPath: '/properties/project/constraint',
-      message: 'Constraint violation'
+      schemaPath: '#/properties/project/constraint',
+      message: 'Constraint violation',
+      keyword: 'x-prism-constraint',
+      params: {
+        'x-prism-constraint': 'project'
+      }
     }]);
   });
 
@@ -650,26 +654,20 @@ describe('POST /tasks (CreateItem - Invalid embedded Project)', () => {
     var body = await response.json();
 
     expect(body.errors).toEqual([{
-      dataPath: '/project',
-      message: 'Data does not match any schemas from "oneOf"',
-      params: {},
-      schemaPath: '/properties/project/oneOf',
-      subErrors: [{
-        dataPath: '/project',
-        message: 'Invalid type: object (expected number)',
-        schemaPath: '/properties/project/oneOf/0/type',
-        params: {
-          expected: 'number',
-          type: 'object'
-        }
-      }, {
-        dataPath: '/project',
-        message: 'Missing required property: name',
-        schemaPath: '/properties/project/oneOf/1/required/0',
-        params: {
-          key: 'name'
-        }
-      }]
+      dataPath: "/project",
+      message: "should be number",
+      params: { type: "number" },
+      schemaPath: "#/properties/project/oneOf/0/type"
+    }, {
+      dataPath: "/project",
+      message: "should have required property 'name'",
+      params: { missingProperty: "name" },
+      schemaPath: "#/properties/project/oneOf/1/required"
+    }, {
+      dataPath: "/project",
+      message: "should match exactly one schema in oneOf",
+      params: { "passingSchemas": null },
+      schemaPath: "#/properties/project/oneOf"
     }]);
   });
 
@@ -715,8 +713,12 @@ describe('POST /tasks (CreateItem - Embedded User constraint violation)', () => 
 
     expect(body.errors).toEqual([{
       dataPath: '/department',
-      schemaPath: '/properties/department/constraint',
-      message: 'Constraint violation'
+      schemaPath: '#/properties/department/constraint',
+      message: 'Constraint violation',
+      keyword: 'x-prism-constraint',
+      params: {
+        'x-prism-constraint': 'department'
+      }
     }]);
   });
 
@@ -799,12 +801,9 @@ describe('PATCH /tasks/2 (UpdateItem - Invalid data)', () => {
 
     expect(body.errors).toEqual([{
       dataPath: '/title',
-      message: 'Invalid type: number (expected string)',
-      params: {
-        expected: 'string',
-        type: 'number'
-      },
-      schemaPath: '/properties/title/type'
+      message: 'should be string',
+      params: { type: 'string' },
+      schemaPath: '#/properties/title/type'
     }]);
   });
 
@@ -847,7 +846,11 @@ describe('PATCH /tasks/2 (UpdateITem - Constraint Violation)', () => {
     expect(body.errors).toEqual([{
       dataPath: '/project',
       message: 'Constraint violation',
-      schemaPath: '/properties/project/constraint'
+      schemaPath: '#/properties/project/constraint',
+      keyword: 'x-prism-constraint',
+      params: {
+        'x-prism-constraint': 'project'
+      }
     }]);
   })
 
@@ -943,27 +946,22 @@ describe('PATCH /tasks/2 (UpdateItem - Invalid embedded Project)', () => {
     var body = await response.json();
 
     expect(body.errors).toEqual([{
-      dataPath: '/project',
-      message: 'Data does not match any schemas from "oneOf"',
-      schemaPath: '/properties/project/oneOf',
-      params: {},
-      subErrors: [{
-        dataPath: '/project',
-        message: 'Invalid type: object (expected number)',
-        schemaPath: '/properties/project/oneOf/0/type',
-        params: {
-          expected: 'number',
-          type: 'object'
-        }
-      }, {
-        dataPath: '/project',
-        message: 'Missing required property: name',
-        schemaPath: '/properties/project/oneOf/1/required/0',
-        params: {
-          key: 'name'
-        }
-      }]
+      dataPath: "/project",
+      message: "should be number",
+      params: { type: "number" },
+      schemaPath: "#/properties/project/oneOf/0/type"
+    }, {
+      dataPath: "/project",
+      message: "should have required property 'name'",
+      params: { missingProperty: "name" },
+      schemaPath: "#/properties/project/oneOf/1/required"
+    }, {
+      dataPath: "/project",
+      message: "should match exactly one schema in oneOf",
+      params: { passingSchemas: null },
+      schemaPath: "#/properties/project/oneOf"
     }]);
+
   });
 
   it('does not modify the Task', async () => {

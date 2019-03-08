@@ -101,7 +101,11 @@ describe("#create()", () => {
       expect(error.output.payload.errors).toEqual([{
         message: "Constraint violation",
         dataPath: "/owner",
-        schemaPath: "/properties/owner/constraint"
+        schemaPath: "#/properties/owner/constraint",
+        keyword: "x-prism-constraint",
+        params: {
+          "x-prism-constraint": "owner"
+        }
       }]);
 
       done();
@@ -764,7 +768,11 @@ describe("#update()", () => {
       expect(error.output.payload.errors).toEqual([{
         message: "Constraint violation",
         dataPath: "/owner",
-        schemaPath: "/properties/owner/constraint"
+        schemaPath: "#/properties/owner/constraint",
+        keyword: "x-prism-constraint",
+        params: {
+          "x-prism-constraint": "owner"
+        }
       }]);
 
       done();

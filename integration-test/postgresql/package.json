@@ -13,7 +13,7 @@
     "@optics/prism": "file:../../build",
     "@types/hapi": "18.0.0",
     "@types/node-fetch": "^1.6.7",
-    "collimator": "^5.1.1",
+    "collimator": "7.0.0",
     "hapi": "18.0.0",
     "jest": "23.6.0",
     "node-fetch": "^1.6.3",

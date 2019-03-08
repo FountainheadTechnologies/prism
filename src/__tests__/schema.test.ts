@@ -1,10 +1,12 @@
 import * as schema from "../schema";
 import { tasks, projects } from "../__mocks__/resource";
 
-import { assocPath } from "ramda";
+import { assoc, assocPath } from "ramda";
 
 describe(".validate()", () => {
   it("resolves to `true` when data passes schema", () => {
+    expect.assertions(1);
+
     let data = {
       title: "Test Task",
       owner: 1,
@@ -16,6 +18,8 @@ describe(".validate()", () => {
   });
 
   it("rejects with a Boom error when data does not pass schema", () => {
+    expect.assertions(2);
+
     let data = {
       title: "Test Task"
     };
@@ -29,25 +33,27 @@ describe(".validate()", () => {
           error: "Unprocessable Entity",
           message: "Schema validation failed",
           errors: [{
-            message: "Missing required property: project",
+            message: "should have required property 'project'",
             params: {
-              key: "project"
+              missingProperty: "project"
             },
             dataPath: "",
-            schemaPath: "/required/1"
+            schemaPath: "#/required"
           }, {
-            message: "Missing required property: owner",
+            message: "should have required property 'owner'",
             params: {
-              key: "owner"
+              missingProperty: "owner"
             },
             dataPath: "",
-            schemaPath: "/required/2"
+            schemaPath: "#/required"
           }]
         });
       });
   });
 
   it("recursively formats the error messages for nested schemas", () => {
+    expect.assertions(1);
+
     let data = {
       title: "Test Task",
       project: {
@@ -64,19 +70,70 @@ describe(".validate()", () => {
           error: "Unprocessable Entity",
           message: "Schema validation failed",
           errors: [{
-            message: "Missing required property: owner",
+            message: "should have required property 'name'",
             params: {
-              key: "owner"
-            },
-            dataPath: "",
-            schemaPath: "/required/2"
-          }, {
-            message: "Missing required property: name",
-            params: {
-              key: "name"
+              missingProperty: "name"
             },
             dataPath: "/project",
-            schemaPath: "/properties/project/required/0"
+            schemaPath: "#/properties/project/required"
+          }, {
+            message: "should have required property 'owner'",
+            params: {
+              missingProperty: "owner"
+            },
+            dataPath: "",
+            schemaPath: "#/required"
+          }]
+        });
+      });
+  });
+
+  it("correctly resolves asynchronous validation passes", () => {
+    expect.assertions(1);
+
+    let data = {
+      title: "Test async Task",
+      owner: 1,
+      project: 1
+    }
+
+    let asyncSchema = assoc("$async", true, tasks.schema);
+
+    return schema.validate(data, asyncSchema)
+      .then(result => {
+        expect(result).toBe(true);
+      });
+  });
+
+  it("correctly rejects asynchronous validation failures", () => {
+    expect.assertions(1);
+
+    let data = {
+      title: "Test async Task"
+    }
+
+    let asyncSchema = assoc("$async", true, tasks.schema);
+
+    return schema.validate(data, asyncSchema)
+      .catch(error => {
+        expect(error.output.payload).toEqual({
+          statusCode: 422,
+          error: "Unprocessable Entity",
+          message: "Schema validation failed",
+          errors: [{
+            message: "should have required property 'project'",
+            params: {
+              missingProperty: "project"
+            },
+            dataPath: "",
+            schemaPath: "#/required"
+          }, {
+            message: "should have required property 'owner'",
+            params: {
+              missingProperty: "owner"
+            },
+            dataPath: "",
+            schemaPath: "#/required"
           }]
         });
       });

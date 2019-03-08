@@ -13,11 +13,10 @@
     "@types/boom": "7.2.1",
     "@types/hapi": "18.0.0",
     "@types/hapi-auth-jwt2": "8.0.2",
-    "@types/jest": "^16.0.1",
+    "@types/jest": "^23.3.13",
     "@types/jsonwebtoken": "^7.2.0",
     "@types/lodash": "^4.14.53",
     "@types/ramda": "^0.25.8",
-    "@types/tv4": "^1.2.28",
     "@types/uri-templates": "^0.1.28",
     "commitlint": "^7.3.2",
     "fs-extra-promise": "^0.4.1",
@@ -33,6 +32,7 @@
     "esnext": true
   },
   "dependencies": {
+    "ajv": "^6.10.0",
     "bcrypt": "3.0.3",
     "boom": "7.3.0",
     "hapi-auth-jwt2": "8.3.0",
@@ -41,7 +41,6 @@
     "pg-promise": "^7.3.2",
     "ramda": "^0.22.1",
     "squel": "^5.12.0",
-    "tv4": "^1.2.7",
     "uri-templates": "^0.2.0"
   },
   "scripts": {

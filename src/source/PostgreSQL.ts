@@ -319,7 +319,11 @@ const handleConstraintViolation = (error: any): never => {
   (err.output.payload as ValidationFailurePayload).errors = [{
     message: "Constraint violation",
     dataPath: `/${key}`,
-    schemaPath: `/properties/${key}/constraint`
+    schemaPath: `#/properties/${key}/constraint`,
+    keyword: "x-prism-constraint",
+    params: {
+      "x-prism-constraint": key
+    }
   }];
 
   throw err;

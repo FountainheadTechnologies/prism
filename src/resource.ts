@@ -48,7 +48,7 @@ export interface Options {
 
 const DEFAULT_RESOURCE: Partial<Resource> = {
   schema: {
-    $schema: "http://json-schema.org/draft-04/schema#",
+    $schema: "http://json-schema.org/draft-07/schema#",
     type: "object",
     properties: {},
     required: [],

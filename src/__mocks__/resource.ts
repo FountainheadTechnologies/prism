@@ -5,7 +5,7 @@ export const tasks = {
   name: "tasks",
   source,
   schema: {
-    $schema: "http://json-schema.org/draft-04/schema#",
+    $schema: "http://json-schema.org/draft-07/schema#",
     title: "tasks",
     type: "object",
     properties: {
@@ -37,7 +37,7 @@ export const users = {
   name: "users",
   source,
   schema: {
-    $schema: "http://json-schema.org/draft-04/schema#",
+    $schema: "http://json-schema.org/draft-07/schema#",
     title: "users",
     type: "object",
     properties: {
@@ -69,7 +69,7 @@ export const projects = {
   name: "projects",
   source,
   schema: {
-    $schema: "http://json-schema.org/draft-04/schema#",
+    $schema: "http://json-schema.org/draft-07/schema#",
     title: "projects",
     type: "object",
     properties: {
@@ -93,7 +93,7 @@ export const departments = {
   name: "departments",
   source,
   schema: {
-    $schema: "http://json-schema.org/draft-04/schema#",
+    $schema: "http://json-schema.org/draft-07/schema#",
     title: "departments",
     type: "object",
     properties: {
