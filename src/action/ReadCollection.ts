@@ -14,10 +14,12 @@ import { toPairs, pathEq, evolve, prepend } from "ramda";
 
 export interface Options {
   pageSize: number;
+  maxPageSize: number | undefined;
 }
 
 const DEFAULT_OPTIONS: Options = {
-  pageSize: 20
+  pageSize: 20,
+  maxPageSize: undefined
 };
 
 export class ReadCollection implements Action {
@@ -31,7 +33,11 @@ export class ReadCollection implements Action {
 
   constructor(protected _resource: Partial<Resource>, options?: Partial<Options>) {
     this._options = { ...DEFAULT_OPTIONS, ...options };
-    this.path = `${this.resource.name}{?where,page,order}`;
+    const params = this._options.maxPageSize === undefined ?
+      "{?where,page,order}" :
+      "{?where,page,pageSize,order}";
+
+    this.path = `${this.resource.name}${params}`;
   }
 
   handle = async (params: Params, request: Request): Promise<Collection> => {
@@ -85,7 +91,11 @@ export class ReadCollection implements Action {
 
   page = async (params: Params, request: Request): Promise<query.Page> => ({
     number: params.page ? parseInt(params.page, 10) : 1,
-    size: this._options.pageSize
+    size: this._options.maxPageSize === undefined ?
+      this._options.pageSize :
+      params.pageSize ?
+        Math.min(params.pageSize, this._options.maxPageSize) :
+        this._options.pageSize
   })
 
   readCollection = async (query: query.Read, params: Params, request: Request): Promise<Collection> =>

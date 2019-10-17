@@ -356,3 +356,221 @@ describe("filters", () => {
     }]);
   });
 });
+
+describe("when a custom maxPageSize is defined", () => {
+  beforeEach(() => {
+    readTasks = new ReadCollection(resource.tasks, {
+      maxPageSize: 50
+    });
+  });
+
+  describe("#path", () => {
+    it("is resource name with `where`, `page`, `pageSize` and `order` params", () => {
+      expect(readTasks.path).toBe("tasks{?where,page,pageSize,order}");
+    });
+  });
+
+  it("uses `options.pageSize` as default page size", async () => {
+    let params = {};
+
+    let query = await readTasks.query(params, {} as any);
+    expect(query.page).toEqual({
+      number: 1,
+      size: 20
+    });
+  });
+
+  it("uses `params.pageSize` to determine page size", async () => {
+    let params = {
+      pageSize: "30"
+    };
+
+    let query = await readTasks.query(params, {} as any);
+    expect(query.page).toEqual({
+      number: 1,
+      size: 30
+    });
+  });
+
+  it("restricts maximum page size to `options.maxPageSize`", async () => {
+    let params = {
+      pageSize: "1000"
+    };
+
+    let query = await readTasks.query(params, {} as any);
+    expect(query.page).toEqual({
+      number: 1,
+      size: 50
+    });
+  });
+
+  it("re-uses `pageSize` parameter in pagination links if given", async () => {
+    let tests = [{
+      page: "1",
+      expectedLinks: [{
+        rel: "next",
+        href: "tasks{?where,page,pageSize,order}",
+        public: true,
+        params: {
+          page: 2,
+          pageSize: 10
+        }
+      }, {
+        rel: "last",
+        href: "tasks{?where,page,pageSize,order}",
+        public: true,
+        params: {
+          page: 3,
+          pageSize: 10
+        }
+      }]
+    }, {
+      page: "2",
+      expectedLinks: [{
+        rel: "first",
+        href: "tasks{?where,page,pageSize,order}",
+        public: true,
+        params: {
+          page: 1,
+          pageSize: 10
+        }
+      }, {
+        rel: "prev",
+        href: "tasks{?where,page,pageSize,order}",
+        public: true,
+        params: {
+          page: 1,
+          pageSize: 10
+        }
+      }, {
+        rel: "next",
+        href: "tasks{?where,page,pageSize,order}",
+        public: true,
+        params: {
+          page: 3,
+          pageSize: 10
+        }
+      }, {
+        rel: "last",
+        href: "tasks{?where,page,pageSize,order}",
+        public: true,
+        params: {
+          page: 3,
+          pageSize: 10
+        }
+      }]
+    }, {
+      page: "3",
+      expectedLinks: [{
+        rel: "first",
+        href: "tasks{?where,page,pageSize,order}",
+        public: true,
+        params: {
+          page: 1,
+          pageSize: 10
+        }
+      }, {
+        rel: "prev",
+        href: "tasks{?where,page,pageSize,order}",
+        public: true,
+        params: {
+          page: 2,
+          pageSize: 10
+        }
+      }]
+    }];
+
+    await Promise.all(tests.map(async ({ page, expectedLinks }) => {
+      let params = { page, pageSize: 10 };
+      let document = new Document({
+        items: [],
+        count: 55
+      });
+
+      await readTasks.decorate(document, params, {} as any);
+
+      expect(document.links).toEqual(expectedLinks);
+    }));
+  });
+
+  it("does not re-use `pageSize` parameter in pagination links if not given", async () => {
+    let tests = [{
+      page: "1",
+      expectedLinks: [{
+        rel: "next",
+        href: "tasks{?where,page,pageSize,order}",
+        public: true,
+        params: {
+          page: 2
+        }
+      }, {
+        rel: "last",
+        href: "tasks{?where,page,pageSize,order}",
+        public: true,
+        params: {
+          page: 3
+        }
+      }]
+    }, {
+      page: "2",
+      expectedLinks: [{
+        rel: "first",
+        href: "tasks{?where,page,pageSize,order}",
+        public: true,
+        params: {
+          page: 1
+        }
+      }, {
+        rel: "prev",
+        href: "tasks{?where,page,pageSize,order}",
+        public: true,
+        params: {
+          page: 1
+        }
+      }, {
+        rel: "next",
+        href: "tasks{?where,page,pageSize,order}",
+        public: true,
+        params: {
+          page: 3
+        }
+      }, {
+        rel: "last",
+        href: "tasks{?where,page,pageSize,order}",
+        public: true,
+        params: {
+          page: 3
+        }
+      }]
+    }, {
+      page: "3",
+      expectedLinks: [{
+        rel: "first",
+        href: "tasks{?where,page,pageSize,order}",
+        public: true,
+        params: {
+          page: 1
+        }
+      }, {
+        rel: "prev",
+        href: "tasks{?where,page,pageSize,order}",
+        public: true,
+        params: {
+          page: 2
+        }
+      }]
+    }];
+
+    await Promise.all(tests.map(async ({ page, expectedLinks }) => {
+      let params = { page };
+      let document = new Document({
+        items: [],
+        count: 55
+      });
+
+      await readTasks.decorate(document, params, {} as any);
+
+      expect(document.links).toEqual(expectedLinks);
+    }));
+  });
+});
