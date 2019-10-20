@@ -89,13 +89,16 @@ export class ReadCollection implements Action {
       .map(([field, direction]) => ({ field, direction }));
   }
 
-  page = async (params: Params, request: Request): Promise<query.Page> => ({
-    number: params.page ? parseInt(params.page, 10) : 1,
-    size: this._options.maxPageSize === undefined ?
+  pageSize = async (params: Params, request: Request): Promise<number> =>
+    this._options.maxPageSize === undefined ?
       this._options.pageSize :
       params.pageSize ?
         Math.min(params.pageSize, this._options.maxPageSize) :
         this._options.pageSize
+
+  page = async (params: Params, request: Request): Promise<query.Page> => ({
+    number: params.page ? parseInt(params.page, 10) : 1,
+    size: await this.pageSize(params, request)
   })
 
   readCollection = async (query: query.Read, params: Params, request: Request): Promise<Collection> =>
@@ -145,13 +148,15 @@ export class ReadCollection implements Action {
   }
 
   links = async (doc: Document, params: Params, request: Request): Promise<Link[]> => {
-    if (doc.properties["count"] < this._options.pageSize) {
+    const pageSize = await this.pageSize(params, request);
+
+    if (doc.properties["count"] < pageSize) {
       return [];
     }
 
     let pages = [];
     let current = params.page ? parseInt(params.page, 10) : 1;
-    let last = Math.ceil(doc.properties["count"] / this._options.pageSize);
+    let last = Math.ceil(doc.properties["count"] / pageSize);
 
     if (current > 1) {
       pages.push({

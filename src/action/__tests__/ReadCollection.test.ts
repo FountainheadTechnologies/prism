@@ -420,7 +420,7 @@ describe("when a custom maxPageSize is defined", () => {
         href: "tasks{?where,page,pageSize,order}",
         public: true,
         params: {
-          page: 3,
+          page: 6,
           pageSize: 10
         }
       }]
@@ -455,12 +455,12 @@ describe("when a custom maxPageSize is defined", () => {
         href: "tasks{?where,page,pageSize,order}",
         public: true,
         params: {
-          page: 3,
+          page: 6,
           pageSize: 10
         }
       }]
     }, {
-      page: "3",
+      page: "6",
       expectedLinks: [{
         rel: "first",
         href: "tasks{?where,page,pageSize,order}",
@@ -474,7 +474,7 @@ describe("when a custom maxPageSize is defined", () => {
         href: "tasks{?where,page,pageSize,order}",
         public: true,
         params: {
-          page: 2,
+          page: 5,
           pageSize: 10
         }
       }]
