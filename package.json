@@ -36,7 +36,7 @@
     "bcrypt": "3.0.3",
     "boom": "7.3.0",
     "hapi-auth-jwt2": "8.3.0",
-    "jsonwebtoken": "^7.2.1",
+    "jsonwebtoken": "^9.0.0",
     "lodash": "^4.17.4",
     "pg-promise": "^7.3.2",
     "ramda": "^0.22.1",
